@@ -1,0 +1,264 @@
+@import "tailwindcss";
+
+/* ========================================
+   VARIABLES DE COULEURS TAVUE
+   ======================================== */
+:root {
+  /* Couleurs principales */
+  --color-vert: #589772;
+  --color-vert-light: #f0f7f4;
+  --color-blanc: #ffffff;
+
+  /* Couleurs neutres */
+  --color-noir: #1a1a1a;
+  --color-gris: #4a5a54;
+  --color-gris-light: #6b6b6b;
+
+  /* Couleurs UI */
+  --color-border: #d8e6df;
+  --color-border-light: #e8e8e8;
+  --color-bg-neutral: #f5f5f5;
+}
+
+/* ========================================
+   STYLES DE BASE
+   ======================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: "Nunito Sans", sans-serif;
+  color: var(--color-noir);
+  background-color: var(--color-blanc);
+  line-height: 1.6;
+}
+
+/* ========================================
+   TYPOGRAPHIE - NUNITO SANS UNIQUEMENT
+   ======================================== */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Nunito Sans", sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-noir);
+}
+
+.text-display {
+  font-family: "Nunito Sans", sans-serif;
+  font-weight: 700;
+  letter-spacing: 6.3649px;
+  text-transform: uppercase;
+}
+
+.text-heading {
+  font-family: "Nunito Sans", sans-serif;
+  font-weight: 700;
+  letter-spacing: 2.9027px;
+  text-transform: uppercase;
+}
+
+.text-button {
+  font-family: "Nunito Sans", sans-serif;
+  font-weight: 700;
+  letter-spacing: 1.28px;
+  text-transform: uppercase;
+}
+
+.text-body {
+  font-family: "Nunito Sans", sans-serif;
+  font-weight: 400;
+  color: var(--color-gris);
+}
+
+.text-subtitle {
+  font-family: "Nunito Sans", sans-serif;
+  font-weight: 600;
+}
+
+/* ========================================
+   BOUTONS - STYLES TAVUE
+   ======================================== */
+.btn {
+  font-family: "Nunito Sans", sans-serif;
+  font-weight: 700;
+  letter-spacing: 1.28px;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  padding: 18px 60px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--color-vert);
+  color: var(--color-blanc);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-vert-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(88, 151, 114, 0.3);
+}
+
+.btn-secondary {
+  background-color: var(--color-blanc);
+  color: var(--color-vert);
+  border: 2px solid var(--color-vert);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-vert-light);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--color-vert);
+  border: 1px solid var(--color-border);
+}
+
+.btn-ghost:hover {
+  border-color: var(--color-vert);
+  background-color: var(--color-vert-light);
+}
+
+/* ========================================
+   CARDS
+   ======================================== */
+.card {
+  background-color: var(--color-blanc);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+}
+
+/* ========================================
+   INPUTS
+   ======================================== */
+.input {
+  width: 100%;
+  padding: 29px 76px;
+  border: 2px solid var(--color-border-light);
+  border-radius: 13px;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 18.142px;
+  color: var(--color-noir);
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-vert);
+  box-shadow: 0 0 0 3px rgba(88, 151, 114, 0.1);
+}
+
+.input::placeholder {
+  color: var(--color-gris-light);
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.6s ease-out;
+}
+
+@keyframes rotateGlasses {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+.rotate-glasses {
+  animation: rotateGlasses 20s linear infinite;
+  transform-style: preserve-3d;
+}
+
+/* ========================================
+   UTILITIES PERSONNALISÉES
+   ======================================== */
+.shadow-tavue {
+  box-shadow: -5.183px 0px 25.917px 0px rgba(0, 0, 0, 0.08);
+}
+
+.bg-vert-subtle {
+  background-color: rgba(88, 151, 114, 0.07);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* ========================================
+   SCROLLBAR PERSONNALISÉE
+   ======================================== */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-blanc-casse);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-vert);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(88, 151, 114, 0.8);
+}
