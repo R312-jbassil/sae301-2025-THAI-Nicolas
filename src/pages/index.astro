@@ -1,48 +1,68 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import BoutonCirculaire from "../components/boutons/BoutonCirculaire.astro";
-import BoutonConfigurateur from "../components/boutons/BoutonConfigurateur.astro";
+import Layout from "../layouts/Layout.astro"
+import Header from "../components/layouts/Header.astro";
 import MainBouton from "../components/boutons/MainBouton.astro";
 import CardAccueil from "../components/ui/CardAccueil.astro";
-import InputForm from "../components/ui/InputForm.astro";
-import SelectConfigurateur from "../components/configurateur/SelectConfigurateur.astro";
+import LunettesSVG from "../assets/lunettes.svg";
 ---
 
-<Layout title="TaVue - Lunettes personnalisées françaises">
-	<main>
-		
-		<BoutonCirculaire icone="compte" />
-		<BoutonConfigurateur variant="outline" texte="Monture" />
-		<MainBouton texte="Ajouter au panier" variant="primary" />
-		<CardAccueil titre="Style unique" description="Personnalisez chaque détail : monture, couleur, matière et finitions" icone="style" />
-		
-		<div class="flex flex-col gap-4">
-			<InputForm
-				icone="email"
-				placeholder="Email"
-				name="email"
-				type="email"
-				required
-			/>
-		
-		<InputForm
-			icone="password"
-			placeholder="Mot de passe"
-			name="password"
-			type="password"
-			required
-		/>	
-		<InputForm
-			icone="compte"
-			placeholder="Nom d'utilisateur"
-			name="username"
-		/>
-		</div>
+<Layout title="TaVue - Lunettes personnalisées françaises" description="Personnalisez vos propres paires de lunettes avec notre configurateur unique en ligne.">
+	<Header />
+	
+	<!-- Hero Section -->
+	<main class="relative overflow-hidden min-h-screen bg-white">
+		<!-- Grand cercle décoratif en arrière-plan -->
+		<div class="absolute left-1/2 top-100 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[797px] rounded-full bg-vert-light pointer-events-none z-0"></div>
 
-		<SelectConfigurateur 
-			titre="Choisissez la forme de votre monture"
-			
-			name="forme-monture"
-		/>
+		<!-- Container principal -->
+		<div class="max-w-7xl mx-auto px-8 relative z-10">
+			<!-- Titre et sous-titre -->
+			<div class="text-center pt-10 pb-24">
+				<h1 class="font-bold text-6xl text-noir uppercase tracking-wider leading-tight mb-6">
+					Vos lunettes de rêves
+				</h1>
+				<p class="font-normal text-xl text-gris leading-relaxed max-w-3xl mx-auto">
+					TaVue conçoit la première collection de lunettes françaises entièrement personnalisables.
+				</p>
+			</div>
+
+			<!-- Section lunettes SVG -->
+			<div class="flex items-center justify-center mb-24">
+				<img 
+					src={LunettesSVG.src} 
+					alt="Lunettes personnalisables TaVue" 
+					class="w-auto h-64 object-contain"
+				/>
+			</div>
+
+			<!-- 3 Cards -->
+			<div class="flex items-stretch justify-center gap-8 mb-16">
+				<div class="w-card">
+					<CardAccueil
+						icone="style"
+						titre="Style unique"
+						description="Personnalisez chaque détail : monture, couleur, matière et finitions"
+					/>
+				</div>
+				<div class="w-card">
+					<CardAccueil
+						icone="vision"
+						titre="Vision parfaite"
+						description="Verres sur mesure avec correction pour une vision optimale"
+					/>
+				</div>
+				<div class="w-card">
+					<CardAccueil
+						icone="etoile"
+						titre="Qualité premium"
+						description="Fabrication artisanale française avec des matériaux nobles et durables"
+					/>
+				</div>
+			</div>
+
+			<!-- Bouton CTA -->
+			<a class="flex align-center justify-center mb-32" href="/configurateur">
+				<MainBouton variant="primary" texte="Créer mes lunettes">
+			</a>
 	</main>
 </Layout>

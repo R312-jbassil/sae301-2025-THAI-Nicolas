@@ -1,0 +1,290 @@
+---
+import Layout from "../layouts/Layout.astro";
+import InputForm from "../components/ui/InputForm.astro";
+import BoutonCirculaire from "../components/boutons/BoutonCirculaire.astro";
+import MainBouton from "../components/boutons/MainBouton.astro";
+import Logo from "../assets/icones/logo.svg";
+---
+
+<Layout title="Authentification - TaVue" description="Connectez-vous ou créez un compte TaVue">
+  <div class="h-screen flex overflow-hidden relative">
+    
+    <!-- Formulaires (statiques en arrière-plan) -->
+    <div class="w-full h-screen flex absolute inset-0">
+      <!-- Formulaire Connexion (gauche) -->
+      <div class="w-3/5 bg-white flex items-center justify-center p-12 transition-opacity duration-500 absolute left-0 top-0 h-full" id="login-form">
+          <div class="w-full max-w-lg flex flex-col">
+            <!-- Logo -->
+            <div class="flex items-center justify-center mb-12">
+              <a 
+                href="/" 
+                class="transition-transform duration-300 hover:scale-110 active:scale-95 inline-block"
+                aria-label="Retour à l'accueil"
+              >
+                <img 
+                  src={Logo.src} 
+                  alt="TaVue" 
+                  class="w-32 h-auto"
+                />
+              </a>
+            </div>
+
+            <!-- Titre -->
+            <h1 class="text-4xl font-bold text-vert text-center mb-8">
+              Se connecter
+            </h1>
+
+            <!-- Boutons OAuth -->
+            <div class="flex items-center justify-center gap-6 mb-8">
+              <BoutonCirculaire icone="google" taille="big" ariaLabel="Se connecter avec Google" />
+              <BoutonCirculaire icone="apple" taille="big" ariaLabel="Se connecter avec Apple" />
+              <BoutonCirculaire icone="github" taille="big" ariaLabel="Se connecter avec Github" />
+            </div>
+
+            <!-- Séparateur -->
+            <p class="text-center text-gris text-lg mb-8">
+              ou utilisez votre compte email
+            </p>
+
+            <!-- Formulaire -->
+            <form class="space-y-6">
+              <InputForm 
+                type="email" 
+                placeholder="Email" 
+                icone="email"
+                name="email"
+              />
+              
+              <InputForm 
+                type="password" 
+                placeholder="Mot de passe" 
+                icone="password"
+                name="password"
+              />
+
+              <div class="text-right">
+                <button type="button" class="text-vert hover:underline text-lg">
+                  Mot de passe oublié ?
+                </button>
+              </div>
+
+              <MainBouton 
+                variant="primary" 
+                texte="Se connecter" 
+                type="submit"
+                class="w-full"
+              />
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulaire Inscription (droite) -->
+      <div class="w-3/5 bg-white flex items-center justify-center p-12 transition-opacity duration-500 opacity-0 absolute right-0 top-0 h-full" id="register-form">
+          <div class="w-full max-w-lg flex flex-col">
+            <!-- Logo -->
+            <div class="flex items-center justify-center mb-12">
+              <a 
+                href="/" 
+                class="transition-transform duration-300 hover:scale-110 active:scale-95 inline-block"
+                aria-label="Retour à l'accueil"
+              >
+                <img 
+                  src={Logo.src} 
+                  alt="TaVue" 
+                  class="w-32 h-auto"
+                />
+              </a>
+            </div>
+
+            <!-- Titre -->
+            <h1 class="text-4xl font-bold text-vert text-center mb-8">
+              Créer un compte
+            </h1>
+
+            <!-- Boutons OAuth -->
+            <div class="flex items-center justify-center gap-6 mb-8">
+              <BoutonCirculaire icone="google" taille="big" ariaLabel="S'inscrire avec Google" />
+              <BoutonCirculaire icone="apple" taille="big" ariaLabel="S'inscrire avec Apple" />
+              <BoutonCirculaire icone="github" taille="big" ariaLabel="S'inscrire avec Github" />
+            </div>
+
+            <!-- Séparateur -->
+            <p class="text-center text-gris text-lg mb-8">
+              ou utilisez votre email pour l'inscription
+            </p>
+
+            <!-- Formulaire -->
+            <form class="space-y-6">
+              <InputForm 
+                type="text" 
+                placeholder="Nom" 
+                icone="compte"
+                name="name"
+              />
+
+              <InputForm 
+                type="email" 
+                placeholder="Email" 
+                icone="email"
+                name="email"
+              />
+              
+              <InputForm 
+                type="password" 
+                placeholder="Mot de passe" 
+                icone="password"
+                name="password"
+              />
+
+              <MainBouton 
+                variant="primary" 
+                texte="S'inscrire" 
+                type="submit"
+                class="w-full"
+              />
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panneau vert qui slide (overlay par-dessus) -->
+    <div 
+      id="overlay-panel" 
+      class="absolute top-0 left-0 w-2/5 h-screen bg-linear-to-b from-vert to-[#4a8260] flex items-center justify-center p-12 overflow-hidden z-10"
+      style="transition: transform 0.7s ease-in-out; transform: translateX(150%);"
+    >
+      <!-- Cercles décoratifs -->
+      <div class="absolute top-4 right-4 w-[350px] h-[350px] rounded-full bg-white/10"></div>
+      <div class="absolute bottom-32 left-6 w-[230px] h-[230px] rounded-full bg-white/10"></div>
+
+      <!-- Contenu du panneau (change selon l'état) -->
+      <div id="overlay-content" class="text-center text-white z-10 flex flex-col items-center justify-center">
+        <h2 class="text-5xl font-bold mb-6 leading-tight" style="min-height: 140px; display: flex; align-items: center; justify-content: center;">Vous n'avez pas encore de compte ?</h2>
+        <p class="text-xl mb-12 max-w-md mx-auto leading-relaxed opacity-90">
+          Saisissez vos informations personnelles et commencez votre aventure avec nous
+        </p>
+        <button 
+          id="to-register"
+          class="border-2 border-white text-white px-16 py-4 rounded-full font-semibold text-lg uppercase tracking-wider hover:bg-white hover:text-vert transition-all duration-300"
+        >
+          S'inscrire
+        </button>
+      </div>
+    </div>
+
+  </div>
+</Layout>
+
+<script>
+  // Animation du slider overlay
+  const overlayPanel = document.getElementById('overlay-panel');
+  const overlayContent = document.getElementById('overlay-content');
+  const toRegisterBtn = document.getElementById('to-register');
+  const toLoginBtn = document.getElementById('to-login');
+  const loginForm = document.getElementById('login-form');
+  const registerForm = document.getElementById('register-form');
+
+  let isLogin = true;
+
+  function goToRegister() {
+    isLogin = false;
+    
+    // Déplacer le panneau vers la gauche (translateX(0))
+    if (overlayPanel) {
+      overlayPanel.style.transform = 'translateX(0%)';
+    }
+    
+    // Changer le contenu
+    if (overlayContent) {
+      overlayContent.innerHTML = `
+        <h2 class="text-5xl font-bold mb-6 leading-tight" style="min-height: 140px; display: flex; align-items: center; justify-content: center;">Vous avez déjà un compte ?</h2>
+        <p class="text-xl mb-12 max-w-md mx-auto leading-relaxed opacity-90">
+          Pour rester connecté avec nous, connectez-vous avec vos informations personnelles
+        </p>
+        <button 
+          id="to-login"
+          class="border-2 border-white text-white px-16 py-4 rounded-full font-semibold text-lg uppercase tracking-wider hover:bg-white hover:text-vert transition-all duration-300"
+        >
+          Se connecter
+        </button>
+      `;
+      
+      // Réattacher l'événement au nouveau bouton
+      const newToLoginBtn = document.getElementById('to-login');
+      newToLoginBtn?.addEventListener('click', backToLogin);
+    }
+    
+    // Masquer/afficher les formulaires
+    loginForm?.classList.add('opacity-0');
+    registerForm?.classList.remove('opacity-0');
+  }
+
+  function backToLogin() {
+    isLogin = true;
+    
+    // Déplacer le panneau vers la droite (translateX(150%))
+    if (overlayPanel) {
+      overlayPanel.style.transform = 'translateX(150%)';
+    }
+    
+    // Changer le contenu
+    if (overlayContent) {
+      overlayContent.innerHTML = `
+        <h2 class="text-5xl font-bold mb-6 leading-tight" style="min-height: 140px; display: flex; align-items: center; justify-content: center;">Vous n'avez pas encore de compte ?</h2>
+        <p class="text-xl mb-12 max-w-md mx-auto leading-relaxed opacity-90">
+          Saisissez vos informations personnelles et commencez votre aventure avec nous
+        </p>
+        <button 
+          id="to-register"
+          class="border-2 border-white text-white px-16 py-4 rounded-full font-semibold text-lg uppercase tracking-wider hover:bg-white hover:text-vert transition-all duration-300"
+        >
+          S'inscrire
+        </button>
+      `;
+      
+      // Réattacher l'événement au nouveau bouton
+      const newToRegisterBtn = document.getElementById('to-register');
+      newToRegisterBtn?.addEventListener('click', goToRegister);
+    }
+    
+    // Masquer/afficher les formulaires
+    registerForm?.classList.add('opacity-0');
+    loginForm?.classList.remove('opacity-0');
+  }
+  
+  toRegisterBtn?.addEventListener('click', goToRegister);
+
+  // Gestion des boutons de visibilité des mots de passe avec délégation d'événements globale
+  document.body.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    
+    // Chercher si on a cliqué sur un bouton toggle ou un de ses enfants (img)
+    const toggleBtn = target.closest('button[id^="toggle-"]') as HTMLButtonElement;
+    
+    if (toggleBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const inputId = toggleBtn.id.replace('toggle-', '');
+      const input = document.getElementById(inputId) as HTMLInputElement;
+      const iconVisible = document.getElementById(`icon-visible-${inputId}`);
+      const iconHidden = document.getElementById(`icon-hidden-${inputId}`);
+      
+      console.log('Toggle clicked!', { inputId, input, iconVisible, iconHidden });
+      
+      if (input && iconVisible && iconHidden) {
+        if (input.type === 'password') {
+          input.type = 'text';
+          iconVisible.classList.add('hidden');
+          iconHidden.classList.remove('hidden');
+        } else {
+          input.type = 'password';
+          iconVisible.classList.remove('hidden');
+          iconHidden.classList.add('hidden');
+        }
+      }
+    }
+  });
+</script>

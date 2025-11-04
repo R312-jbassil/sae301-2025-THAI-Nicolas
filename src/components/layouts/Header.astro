@@ -1,0 +1,53 @@
+---
+import BoutonCirculaire from "../boutons/BoutonCirculaire.astro";
+---
+
+<header class="w-full">
+  <div class="max-w-[1596px] mx-auto px-8 py-6">
+    <div class="flex items-center justify-between gap-12">
+      <!-- Logo à gauche -->
+      <a href="/" class="flex items-center shrink-0 hover:opacity-80 transition-opacity duration-200">
+        <img 
+          src="/src/assets/icones/logo.svg" 
+          alt="TaVue - Lunettes personnalisées" 
+          class="w-[97px] h-auto"
+        />
+      </a>
+
+      <!-- Navigation au centre -->
+      <nav class="flex-1 flex justify-center">
+        <ul class="flex items-center gap-16">
+          <li>
+            <a 
+              href="/configurateur" 
+              class="font-['Nunito_Sans'] font-normal text-[20px] text-gris uppercase tracking-[1.95px] hover:text-vert transition-colors duration-200"
+            >
+              Configurateur
+            </a>
+          </li>
+          <li>
+            <a 
+              href="/galerie" 
+              class="font-['Nunito_Sans'] font-normal text-[20px] text-gris uppercase tracking-[1.95px] hover:text-vert transition-colors duration-200"
+            >
+              Galerie
+            </a>
+          </li>
+          <li>
+            <a 
+              href="/modeles" 
+              class="font-['Nunito_Sans'] font-normal text-[20px] text-gris uppercase tracking-[1.95px] hover:text-vert transition-colors duration-200"
+            >
+              Modèles
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Bouton compte à droite -->
+      <a href="/authentification" class="shrink-0">
+        <BoutonCirculaire icone="compte" taille="big" ariaLabel="Mon compte" />
+      </a>
+    </div>
+  </div>
+</header>
