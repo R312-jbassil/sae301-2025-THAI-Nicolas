@@ -71,14 +71,3 @@ const iconeTailleClasses = {
     class={`${iconeTailleClasses[taille]} object-contain ${icone === 'compte' || icone === 'github' ? 'filter-vert' : ''}`}
   />
 </button>
-
-<style>
-  /* Filtre pour les icônes SVG (compte, github) pour appliquer la couleur verte */
-  .filter-vert {
-    filter: invert(47%) sepia(25%) saturate(892%) hue-rotate(102deg) brightness(91%) contrast(88%);
-  }
-
-  button:hover .filter-vert {
-    filter: invert(42%) sepia(16%) saturate(1156%) hue-rotate(102deg) brightness(95%) contrast(90%);
-  }
-</style>

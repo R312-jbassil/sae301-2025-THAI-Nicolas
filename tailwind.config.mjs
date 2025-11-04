@@ -9,6 +9,7 @@ export default {
         "vert-light": "#F0F7F4",
         noir: "#1A1A1A",
         gris: "#4A5A54",
+        "gris-dark": "#6B6B6B",
       },
       fontFamily: {
         nunito: ['"Nunito Sans"', "system-ui", "sans-serif"],

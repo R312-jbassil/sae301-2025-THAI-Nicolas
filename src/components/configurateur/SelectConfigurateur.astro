@@ -1,0 +1,71 @@
+---
+interface Props {
+  titre: string;
+  prix?: number;
+  isSelected?: boolean;
+  onClick?: string;
+  class?: string;
+  name?: string;
+  value?: string;
+}
+
+const { 
+  titre,
+  prix,
+  isSelected = false,
+  onClick,
+  class: className,
+  name,
+  value
+} = Astro.props;
+---
+
+<button
+  type="button"
+  class={`
+    relative
+    w-100
+    h-[63px]
+    bg-white
+    border-2
+    ${isSelected ? 'border-[#589772]' : 'border-[#E8E8E8]'}
+    rounded-[13px]
+    px-6
+    flex
+    items-center
+    justify-between
+    transition-all
+    duration-200
+    hover:border-[#589772]
+    hover:shadow-md
+    ${className || ''}
+  `}
+  onclick={onClick}
+  data-name={name}
+  data-value={value || titre}
+  aria-pressed={isSelected}
+>
+  <!-- Titre -->
+  <span 
+    class="
+      text-lg
+      font-normal
+      text-[#1A1A1A]
+    "
+  >
+    {titre}
+  </span>
+
+  <!-- Prix (optionnel) -->
+  {prix && prix > 0 && (
+    <span 
+      class="
+        text-lg
+        font-normal
+        text-[#589772]
+      "
+    >
+      +{prix}€
+    </span>
+  )}
+</button>

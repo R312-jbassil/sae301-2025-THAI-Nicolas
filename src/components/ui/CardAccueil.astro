@@ -1,0 +1,92 @@
+---
+import IconVision from "../../assets/icones/vision.svg";
+import IconStyle from "../../assets/icones/style.webp";
+import IconEtoile from "../../assets/icones/etoile.webp";
+
+interface Props {
+  titre: string;
+  description: string;
+  icone: 'vision' | 'style' | 'etoile';
+  class?: string;
+}
+
+const { 
+  titre,
+  description,
+  icone,
+  class: className
+} = Astro.props;
+
+// Mapping des icônes
+const icones = {
+  vision: IconVision,
+  style: IconStyle,
+  etoile: IconEtoile
+};
+
+const IconeSelectionnee = icones[icone];
+---
+
+<div 
+  style="width: var(--width-card);"
+  class={`
+    bg-white
+    border
+    border-border
+    rounded-[var(--radius-sm)]
+    p-6
+    flex
+    flex-col
+    items-center
+    text-center
+    transition-all
+    duration-300
+    hover:shadow-lg
+    hover:-translate-y-1
+    ${className || ''}
+  `}
+>
+  <!-- Icône avec fond vert clair -->
+  <div 
+    style="width: var(--height-icon-box); height: var(--height-icon-box);"
+    class="
+      bg-[rgba(88,151,114,0.07)]
+      rounded-[var(--radius-sm)]
+      flex
+      items-center
+      justify-center
+      mb-5
+    "
+  >
+    <img 
+      src={IconeSelectionnee.src} 
+      alt={`Icône ${titre}`}
+      class="w-[25px] h-[25px] object-contain"
+    />
+  </div>
+
+  <!-- Titre -->
+  <h3 
+    class="
+      font-bold
+      text-lg
+      text-[#1A1A1A]
+      mb-3
+      uppercase
+      tracking-wide
+    "
+  >
+    {titre}
+  </h3>
+
+  <!-- Description -->
+  <p 
+    class="
+      text-sm
+      text-[#4A5A54]
+      leading-relaxed
+    "
+  >
+    {description}
+  </p>
+</div>

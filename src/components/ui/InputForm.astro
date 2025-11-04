@@ -1,0 +1,170 @@
+---
+import IconEmail from "../../assets/icones/email.webp";
+import IconPassword from "../../assets/icones/password.webp";
+import IconVision from "../../assets/icones/vision.svg";
+import IconCompte from "../../assets/icones/compte.svg";
+import IconVisionFerme from "../../assets/icones/vision_ferme.webp";
+
+interface Props {
+  type?: 'text' | 'email' | 'password';
+  icone: 'email' | 'password' | 'compte';
+  placeholder: string;
+  name: string;
+  id?: string;
+  value?: string;
+  required?: boolean;
+  class?: string;
+}
+
+const { 
+  type = 'text',
+  icone,
+  placeholder,
+  name,
+  id,
+  value,
+  required = false,
+  class: className
+} = Astro.props;
+
+// Mapping des icônes
+const icones = {
+  email: IconEmail,
+  password: IconPassword,
+  compte: IconCompte
+};
+
+const IconeSelectionnee = icones[icone];
+const inputId = id || name;
+---
+
+<div class={`relative w-full max-w-[520px] ${className || ''}`}>
+  <!-- Container de l'input -->
+  <div 
+    class="
+      relative
+      w-full
+      h-[80px]
+      bg-[#F5F5F5]
+      rounded-[17px]
+      flex
+      items-center
+      transition-all
+      duration-200
+      focus-within:ring-2
+      focus-within:ring-[#589772]
+      focus-within:ring-opacity-30
+    "
+  >
+    <!-- Icône gauche -->
+    <div class="absolute left-6 w-[30px] h-[30px] flex items-center justify-center">
+      <img 
+        src={IconeSelectionnee.src} 
+        alt=""
+        class={`w-full h-full object-contain opacity-60 ${icone === 'compte' ? 'filter-gris' : ''}`}
+      />
+    </div>
+
+    <!-- Input -->
+    <input
+      type={type}
+      id={inputId}
+      name={name}
+      placeholder={placeholder}
+      value={value}
+      required={required}
+      class="
+        w-full
+        h-full
+        pl-[76px]
+        pr-[60px]
+        bg-transparent
+        border-0
+        outline-none
+        text-[#1A1A1A]
+        text-lg
+        placeholder:text-dark-gris
+        font-normal
+      "
+    />
+
+    <!-- Bouton voir/cacher mot de passe (seulement pour type password) -->
+    {type === 'password' && (
+      <button
+        type="button"
+        id={`toggle-${inputId}`}
+        class="
+          absolute
+          right-6
+          w-[30px]
+          h-[30px]
+          flex
+          items-center
+          justify-center
+          cursor-pointer
+          opacity-60
+          hover:opacity-100
+          transition-opacity
+          bg-transparent
+        "
+        aria-label="Afficher/Masquer le mot de passe"
+      >
+        <img 
+          id={`icon-visible-${inputId}`}
+          src={IconVision.src} 
+          alt="Voir le mot de passe"
+          class="w-full h-full object-contain filter-gris"
+        />
+        <img 
+          id={`icon-hidden-${inputId}`}
+          src={IconVisionFerme.src} 
+          alt="Masquer le mot de passe"
+          class="w-full h-full object-contain hidden"
+        />
+      </button>
+    )}
+  </div>
+</div>
+
+{type === 'password' && (
+  <script define:vars={{ inputId }}>
+    const toggleBtn = document.getElementById(`toggle-${inputId}`);
+    const input = document.getElementById(inputId);
+    const iconVisible = document.getElementById(`icon-visible-${inputId}`);
+    const iconHidden = document.getElementById(`icon-hidden-${inputId}`);
+    
+    if (toggleBtn && input && iconVisible && iconHidden) {
+      toggleBtn.addEventListener('click', () => {
+        if (input.type === 'password') {
+          input.type = 'text';
+          iconVisible.classList.add('hidden');
+          iconHidden.classList.remove('hidden');
+        } else {
+          input.type = 'password';
+          iconVisible.classList.remove('hidden');
+          iconHidden.classList.add('hidden');
+        }
+      });
+    }
+  </script>
+)}
+
+<style>
+  /* Supprimer le style par défaut des inputs sur focus */
+  input:focus {
+    outline: none;
+  }
+  
+  /* Autofill styling */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px #F5F5F5 inset;
+    -webkit-text-fill-color: #1A1A1A;
+  }
+  
+  /* Filtre pour rendre les icônes SVG grises */
+  .filter-gris {
+    filter: invert(44%) sepia(0%) saturate(0%) hue-rotate(180deg) brightness(95%) contrast(86%);
+  }
+</style>

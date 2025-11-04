@@ -3,6 +3,9 @@ import Layout from "../layouts/Layout.astro";
 import BoutonCirculaire from "../components/boutons/BoutonCirculaire.astro";
 import BoutonConfigurateur from "../components/boutons/BoutonConfigurateur.astro";
 import MainBouton from "../components/boutons/MainBouton.astro";
+import CardAccueil from "../components/ui/CardAccueil.astro";
+import InputForm from "../components/ui/InputForm.astro";
+import SelectConfigurateur from "../components/configurateur/SelectConfigurateur.astro";
 ---
 
 <Layout title="TaVue - Lunettes personnalisées françaises">
@@ -11,5 +14,35 @@ import MainBouton from "../components/boutons/MainBouton.astro";
 		<BoutonCirculaire icone="compte" />
 		<BoutonConfigurateur variant="outline" texte="Monture" />
 		<MainBouton texte="Ajouter au panier" variant="primary" />
+		<CardAccueil titre="Style unique" description="Personnalisez chaque détail : monture, couleur, matière et finitions" icone="style" />
+		
+		<div class="flex flex-col gap-4">
+			<InputForm
+				icone="email"
+				placeholder="Email"
+				name="email"
+				type="email"
+				required
+			/>
+		
+		<InputForm
+			icone="password"
+			placeholder="Mot de passe"
+			name="password"
+			type="password"
+			required
+		/>	
+		<InputForm
+			icone="compte"
+			placeholder="Nom d'utilisateur"
+			name="username"
+		/>
+		</div>
+
+		<SelectConfigurateur 
+			titre="Choisissez la forme de votre monture"
+			
+			name="forme-monture"
+		/>
 	</main>
 </Layout>
