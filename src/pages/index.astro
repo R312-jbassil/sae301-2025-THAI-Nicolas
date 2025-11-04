@@ -10,9 +10,27 @@ import Layout from "../layouts/Layout.astro";
 				TaVue
 			</h1>
 			
-			<p class="text-gris text-center text-lg md:text-xl mb-12 max-w-2xl mx-auto">
+			<p class="text-gris text-center text-lg md:text-xl mb-8 max-w-2xl mx-auto">
 				Configuration Tailwind CSS et PocketBase réussie ! ✅
 			</p>
+			
+			<!-- Test de connexion PocketBase -->
+			<div class="flex justify-center mb-12">
+				<button 
+					id="test-pb-btn"
+					class="btn btn-primary text-sm md:text-base flex items-center gap-2"
+				>
+					<span id="pb-status">🔌</span>
+					Tester PocketBase
+				</button>
+			</div>
+			
+			<div id="pb-result" class="max-w-3xl mx-auto mb-12 hidden">
+				<div class="bg-vert-light border-2 border-vert rounded-lg p-6">
+					<h3 class="font-bold text-lg mb-3 text-noir">Résultat du test :</h3>
+					<pre id="pb-output" class="bg-white p-4 rounded text-xs md:text-sm overflow-x-auto text-noir"></pre>
+				</div>
+			</div>
 			
 			<!-- Test des boutons -->
 			<div class="flex flex-col sm:flex-row justify-center gap-4 mb-12">
@@ -91,3 +109,49 @@ import Layout from "../layouts/Layout.astro";
 		</div>
 	</main>
 </Layout>
+
+<script>
+	// Test de connexion PocketBase
+	const testBtn = document.getElementById('test-pb-btn') as HTMLButtonElement;
+	const resultDiv = document.getElementById('pb-result');
+	const outputPre = document.getElementById('pb-output');
+	const statusSpan = document.getElementById('pb-status');
+	
+	testBtn?.addEventListener('click', async () => {
+		// Afficher le chargement
+		if (statusSpan) statusSpan.textContent = '⏳';
+		testBtn.disabled = true;
+		testBtn.classList.add('opacity-50', 'cursor-wait');
+		
+		try {
+			const response = await fetch('/api/test-pb');
+			const data = await response.json();
+			
+			// Afficher le résultat
+			if (resultDiv && outputPre) {
+				resultDiv.classList.remove('hidden');
+				outputPre.textContent = JSON.stringify(data, null, 2);
+			}
+			
+			// Mettre à jour le statut
+			if (statusSpan) {
+				statusSpan.textContent = data.success ? '✅' : '❌';
+			}
+			
+			// Changer la couleur du bouton selon le résultat
+			testBtn?.classList.remove('btn-primary');
+			testBtn?.classList.add(data.success ? 'bg-vert' : 'bg-red-500');
+			
+		} catch (error) {
+			console.error('Erreur:', error);
+			if (statusSpan) statusSpan.textContent = '❌';
+			if (resultDiv && outputPre) {
+				resultDiv.classList.remove('hidden');
+				outputPre.textContent = `Erreur: ${error}`;
+			}
+		} finally {
+			testBtn.disabled = false;
+			testBtn.classList.remove('opacity-50', 'cursor-wait');
+		}
+	});
+</script>
