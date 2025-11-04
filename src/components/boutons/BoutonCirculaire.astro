@@ -1,0 +1,84 @@
+---
+import IconCompte from '../../assets/icones/compte.svg';
+import IconGoogle from '../../assets/icones/google.webp';
+import IconApple from '../../assets/icones/apple.webp';
+import IconInfos from '../../assets/icones/infos.webp';
+import IconGithub from '../../assets/icones/github.webp';
+
+interface Props {
+  icone?: 'compte' | 'google' | 'apple' | 'github' | 'infos';
+  taille?: 'big' | 'small';
+  onClick?: string;
+  class?: string;
+  ariaLabel?: string;
+}
+
+const { 
+  icone = 'compte', 
+  taille = 'big',
+  onClick,
+  class: className,
+  ariaLabel
+} = Astro.props;
+
+// Mapping des icônes
+const icones = {
+  compte: IconCompte,
+  google: IconGoogle,
+  apple: IconApple,
+  github: IconGithub,
+  infos: IconInfos
+};
+
+const IconeSelectionnee = icones[icone];
+
+// Classes de taille
+const tailleClasses = {
+  big: 'w-[70px] h-[70px]',
+  small: 'w-9 h-9' // 36px
+};
+
+const iconeTailleClasses = {
+  big: 'w-[35px] h-[35px]',
+  small: 'w-4 h-4' // 16px
+};
+---
+
+<button
+  class={`
+    ${tailleClasses[taille]}
+    rounded-full 
+    bg-transparent 
+    border-2 
+    border-[#D8E6DF]
+    flex 
+    items-center 
+    justify-center
+    transition-all
+    duration-200
+    hover:bg-vert-light
+    hover:border-vert
+    hover:scale-102
+    active:scale-95
+    ${className || ''}
+  `}
+  onclick={onClick}
+  aria-label={ariaLabel || `Bouton ${icone}`}
+>
+  <img 
+    src={IconeSelectionnee.src} 
+    alt={`Icône ${icone}`}
+    class={`${iconeTailleClasses[taille]} object-contain ${icone === 'compte' || icone === 'github' ? 'filter-vert' : ''}`}
+  />
+</button>
+
+<style>
+  /* Filtre pour les icônes SVG (compte, github) pour appliquer la couleur verte */
+  .filter-vert {
+    filter: invert(47%) sepia(25%) saturate(892%) hue-rotate(102deg) brightness(91%) contrast(88%);
+  }
+
+  button:hover .filter-vert {
+    filter: invert(42%) sepia(16%) saturate(1156%) hue-rotate(102deg) brightness(95%) contrast(90%);
+  }
+</style>

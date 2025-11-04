@@ -1,0 +1,61 @@
+---
+interface Props {
+  texte: string;
+  variant?: 'normal' | 'outline';
+  isActive?: boolean;
+  onClick?: string;
+  class?: string;
+  ariaLabel?: string;
+  type?: 'button' | 'submit' | 'reset';
+}
+
+const { 
+  texte,
+  variant = 'normal',
+  isActive = false,
+  onClick,
+  class: className,
+  ariaLabel,
+  type = 'button'
+} = Astro.props;
+
+// Classes selon le variant et l'état actif
+const getVariantClasses = () => {
+  if (variant === 'normal') {
+    return isActive 
+      ? 'bg-vert text-white border-2 border-vert'
+      : 'bg-transparent text-vert border-2 border-vert hover:bg-vert-light';
+  } else {
+    return isActive
+      ? 'bg-transparent text-vert border-2 border-vert'
+      : 'bg-transparent text-vert border-2 border-vert hover:bg-vert-light';
+  }
+};
+---
+
+<button
+  type={type}
+  style="height: 54px; padding-left: 26px; padding-right: 26px;"
+  class={`
+    ${getVariantClasses()}
+    rounded-full
+    font-bold
+    text-sm
+    uppercase
+    tracking-wide
+    inline-flex
+    items-center
+    justify-center
+    whitespace-nowrap
+    transition-all
+    duration-200
+    hover:scale-105
+    active:scale-95
+    ${className || ''}
+  `}
+  onclick={onClick}
+  aria-label={ariaLabel || texte}
+  aria-pressed={isActive}
+>
+  <span>{texte}</span>
+</button>

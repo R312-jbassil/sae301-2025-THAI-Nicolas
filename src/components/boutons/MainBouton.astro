@@ -1,0 +1,73 @@
+---
+import IconPanier from "../../assets/icones/panier.webp";
+
+interface Props {
+  texte: string;
+  variant?: 'primary' | 'outline';
+  icone?: 'panier' | null;
+  onClick?: string;
+  class?: string;
+  ariaLabel?: string;
+  type?: 'button' | 'submit' | 'reset';
+}
+
+const { 
+  texte,
+  variant = 'primary',
+  icone = null,
+  onClick,
+  class: className,
+  ariaLabel,
+  type = 'button'
+} = Astro.props;
+
+// Mapping des icônes
+const icones = {
+  panier: IconPanier,
+};
+
+const IconeSelectionnee = icone ? icones[icone] : null;
+
+// Classes selon le variant
+const variantClasses = {
+  primary: 'bg-vert text-white border-2 border-vert hover:bg-[#4a7d5f] hover:border-[#4a7d5f]',
+  outline: 'bg-transparent text-vert border-2 border-vert hover:bg-vert-light'
+};
+---
+
+<button
+  type={type}
+  class={`
+    ${variantClasses[variant]}
+    h-15
+    w-70
+    px-12
+    py-5
+    rounded-full
+    font-bold
+    text-base
+    uppercase
+    tracking-wider
+    flex
+    items-center
+    justify-center
+    gap-3
+    transition-all
+    duration-200
+    hover:scale-103
+    active:scale-95
+    ${className || ''}
+  `}
+  onclick={onClick}
+  aria-label={ariaLabel || texte}
+>
+  {IconeSelectionnee && (
+    <img 
+      src={IconeSelectionnee.src} 
+      alt=""
+      class="w-5 h-5 object-contain"
+      aria-hidden="true"
+    />
+  )}
+  <span>{texte}</span>
+</button>
