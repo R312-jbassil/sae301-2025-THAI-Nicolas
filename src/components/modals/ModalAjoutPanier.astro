@@ -1,4 +1,6 @@
 ---
+import LunettesSVG from '../../assets/lunettes.svg';
+
 interface Props {
   id: string;
 }
@@ -38,8 +40,8 @@ const { id } = Astro.props;
         <div class="w-1/2">
           <div class="bg-vert-light rounded-2xl p-6 h-full flex flex-col">
             <h3 class="text-lg font-bold text-noir mb-4">Aperçu</h3>
-            <div class="flex-1 flex items-center justify-center bg-white rounded-xl p-6">
-              <img src="/lunettes.svg" alt="Aperçu lunettes" class="w-full h-auto" />
+            <div class="flex-1 flex items-center justify-center bg-white rounded-xl p-6" id="modal-preview-container">
+              <img src={LunettesSVG.src} alt="Aperçu lunettes" class="w-full h-auto" />
             </div>
           </div>
         </div>
@@ -54,7 +56,7 @@ const { id } = Astro.props;
               </div>
               <div class="text-right">
                 <p class="text-xs text-gris mb-1">Prix total</p>
-                <p class="text-3xl font-bold text-vert">189€</p>
+                <p class="text-3xl font-bold text-vert" id="cart-prix">149€</p>
               </div>
             </div>
             
@@ -65,15 +67,15 @@ const { id } = Astro.props;
               </div>
               <div class="bg-white rounded-lg p-3 border border-vert-light">
                 <p class="text-gris text-xs mb-0.5">Type de verres</p>
-                <p class="font-semibold text-noir text-sm">Classique</p>
+                <p class="font-semibold text-noir text-sm" id="cart-type-verres">Classique</p>
               </div>
               <div class="bg-white rounded-lg p-3 border border-vert-light">
                 <p class="text-gris text-xs mb-0.5">Forme</p>
-                <p class="font-semibold text-noir text-sm">Rectangulaire</p>
+                <p class="font-semibold text-noir text-sm" id="cart-forme">Rectangulaire</p>
               </div>
               <div class="bg-white rounded-lg p-3 border border-vert-light">
                 <p class="text-gris text-xs mb-0.5">Épaisseur</p>
-                <p class="font-semibold text-noir text-sm">Moyenne</p>
+                <p class="font-semibold text-noir text-sm" id="cart-epaisseur">Moyenne</p>
               </div>
             </div>
           </div>
