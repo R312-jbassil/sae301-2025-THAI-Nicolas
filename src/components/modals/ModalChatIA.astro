@@ -115,3 +115,221 @@ const { id } = Astro.props;
     background: #9ca3af;
   }
 </style>
+
+<script>
+  // Historique de la conversation
+  let conversationHistory: Array<{ role: string, content: string }> = [];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const chatInput = document.getElementById('chat-input') as HTMLInputElement;
+    const sendBtn = document.getElementById('chat-send-btn') as HTMLButtonElement;
+    const messagesContainer = document.getElementById('chat-messages') as HTMLElement;
+
+    // Fonction pour ajouter un message à l'interface
+    function addMessage(content: string, isUser: boolean) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `flex gap-2 animate-slide-up ${isUser ? 'justify-end' : ''}`;
+
+      if (isUser) {
+        // Message utilisateur (à droite)
+        messageDiv.innerHTML = `
+          <div class="bg-vert text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-[85%] shadow-sm">
+            <p class="text-sm leading-relaxed">${content}</p>
+          </div>
+        `;
+      } else {
+        // Message IA (à gauche)
+        messageDiv.innerHTML = `
+          <div class="w-8 h-8 bg-vert rounded-full flex items-center justify-center shrink-0 mt-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div class="bg-white rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%] shadow-sm">
+            <p class="text-sm text-noir leading-relaxed">${content}</p>
+          </div>
+        `;
+      }
+
+      messagesContainer.appendChild(messageDiv);
+      
+      // Scroll automatique vers le bas
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Fonction pour afficher le loader
+    function showLoader() {
+      const loaderDiv = document.createElement('div');
+      loaderDiv.className = 'flex gap-2 animate-slide-up';
+      loaderDiv.id = 'typing-loader';
+      loaderDiv.innerHTML = `
+        <div class="w-8 h-8 bg-vert rounded-full flex items-center justify-center shrink-0 mt-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div class="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+          <div class="flex gap-1">
+            <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s"></span>
+            <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+            <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+          </div>
+        </div>
+      `;
+      messagesContainer.appendChild(loaderDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Fonction pour retirer le loader
+    function removeLoader() {
+      const loader = document.getElementById('typing-loader');
+      if (loader) {
+        loader.remove();
+      }
+    }
+
+    // Fonction pour envoyer un message
+    async function sendMessage() {
+      const message = chatInput.value.trim();
+      if (!message) return;
+
+      // Désactiver l'input pendant l'envoi
+      chatInput.disabled = true;
+      sendBtn.disabled = true;
+
+      // Ajouter le message utilisateur à l'interface
+      addMessage(message, true);
+      
+      // Ajouter à l'historique
+      conversationHistory.push({ role: 'user', content: message });
+
+      // Vider l'input
+      chatInput.value = '';
+
+      // Afficher le loader
+      showLoader();
+
+      try {
+        // Appeler l'API avec timeout
+        console.log('Envoi du message:', message);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 secondes timeout
+        
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: message,
+            conversationHistory: conversationHistory
+          }),
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+
+        console.log('Réponse reçue, status:', response.status);
+        const data = await response.json();
+        console.log('Données JSON:', data);
+
+        // Retirer le loader
+        removeLoader();
+
+        if (response.ok && data.message) {
+          // Parser la réponse JSON de l'IA
+          try {
+            const aiResponse = JSON.parse(data.message);
+            
+            if (aiResponse.action === 'modify' && aiResponse.changes) {
+              // Appliquer les modifications au configurateur
+              const changes = aiResponse.changes;
+              
+              // Accéder aux fonctions et variables du configurateur
+              const currentConfig = (window as any).currentConfig;
+              const currentColors = (window as any).currentColors;
+              const applySVGColors = (window as any).applySVGColors;
+              const updatePriceDisplay = (window as any).updatePriceDisplay;
+              
+              // Appliquer les changements de couleur
+              if (changes.couleurVerres) {
+                currentColors.verres = changes.couleurVerres;
+                currentConfig.couleurVerres = changes.couleurVerres;
+              }
+              if (changes.couleurMonture) {
+                currentColors.monture = changes.couleurMonture;
+                currentConfig.couleurMonture = changes.couleurMonture;
+              }
+              if (changes.couleurBranches) {
+                currentColors.branches = changes.couleurBranches;
+                currentConfig.couleurBranches = changes.couleurBranches;
+              }
+              
+              // Appliquer les changements de configuration
+              if (changes.formeMonture) {
+                currentConfig.formeMonture = changes.formeMonture.toLowerCase();
+              }
+              if (changes.typeVerres) {
+                currentConfig.typeVerres = changes.typeVerres.toLowerCase();
+                updatePriceDisplay(); // Mettre à jour le prix si le type de verres change
+              }
+              if (changes.epaisseur) {
+                currentConfig.epaisseur = changes.epaisseur.toLowerCase();
+              }
+              
+              // Appliquer les couleurs au SVG
+              applySVGColors();
+              
+              // Afficher le message de confirmation
+              addMessage(aiResponse.message, false);
+              conversationHistory.push({ role: 'assistant', content: data.message });
+            } else if (aiResponse.action === 'clarify') {
+              // L'IA demande des précisions
+              addMessage(aiResponse.message, false);
+              conversationHistory.push({ role: 'assistant', content: data.message });
+            } else {
+              // Réponse inattendue
+              addMessage('Je n\'ai pas bien compris. Pouvez-vous reformuler ?', false);
+            }
+          } catch (parseError) {
+            // Si ce n'est pas du JSON, afficher le message tel quel (fallback)
+            addMessage(data.message, false);
+            conversationHistory.push({ role: 'assistant', content: data.message });
+          }
+        } else {
+          addMessage('Désolé, une erreur s\'est produite. Veuillez réessayer.', false);
+        }
+      } catch (error: any) {
+        console.error('Erreur complète:', error);
+        removeLoader();
+        
+        if (error.name === 'AbortError') {
+          addMessage('La requête a pris trop de temps. Veuillez réessayer avec une demande plus simple.', false);
+        } else {
+          addMessage('Désolé, je ne peux pas répondre pour le moment. Erreur: ' + error.message, false);
+        }
+      } finally {
+        // Réactiver l'input
+        chatInput.disabled = false;
+        sendBtn.disabled = false;
+        chatInput.focus();
+      }
+    }
+
+    // Écouter le clic sur le bouton d'envoi
+    if (sendBtn) {
+      sendBtn.addEventListener('click', sendMessage);
+    }
+
+    // Écouter la touche Entrée
+    if (chatInput) {
+      chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+    }
+  });
+</script>
