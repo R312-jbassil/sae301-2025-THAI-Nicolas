@@ -269,17 +269,47 @@ const { id } = Astro.props;
               // Appliquer les changements de configuration
               if (changes.formeMonture) {
                 currentConfig.formeMonture = changes.formeMonture.toLowerCase();
+                updateSelectUI('forme-monture', changes.formeMonture);
               }
               if (changes.typeVerres) {
                 currentConfig.typeVerres = changes.typeVerres.toLowerCase();
                 updatePriceDisplay(); // Mettre à jour le prix si le type de verres change
+                updateSelectUI('type-verres', changes.typeVerres);
               }
               if (changes.epaisseur) {
                 currentConfig.epaisseur = changes.epaisseur.toLowerCase();
+                updateSelectUI('epaisseur', changes.epaisseur);
               }
               
               // Appliquer les couleurs au SVG
               applySVGColors();
+              
+              // Fonction pour mettre à jour visuellement les selects
+              function updateSelectUI(accordionId: string, value: string) {
+                // Trouver le conteneur de l'accordéon
+                const accordionContent = document.querySelector(`[data-accordion-content="${accordionId}"]`);
+                if (!accordionContent) return;
+                
+                // Trouver tous les boutons de sélection dans cet accordéon
+                const allButtons = accordionContent.querySelectorAll('button[data-value]');
+                
+                // Désélectionner tous les boutons
+                allButtons.forEach(btn => {
+                  btn.classList.remove('border-[#589772]', 'bg-[#f0f7f4]');
+                  btn.classList.add('border-[#E8E8E8]', 'bg-white');
+                  btn.setAttribute('aria-pressed', 'false');
+                });
+                
+                // Sélectionner le bon bouton (comparaison insensible à la casse)
+                allButtons.forEach(btn => {
+                  const btnValue = btn.getAttribute('data-value')?.toLowerCase();
+                  if (btnValue === value.toLowerCase()) {
+                    btn.classList.remove('border-[#E8E8E8]', 'bg-white');
+                    btn.classList.add('border-[#589772]', 'bg-[#f0f7f4]');
+                    btn.setAttribute('aria-pressed', 'true');
+                  }
+                });
+              }
               
               // Afficher le message de confirmation
               addMessage(aiResponse.message, false);
