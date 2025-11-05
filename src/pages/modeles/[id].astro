@@ -1,0 +1,257 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/layouts/Header.astro';
+import { getModeleById, modeles } from '../../data/modeles';
+import LunettesSVG from '../../assets/lunettes.svg';
+
+// Récupérer l'ID depuis l'URL
+const { id } = Astro.params;
+
+// Récupérer le modèle correspondant
+const modele = getModeleById(id || '');
+
+// Si le modèle n'existe pas, rediriger vers la page modèles
+if (!modele) {
+  return Astro.redirect('/modeles');
+}
+
+// Générer les chemins statiques pour le build
+export async function getStaticPaths() {
+  return modeles.map((modele) => ({
+    params: { id: modele.id },
+  }));
+}
+
+// Autres modèles suggérés (3 aléatoires)
+const autresModeles = modeles
+  .filter(m => m.id !== modele.id)
+  .sort(() => 0.5 - Math.random())
+  .slice(0, 3);
+---
+
+<Layout title={`${modele.nom} - TaVue`} description={modele.description}>
+  <Header />
+  
+  <!-- Section principale -->
+  <div class="bg-white">
+    <main class="max-w-7xl mx-auto px-8 py-16">
+      
+      <!-- Fil d'Ariane -->
+      <nav class="flex items-center gap-2 text-sm text-gris mb-8">
+        <a href="/" class="hover:text-vert transition-colors">Accueil</a>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        <a href="/modeles" class="hover:text-vert transition-colors">Modèles</a>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        <span class="text-noir font-semibold">{modele.nom}</span>
+      </nav>
+
+      <!-- Contenu principal -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-20">
+        
+        <!-- Colonne gauche - Image -->
+        <div>
+          <div class="sticky top-8">
+            <!-- Badge -->
+            {modele.bestseller && (
+              <div class="inline-block bg-vert text-white px-6 py-3 rounded-full text-sm font-bold mb-6">
+                ⭐ BESTSELLER
+              </div>
+            )}
+            {modele.nouveaute && (
+              <div class="inline-block bg-noir text-white px-6 py-3 rounded-full text-sm font-bold mb-6">
+                ✨ NOUVEAU
+              </div>
+            )}
+
+            <!-- Image principale -->
+            <div class="bg-vert-light rounded-3xl p-16 mb-6">
+              <img 
+                src={LunettesSVG.src} 
+                alt={modele.nom} 
+                class="w-full h-auto object-contain"
+              />
+            </div>
+
+            <!-- Miniatures de couleurs -->
+            <div class="flex gap-3 justify-center">
+              <button 
+                class="w-16 h-16 rounded-xl border-2 border-vert overflow-hidden hover:scale-110 transition-transform"
+                style={`background-color: ${modele.couleurMonture}`}
+              >
+                <span class="sr-only">Couleur monture</span>
+              </button>
+              <button 
+                class="w-16 h-16 rounded-xl border-2 border-gray-200 overflow-hidden hover:scale-110 hover:border-vert transition-all"
+                style={`background-color: ${modele.couleurBranches}`}
+              >
+                <span class="sr-only">Couleur branches</span>
+              </button>
+              <button 
+                class="w-16 h-16 rounded-xl border-2 border-gray-200 overflow-hidden hover:scale-110 hover:border-vert transition-all"
+                style={`background-color: ${modele.couleurVerres}; opacity: 0.6`}
+              >
+                <span class="sr-only">Couleur verres</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Colonne droite - Informations -->
+        <div>
+          <h1 class="text-5xl font-bold text-noir mb-4">{modele.nom}</h1>
+          <p class="text-2xl text-gris mb-8">{modele.description}</p>
+          
+          <!-- Prix -->
+          <div class="bg-vert-light rounded-2xl p-6 mb-8">
+            <div class="flex items-baseline gap-3">
+              <span class="text-sm text-gris">À partir de</span>
+              <span class="text-5xl font-bold text-vert">{modele.prix}€</span>
+            </div>
+            <p class="text-sm text-gris mt-2">Prix personnalisable selon vos options</p>
+          </div>
+
+          <!-- Description longue -->
+          <div class="mb-8">
+            <h2 class="text-2xl font-bold text-noir mb-4">Description</h2>
+            <p class="text-gris leading-relaxed text-lg">
+              {modele.descriptionLongue}
+            </p>
+          </div>
+
+          <!-- Caractéristiques -->
+          <div class="mb-8">
+            <h2 class="text-2xl font-bold text-noir mb-4">Caractéristiques</h2>
+            <ul class="space-y-3">
+              {modele.caracteristiques.map((caracteristique) => (
+                <li class="flex items-start gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-vert flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span class="text-gris">{caracteristique}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <!-- Spécifications techniques -->
+          <div class="mb-8">
+            <h2 class="text-2xl font-bold text-noir mb-4">Spécifications</h2>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gris mb-1">Forme</p>
+                <p class="font-semibold text-noir capitalize">{modele.formeMonture}</p>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gris mb-1">Type de verres</p>
+                <p class="font-semibold text-noir capitalize">{modele.typeVerres}</p>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gris mb-1">Taille</p>
+                <p class="font-semibold text-noir">{modele.taille}</p>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gris mb-1">Épaisseur</p>
+                <p class="font-semibold text-noir capitalize">{modele.epaisseur}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Boutons d'action -->
+          <div class="flex flex-col gap-4">
+            <a 
+              href={`/configurateur?modele=${modele.id}`}
+              class="w-full bg-vert text-white rounded-full px-8 py-5 text-lg font-bold hover:bg-[#4a7d5f] transition-all duration-300 flex items-center justify-center gap-3 transform hover:scale-105"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <span>PERSONNALISER CE MODÈLE</span>
+            </a>
+
+            <a 
+              href="/modeles"
+              class="w-full bg-white border-2 border-vert text-vert rounded-full px-8 py-5 text-lg font-bold hover:bg-vert-light transition-all duration-300 flex items-center justify-center gap-3"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <span>VOIR TOUS LES MODÈLES</span>
+            </a>
+          </div>
+
+          <!-- Garanties -->
+          <div class="mt-8 grid grid-cols-3 gap-4 text-center">
+            <div class="p-4">
+              <div class="text-3xl mb-2">🚚</div>
+              <p class="text-xs font-semibold text-noir">Livraison gratuite</p>
+            </div>
+            <div class="p-4">
+              <div class="text-3xl mb-2">↩️</div>
+              <p class="text-xs font-semibold text-noir">Retour 30 jours</p>
+            </div>
+            <div class="p-4">
+              <div class="text-3xl mb-2">✅</div>
+              <p class="text-xs font-semibold text-noir">Garantie 2 ans</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section "Vous aimerez aussi" -->
+      {autresModeles.length > 0 && (
+        <section class="py-16 border-t border-gray-200">
+          <h2 class="text-4xl font-bold text-noir mb-10 text-center">Vous aimerez aussi</h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {autresModeles.map((autreModele) => (
+              <a href={`/modeles/${autreModele.id}`} class="group">
+                <div class="bg-white rounded-2xl border-2 border-gray-200 hover:border-vert transition-all duration-300 overflow-hidden hover:shadow-xl transform hover:-translate-y-2">
+                  <!-- Image -->
+                  <div class="bg-vert-light p-12 flex items-center justify-center h-64 relative">
+                    <img 
+                      src={LunettesSVG.src} 
+                      alt={autreModele.nom} 
+                      class="w-full h-auto object-contain absolute inset-0 m-auto group-hover:scale-110 transition-transform duration-500" 
+                      style="max-height: 70%; width: auto;" 
+                    />
+                  </div>
+
+                  <!-- Contenu -->
+                  <div class="p-6">
+                    <div class="flex items-start justify-between mb-3">
+                      <h3 class="text-xl font-bold text-noir">{autreModele.nom}</h3>
+                      <p class="text-xl font-bold text-vert">{autreModele.prix}€</p>
+                    </div>
+
+                    <p class="text-gris text-sm mb-4 line-clamp-2">{autreModele.description}</p>
+
+                    <!-- Bouton -->
+                    <button class="w-full bg-vert text-white rounded-full px-6 py-3 text-sm font-semibold hover:bg-[#4a7d5f] transition-all duration-300">
+                      Voir le modèle
+                    </button>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
+    </main>
+  </div>
+</Layout>
+
+<style>
+  /* Limiter le texte à 2 lignes */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

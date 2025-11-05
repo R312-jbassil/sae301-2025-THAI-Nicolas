@@ -116,7 +116,16 @@ import IconPanier from '../assets/icones/panier.svg';
       <div class="flex-1 overflow-y-auto px-12 py-12">
         <!-- Header -->
         <div class="flex items-center justify-between mb-8">
-          <h1 class="text-4xl font-bold text-noir tracking-widest">ÉLÉGANCE</h1>
+          <div class="flex-1">
+            <input 
+              type="text" 
+              id="config-name-input"
+              value="ÉLÉGANCE"
+              class="text-4xl font-bold text-noir tracking-widest bg-transparent border-2 border-transparent hover:border-gray-200 focus:border-vert rounded-lg px-3 py-1 -ml-3 outline-none transition-all duration-200 w-full max-w-md uppercase"
+              placeholder="NOM DE LA CONFIGURATION"
+              maxlength="30"
+            />
+          </div>
           <div id="open-info-modal" class="cursor-pointer">
             <BoutonCirculaire icone="infos" taille="small" />
           </div>
@@ -158,21 +167,21 @@ import IconPanier from '../assets/icones/panier.svg';
             <div class="accordion-content overflow-hidden transition-all duration-300" data-accordion-content="type-verres">
               <div class="space-y-4">
                 <SelectConfigurateur 
-                  titre="Classique"
+                  titre="Correcteurs"
                   isSelected={true}
                 />
                 <SelectConfigurateur 
-                  titre="Fumé"
+                  titre="Solaires"
                   isSelected={false}
                 />
                 <SelectConfigurateur 
-                  titre="Polarisé"
-                  prix={40}
-                  isSelected={false}
-                />
-                <SelectConfigurateur 
-                  titre="Photochromique"
+                  titre="Photochromiques"
                   prix={80}
+                  isSelected={false}
+                />
+                <SelectConfigurateur 
+                  titre="Polarisés"
+                  prix={40}
                   isSelected={false}
                 />
               </div>
@@ -224,11 +233,11 @@ import IconPanier from '../assets/icones/panier.svg';
                   isSelected={false}
                 />
                 <SelectConfigurateur 
-                  titre="Carrée"
+                  titre="Papillon"
                   isSelected={false}
                 />
                 <SelectConfigurateur 
-                  titre="Aviateur"
+                  titre="Carrée"
                   isSelected={false}
                 />
               </div>
@@ -268,15 +277,15 @@ import IconPanier from '../assets/icones/panier.svg';
             <div class="accordion-content overflow-hidden transition-all duration-300" data-accordion-content="epaisseur">
               <div class="space-y-4">
                 <SelectConfigurateur 
-                  titre="Fine"
+                  titre="Fin"
                   isSelected={false}
                 />
                 <SelectConfigurateur 
-                  titre="Moyenne"
+                  titre="Moyen"
                   isSelected={true}
                 />
                 <SelectConfigurateur 
-                  titre="Épaisse"
+                  titre="Épais"
                   isSelected={false}
                 />
               </div>
@@ -528,8 +537,8 @@ import IconPanier from '../assets/icones/panier.svg';
       selectButton.classList.add('border-[#589772]', 'bg-[#f0f7f4]');
       selectButton.setAttribute('aria-pressed', 'true');
 
-      // Récupérer le texte de l'option sélectionnée
-      const optionText = selectButton.querySelector('p')?.textContent?.trim() || '';
+      // Récupérer la valeur depuis l'attribut data-value
+      const optionValue = selectButton.getAttribute('data-value') || '';
       
       // Déterminer quel type d'option a été sélectionné
       const accordionContent = selectButton.closest('.accordion-content');
@@ -537,14 +546,19 @@ import IconPanier from '../assets/icones/panier.svg';
       
       const accordionId = accordionContent.getAttribute('data-accordion-content');
       
-      // Mettre à jour la configuration actuelle
+      console.log('Option sélectionnée:', optionValue, 'dans', accordionId);
+      
+      // Mettre à jour la configuration actuelle (en minuscules pour PocketBase)
       if (accordionId === 'type-verres') {
-        currentConfig.typeVerres = optionText;
+        currentConfig.typeVerres = optionValue.toLowerCase();
+        console.log('typeVerres mis à jour:', currentConfig.typeVerres);
         updatePriceDisplay();
       } else if (accordionId === 'forme-monture') {
-        currentConfig.formeMonture = optionText;
+        currentConfig.formeMonture = optionValue.toLowerCase();
+        console.log('formeMonture mis à jour:', currentConfig.formeMonture);
       } else if (accordionId === 'epaisseur') {
-        currentConfig.epaisseur = optionText;
+        currentConfig.epaisseur = optionValue.toLowerCase();
+        console.log('epaisseur mis à jour:', currentConfig.epaisseur);
       }
     });
 
@@ -558,11 +572,11 @@ import IconPanier from '../assets/icones/panier.svg';
     // Configuration actuelle
     let currentConfig = {
       taille: '52-18',
-      typeVerres: 'Classique',
+      typeVerres: 'correcteurs',
       couleurVerres: '#4A5A54',
-      formeMonture: 'Rectangulaire',
+      formeMonture: 'rectangulaire',
       couleurMonture: '#1A1A1A',
-      epaisseur: 'Moyenne',
+      epaisseur: 'moyen',
       couleurBranches: '#1A1A1A'
     };
 
@@ -570,10 +584,10 @@ import IconPanier from '../assets/icones/panier.svg';
     const prixBase = 149;
     const prixOptions = {
       typeVerres: {
-        'Classique': 0,
-        'Fumé': 0,
-        'Polarisé': 40,
-        'Photochromique': 80
+        'correcteurs': 0,
+        'solaires': 0,
+        'photochromiques': 80,
+        'polarisés': 40
       }
     };
 
@@ -636,6 +650,13 @@ import IconPanier from '../assets/icones/panier.svg';
         });
       }
     }
+
+    // Exposer les fonctions et variables globalement pour les autres scripts
+    (window as any).currentConfig = currentConfig;
+    (window as any).currentColors = currentColors;
+    (window as any).calculerPrixTotal = calculerPrixTotal;
+    (window as any).applySVGColors = applySVGColors;
+    (window as any).updatePriceDisplay = updatePriceDisplay;
 
     // Appliquer les couleurs au chargement
     document.addEventListener('DOMContentLoaded', () => {
@@ -793,11 +814,9 @@ import IconPanier from '../assets/icones/panier.svg';
       updateSizeButtons();
     }
 
-    // Gestion de l'ouverture des modals
+    // Gestion de l'ouverture du modal infos uniquement
     const openInfoModal = document.getElementById('open-info-modal');
-    const openCartModal = document.getElementById('open-cart-modal');
     const infoModal = document.getElementById('info-modal');
-    const cartModal = document.getElementById('cart-modal');
 
     if (openInfoModal && infoModal) {
       openInfoModal.addEventListener('click', (e) => {
@@ -808,50 +827,208 @@ import IconPanier from '../assets/icones/panier.svg';
       });
     }
 
-    if (openCartModal && cartModal) {
-      openCartModal.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // D'abord afficher le modal pour que les éléments soient dans le DOM
-        cartModal.classList.remove('hidden');
-        
-        // Petit délai pour s'assurer que le modal est bien rendu
-        setTimeout(() => {
-          // Mettre à jour toutes les informations dans le modal
-          const cartSizeDisplay = document.getElementById('cart-size');
-          const cartTypeVerres = document.getElementById('cart-type-verres');
-          const cartForme = document.getElementById('cart-forme');
-          const cartEpaisseur = document.getElementById('cart-epaisseur');
-          const cartPrix = document.getElementById('cart-prix');
-          
-          console.log('Updating modal with:', currentConfig);
-          console.log('Prix calculé:', calculerPrixTotal());
-          
-          if (cartSizeDisplay) {
-            cartSizeDisplay.textContent = currentConfig.taille;
-            console.log('Taille mise à jour:', currentConfig.taille);
-          }
-          if (cartTypeVerres) {
-            cartTypeVerres.textContent = currentConfig.typeVerres;
-            console.log('Type verres mis à jour:', currentConfig.typeVerres);
-          }
-          if (cartForme) {
-            cartForme.textContent = currentConfig.formeMonture;
-            console.log('Forme mise à jour:', currentConfig.formeMonture);
-          }
-          if (cartEpaisseur) {
-            cartEpaisseur.textContent = currentConfig.epaisseur;
-            console.log('Épaisseur mise à jour:', currentConfig.epaisseur);
-          }
-          if (cartPrix) {
-            cartPrix.textContent = `${calculerPrixTotal()}€`;
-            console.log('Prix mis à jour:', calculerPrixTotal());
-          }
-        }, 50);
-        
-        document.body.style.overflow = 'hidden';
+    // Gestion du champ de nom de configuration
+    const configNameInput = document.getElementById('config-name-input') as HTMLInputElement;
+    if (configNameInput) {
+      // Forcer la majuscule
+      configNameInput.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        target.value = target.value.toUpperCase();
+      });
+      
+      // Sélectionner tout le texte au focus
+      configNameInput.addEventListener('focus', (e) => {
+        const target = e.target as HTMLInputElement;
+        target.select();
       });
     }
+    
+    // Le bouton "SAUVEGARDER LA CONFIGURATION" est maintenant géré par le script de sauvegarde
+  </script>
+
+  <!-- Script pour la sauvegarde de configuration -->
+  <script>
+    import { pb, saveConfiguration } from '../utils/pb';
+
+    // Fonction pour afficher une notification
+    function showNotification(message: string, type: 'success' | 'error') {
+      const notification = document.createElement('div');
+      notification.className = `fixed top-8 right-8 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 ${
+        type === 'success' 
+          ? 'bg-vert text-white' 
+          : 'bg-red-500 text-white'
+      }`;
+      notification.textContent = message;
+      notification.style.transform = 'translateX(400px)';
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+      }, 10);
+      
+      setTimeout(() => {
+        notification.style.transform = 'translateX(400px)';
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 300);
+      }, 3000);
+    }
+
+    // Fonction pour sauvegarder la configuration
+    async function handleSaveConfiguration() {
+      console.log('Début de la sauvegarde...');
+      console.log('Auth valide?', pb.authStore.isValid);
+      console.log('User:', pb.authStore.model);
+      
+      // Vérifier l'authentification
+      if (!pb.authStore.isValid) {
+        console.log('Non connecté, stockage dans localStorage');
+        localStorage.setItem('pendingConfiguration', JSON.stringify({
+          config: (window as any).currentConfig,
+          colors: (window as any).currentColors,
+          prix: (window as any).calculerPrixTotal()
+        }));
+        window.location.href = '/authentification?redirect=/configurateur&action=save';
+        return;
+      }
+
+      // Récupérer la configuration actuelle
+      const config = (window as any).currentConfig;
+      const prix = (window as any).calculerPrixTotal();
+      
+      // Récupérer le nom depuis l'input
+      const nameInput = document.getElementById('config-name-input') as HTMLInputElement;
+      const configName = nameInput?.value.trim() || 'ÉLÉGANCE';
+
+      const configData = {
+        nom: configName,
+        description: `Lunettes ${config.formeMonture} avec verres ${config.typeVerres}`,
+        prix: prix,
+        taille: config.taille,
+        couleur_monture: config.couleurMonture,
+        couleur_branches: config.couleurBranches,
+        couleur_verres: config.couleurVerres,
+        forme_monture: config.formeMonture,
+        epaisseur_monture: config.epaisseur,
+        types_verres: config.typeVerres,
+      };
+
+      console.log('Données à sauvegarder:', configData);
+
+      try {
+        const saveButton = document.getElementById('open-cart-modal');
+        if (saveButton) {
+          saveButton.style.opacity = '0.5';
+          saveButton.style.pointerEvents = 'none';
+        }
+
+        const result = await saveConfiguration(configData);
+        console.log('Résultat sauvegarde:', result);
+
+        if (result.success) {
+          showNotification('Configuration sauvegardée avec succès !', 'success');
+          setTimeout(() => {
+            window.location.href = '/galerie';
+          }, 1500);
+        } else {
+          showNotification('Erreur: ' + result.error, 'error');
+          if (saveButton) {
+            saveButton.style.opacity = '1';
+            saveButton.style.pointerEvents = 'auto';
+          }
+        }
+      } catch (error) {
+        console.error('Erreur catch:', error);
+        showNotification('Erreur lors de la sauvegarde', 'error');
+        const saveButton = document.getElementById('open-cart-modal');
+        if (saveButton) {
+          saveButton.style.opacity = '1';
+          saveButton.style.pointerEvents = 'auto';
+        }
+      }
+    }
+
+    // Écouter le clic sur le bouton de sauvegarde
+    document.addEventListener('DOMContentLoaded', () => {
+      const openCartModal = document.getElementById('open-cart-modal');
+      
+      if (openCartModal) {
+        openCartModal.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          await handleSaveConfiguration();
+        });
+      }
+
+      // Charger un modèle depuis l'URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const modeleId = urlParams.get('modele');
+      
+      if (modeleId) {
+        // Charger les données du modèle (depuis l'import dynamique)
+        import('../data/modeles').then(({ getModeleById }) => {
+          const modele = getModeleById(modeleId);
+          if (modele) {
+            console.log('📦 Chargement du modèle:', modele.nom);
+            
+            // Mettre à jour le nom
+            const nameInput = document.getElementById('config-name-input') as HTMLInputElement;
+            if (nameInput) {
+              nameInput.value = modele.nom;
+            }
+            
+            // Mettre à jour la configuration
+            currentConfig.typeVerres = modele.typeVerres;
+            currentConfig.formeMonture = modele.formeMonture;
+            currentConfig.epaisseur = modele.epaisseur;
+            currentConfig.taille = modele.taille;
+            currentConfig.couleurMonture = modele.couleurMonture;
+            currentConfig.couleurBranches = modele.couleurBranches;
+            currentConfig.couleurVerres = modele.couleurVerres;
+            
+            // Mettre à jour les couleurs
+            currentColors.monture = modele.couleurMonture;
+            currentColors.branches = modele.couleurBranches;
+            currentColors.verres = modele.couleurVerres;
+            
+            // Appliquer les changements visuels
+            if ((window as any).applySVGColors) {
+              (window as any).applySVGColors();
+            }
+            if ((window as any).updatePriceDisplay) {
+              (window as any).updatePriceDisplay();
+            }
+            
+            // Nettoyer l'URL
+            window.history.replaceState({}, document.title, '/configurateur');
+          }
+        });
+      }
+      
+      // Restaurer configuration après connexion
+      const action = urlParams.get('action');
+      
+      if (action === 'save' && pb.authStore.isValid) {
+        const pendingConfig = localStorage.getItem('pendingConfiguration');
+        
+        if (pendingConfig) {
+          const { config, colors } = JSON.parse(pendingConfig);
+          (window as any).currentConfig = config;
+          (window as any).currentColors = colors;
+          
+          if ((window as any).applySVGColors) {
+            (window as any).applySVGColors();
+          }
+          if ((window as any).updatePriceDisplay) {
+            (window as any).updatePriceDisplay();
+          }
+          
+          localStorage.removeItem('pendingConfiguration');
+          showNotification('Prêt à sauvegarder votre configuration !', 'success');
+          window.history.replaceState({}, document.title, '/configurateur');
+        }
+      }
+    });
   </script>
 </Layout>

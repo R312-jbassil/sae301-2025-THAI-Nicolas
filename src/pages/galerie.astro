@@ -2,41 +2,69 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/layouts/Header.astro';
 import LunettesSVG from '../assets/lunettes.svg';
+import { pb } from '../utils/pb';
 
-// Données statiques pour les tests
-// Mettre savedConfigurations = [] pour voir l'état vide
-const savedConfigurations = [
-  {
-    id: 1,
-    name: 'ÉLÉGANCE',
-    date: '15 oct. 2025',
-    size: '52-18',
-    lensType: 'Classique',
-    frameShape: 'Rectangulaire',
-    price: 189,
-    image: LunettesSVG.src
-  },
-  {
-    id: 2,
-    name: 'ÉLÉGANCE',
-    date: '12 oct. 2025',
-    size: '54-19',
-    lensType: 'Polarisé',
-    frameShape: 'Ronde',
-    price: 229,
-    image: LunettesSVG.src
-  },
-  {
-    id: 3,
-    name: 'ÉLÉGANCE',
-    date: '8 oct. 2025',
-    size: '48-16',
-    lensType: 'Photochromique',
-    frameShape: 'Carrée',
-    price: 269,
-    image: LunettesSVG.src
+// Récupérer les configurations sauvegardées (pas dans le panier)
+let savedConfigurations: any[] = [];
+
+// Récupérer le cookie d'authentification PocketBase
+const authCookie = Astro.cookies.get('pb_auth');
+
+console.log('🔍 Cookie pb_auth présent?', !!authCookie?.value);
+
+if (authCookie?.value) {
+  try {
+    // Parser le cookie pour extraire le token et le model
+    const cookieData = JSON.parse(authCookie.value);
+    
+    console.log('✅ Cookie parsé, user ID:', cookieData.model?.id);
+    
+    // Restaurer l'authentification dans pb.authStore
+    pb.authStore.save(cookieData.token, cookieData.model);
+    
+    // Récupérer les configurations de l'utilisateur
+    const user = pb.authStore.model;
+    if (user?.id) {
+      console.log('📦 Récupération des configurations pour user:', user.id);
+      const filter = `user_id = "${user.id}" && est_dans_panier = false`;
+      const records = await pb.collection("configuration_lunettes").getFullList({
+        filter,
+        sort: "-created",
+      });
+
+      console.log('🎉 Configurations trouvées:', records.length);
+
+      // Transformer les données PocketBase pour l'affichage
+      savedConfigurations = records.map((config: any) => {
+      // Formater la date
+      const date = new Date(config.created);
+      const dateFormatted = date.toLocaleDateString('fr-FR', { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric' 
+      });
+
+      // Capitaliser la première lettre
+      const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
+        return {
+          id: config.id,
+          name: config.nom || 'SANS NOM',
+          date: dateFormatted,
+          size: config.taille || '52-18',
+          lensType: capitalize(config.types_verres || 'correcteurs'),
+          frameShape: capitalize(config.forme_monture || 'rectangulaire'),
+          price: config.prix || 149,
+          image: LunettesSVG.src,
+          // Données brutes pour modification
+          rawData: config
+        };
+      });
+    }
+  } catch (error) {
+    console.error('Erreur récupération configurations:', error);
   }
-];
+}
 
 const hasConfigurations = savedConfigurations.length > 0;
 ---
@@ -133,10 +161,15 @@ const hasConfigurations = savedConfigurations.length > 0;
 
                   <!-- Actions -->
                   <div class="flex gap-2">
-                    <button class="flex-1 bg-white border-2 border-vert text-vert rounded-full px-4 py-3 text-sm font-semibold hover:bg-vert-light transition-all duration-300">
-                      Modifier
-                    </button>
-                    <button class="flex-1 bg-vert text-white rounded-full px-4 py-3 text-sm font-semibold hover:bg-[#4a7d5f] transition-all duration-300 flex items-center justify-center gap-2">
+                    <a href={`/configurateur?id=${config.id}`} class="flex-1">
+                      <button class="w-full bg-white border-2 border-vert text-vert rounded-full px-4 py-3 text-sm font-semibold hover:bg-vert-light transition-all duration-300">
+                        Modifier
+                      </button>
+                    </a>
+                    <button 
+                      class="flex-1 bg-vert text-white rounded-full px-4 py-3 text-sm font-semibold hover:bg-[#4a7d5f] transition-all duration-300 flex items-center justify-center gap-2 add-to-cart-btn"
+                      data-config-id={config.id}
+                    >
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                       </svg>
@@ -146,7 +179,11 @@ const hasConfigurations = savedConfigurations.length > 0;
                 </div>
 
                 <!-- Bouton supprimer -->
-                <button class="absolute top-4 right-4 w-8 h-8 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center hover:bg-red-50">
+                <button 
+                  class="delete-config-btn absolute top-4 right-4 w-8 h-8 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center hover:bg-red-50"
+                  data-config-id={config.id}
+                  data-config-name={config.name}
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
@@ -166,3 +203,89 @@ const hasConfigurations = savedConfigurations.length > 0;
     transform: translateY(-4px);
   }
 </style>
+
+<script>
+  import { deleteConfiguration, addToCart } from '../utils/pb';
+
+  // Fonction pour afficher une notification
+  function showNotification(message: string, type: 'success' | 'error') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-8 right-8 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 ${
+      type === 'success' 
+        ? 'bg-vert text-white' 
+        : 'bg-red-500 text-white'
+    }`;
+    notification.textContent = message;
+    notification.style.transform = 'translateX(400px)';
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.transform = 'translateX(0)';
+    }, 10);
+    
+    setTimeout(() => {
+      notification.style.transform = 'translateX(400px)';
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 300);
+    }, 3000);
+  }
+
+  // Gestion de la suppression
+  document.addEventListener('DOMContentLoaded', () => {
+    const deleteButtons = document.querySelectorAll('.delete-config-btn');
+    
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', async (e) => {
+        const btn = e.currentTarget as HTMLElement;
+        const configId = btn.getAttribute('data-config-id');
+        const configName = btn.getAttribute('data-config-name');
+        
+        if (!configId) return;
+        
+        if (confirm(`Êtes-vous sûr de vouloir supprimer la configuration "${configName}" ?`)) {
+          const result = await deleteConfiguration(configId);
+          
+          if (result.success) {
+            showNotification('Configuration supprimée avec succès', 'success');
+            // Recharger la page après 1 seconde
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } else {
+            showNotification('Erreur lors de la suppression: ' + result.error, 'error');
+          }
+        }
+      });
+    });
+
+    // Gestion de l'ajout au panier
+    const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+    
+    addToCartButtons.forEach(button => {
+      button.addEventListener('click', async (e) => {
+        const btn = e.currentTarget as HTMLElement;
+        const configId = btn.getAttribute('data-config-id');
+        
+        if (!configId) return;
+        
+        // Désactiver le bouton pendant le traitement
+        btn.style.opacity = '0.5';
+        btn.style.pointerEvents = 'none';
+        
+        const result = await addToCart(configId);
+        
+        if (result.success) {
+          showNotification('Ajouté au panier !', 'success');
+          // Optionnel : rediriger vers le panier
+          // setTimeout(() => window.location.href = '/panier', 1000);
+        } else {
+          showNotification('Erreur: ' + result.error, 'error');
+          btn.style.opacity = '1';
+          btn.style.pointerEvents = 'auto';
+        }
+      });
+    });
+  });
+</script>

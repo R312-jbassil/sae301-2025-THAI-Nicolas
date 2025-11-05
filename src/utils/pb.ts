@@ -36,7 +36,27 @@ export interface User {
   updated: string;
 }
 
-// Collection: lunette (modèles de lunettes)
+// Collection: configuration_lunettes (configurations de lunettes)
+export interface ConfigurationLunette {
+  id: string;
+  nom: string;
+  description?: string;
+  prix: number;
+  taille: string; // Format: "52-18"
+  couleur_monture: string; // Hex: "#1A1A1A"
+  couleur_branches: string; // Hex: "#1A1A1A"
+  couleur_verres: string; // Hex: "#4A5A54"
+  forme_monture: "rectangulaire" | "ronde" | "papillon";
+  epaisseur_monture: "fin" | "moyen" | "épais";
+  types_verres: "correcteurs" | "solaires" | "photochromiques";
+  user_id: string; // Relation vers users
+  materiau_id?: string; // Relation vers materiaux (optionnel)
+  est_dans_panier: boolean;
+  created: string;
+  updated: string;
+}
+
+// Ancienne interface pour compatibilité (à supprimer plus tard)
 export interface Lunette {
   id: string;
   nom: string;
@@ -57,15 +77,11 @@ export interface Lunette {
   updated: string;
 }
 
-// Collection: materiau (matériaux disponibles)
+// Collection: materiaux (matériaux disponibles)
 export interface Materiau {
   id: string;
-  nom: string;
-  type: "monture" | "branches" | "verres";
-  prix_supplement: number;
-  disponible: boolean;
-  stock_limite?: boolean;
-  quantite_restante?: number;
+  libelle: string; // Nom du matériau
+  prix_supplementaire: number; // Prix supplémentaire
   created: string;
   updated: string;
 }
@@ -81,16 +97,13 @@ export interface SvgIA {
   updated: string;
 }
 
-// Collection: commande (commandes passées)
+// Collection: commandes (commandes passées)
 export interface Commande {
   id: string;
-  user_id: string;
-  lunette_id: string;
-  statut: "en_attente" | "validee" | "en_production" | "expediee" | "livree";
+  user_id: string; // Relation vers users
+  configuration_lunettes: string[]; // Relations multiples vers configuration_lunettes
+  date_commande: string;
   prix_total: number;
-  adresse_livraison: string;
-  telephone: string;
-  notes?: string;
   created: string;
   updated: string;
 }
@@ -250,7 +263,31 @@ export function getCurrentUser(): User | null {
  */
 
 /**
- * Sauvegarder un modèle de lunettes
+ * Sauvegarder une configuration de lunettes
+ */
+export async function saveConfiguration(data: Partial<ConfigurationLunette>) {
+  try {
+    const user = getCurrentUser();
+    if (!user) throw new Error("Utilisateur non connecté");
+
+    const configData = {
+      ...data,
+      user_id: user.id,
+      est_dans_panier: false, // Par défaut, pas dans le panier
+    };
+
+    const record = await pb
+      .collection("configuration_lunettes")
+      .create(configData);
+    return { success: true, configuration: record };
+  } catch (error: any) {
+    console.error("Erreur sauvegarde configuration:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Sauvegarder un modèle de lunettes (ancienne fonction - à migrer)
  */
 export async function saveLunette(data: Partial<Lunette>) {
   try {
@@ -271,7 +308,32 @@ export async function saveLunette(data: Partial<Lunette>) {
 }
 
 /**
- * Récupérer les lunettes de l'utilisateur connecté
+ * Récupérer les configurations de lunettes de l'utilisateur connecté
+ */
+export async function getUserConfigurations(dansePanier: boolean = false) {
+  try {
+    const user = getCurrentUser();
+    if (!user) throw new Error("Utilisateur non connecté");
+
+    const filter = dansePanier
+      ? `user_id = "${user.id}" && est_dans_panier = true`
+      : `user_id = "${user.id}" && est_dans_panier = false`;
+
+    const records = await pb.collection("configuration_lunettes").getFullList({
+      filter,
+      sort: "-created",
+      expand: "materiau_id", // Récupérer aussi les infos du matériau
+    });
+
+    return { success: true, configurations: records };
+  } catch (error: any) {
+    console.error("Erreur récupération configurations:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Récupérer les lunettes de l'utilisateur connecté (ancienne fonction - à migrer)
  */
 export async function getUserLunettes() {
   try {
@@ -291,7 +353,50 @@ export async function getUserLunettes() {
 }
 
 /**
- * Supprimer une lunette
+ * Supprimer une configuration
+ */
+export async function deleteConfiguration(id: string) {
+  try {
+    await pb.collection("configuration_lunettes").delete(id);
+    return { success: true };
+  } catch (error: any) {
+    console.error("Erreur suppression configuration:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Ajouter une configuration au panier
+ */
+export async function addToCart(configId: string) {
+  try {
+    await pb.collection("configuration_lunettes").update(configId, {
+      est_dans_panier: true,
+    });
+    return { success: true };
+  } catch (error: any) {
+    console.error("Erreur ajout au panier:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Retirer une configuration du panier
+ */
+export async function removeFromCart(configId: string) {
+  try {
+    await pb.collection("configuration_lunettes").update(configId, {
+      est_dans_panier: false,
+    });
+    return { success: true };
+  } catch (error: any) {
+    console.error("Erreur retrait du panier:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Supprimer une lunette (ancienne fonction - à migrer)
  */
 export async function deleteLunette(id: string) {
   try {
@@ -306,14 +411,10 @@ export async function deleteLunette(id: string) {
 /**
  * Récupérer tous les matériaux disponibles
  */
-export async function getMateriaux(type?: "monture" | "branches" | "verres") {
+export async function getMateriaux() {
   try {
-    const filter = type
-      ? `type = "${type}" && disponible = true`
-      : "disponible = true";
-    const records = await pb.collection("materiau").getFullList({
-      filter,
-      sort: "nom",
+    const records = await pb.collection("materiaux").getFullList({
+      sort: "libelle",
     });
 
     return { success: true, materiaux: records };
@@ -349,32 +450,48 @@ export async function saveSvg(
 }
 
 /**
- * Créer une commande
+ * Créer une commande à partir du panier
  */
-export async function createCommande(
-  lunetteId: string,
-  adresseLivraison: string,
-  telephone: string,
-  notes?: string
-) {
+export async function createCommande() {
   try {
     const user = getCurrentUser();
     if (!user) throw new Error("Utilisateur non connecté");
 
-    // Récupérer la lunette pour obtenir le prix
-    const lunette = await pb.collection("lunette").getOne(lunetteId);
+    // Récupérer toutes les configurations dans le panier
+    const cartResult = await getUserConfigurations(true);
+    if (
+      !cartResult.success ||
+      !cartResult.configurations ||
+      cartResult.configurations.length === 0
+    ) {
+      throw new Error("Panier vide");
+    }
+
+    // Calculer le prix total
+    const prixTotal = cartResult.configurations.reduce(
+      (total: number, config: any) => {
+        return total + (config.prix || 0);
+      },
+      0
+    );
+
+    // Récupérer les IDs des configurations
+    const configIds = cartResult.configurations.map((config: any) => config.id);
 
     const commandeData = {
       user_id: user.id,
-      lunette_id: lunetteId,
-      statut: "en_attente",
-      prix_total: lunette.prix,
-      adresse_livraison: adresseLivraison,
-      telephone,
-      notes,
+      configuration_lunettes: configIds,
+      date_commande: new Date().toISOString(),
+      prix_total: prixTotal,
     };
 
-    const record = await pb.collection("commande").create(commandeData);
+    const record = await pb.collection("commandes").create(commandeData);
+
+    // Retirer les configurations du panier après la commande
+    for (const configId of configIds) {
+      await removeFromCart(configId);
+    }
+
     return { success: true, commande: record };
   } catch (error: any) {
     console.error("Erreur création commande:", error);
