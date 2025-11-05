@@ -3,6 +3,8 @@ import Layout from '../layouts/Layout.astro';
 import BoutonCirculaire from '../components/boutons/BoutonCirculaire.astro';
 import BoutonConfigurateur from '../components/boutons/BoutonConfigurateur.astro';
 import MainBouton from '../components/boutons/MainBouton.astro';
+import ModalInfos from '../components/modals/ModalInfos.astro';
+import ModalAjoutPanier from '../components/modals/ModalAjoutPanier.astro';
 import Logo from '../assets/icones/logo.svg';
 import LunettesSVG from '../assets/lunettes.svg';
 import SelectConfigurateur from '../components/configurateur/SelectConfigurateur.astro';
@@ -71,7 +73,9 @@ import IconPanier from '../assets/icones/panier.svg';
         <!-- Header -->
         <div class="flex items-center justify-between mb-8">
           <h1 class="text-4xl font-bold text-noir tracking-widest">ÉLÉGANCE</h1>
-          <BoutonCirculaire icone="infos" taille="small" />
+          <div id="open-info-modal" class="cursor-pointer">
+            <BoutonCirculaire icone="infos" taille="small" />
+          </div>
         </div>
 
         <!-- Taille -->
@@ -266,16 +270,62 @@ import IconPanier from '../assets/icones/panier.svg';
           <p class="text-3xl font-bold text-noir">189€</p>
         </div>
 
-        <!-- Bouton panier -->
-        <MainBouton 
-          variant="primary"
-          texte="AJOUTER AU PANIER"
-          icone="panier"
-          class="w-full"
-        />
+        <!-- Bouton sauvegarde -->
+        <div id="open-cart-modal" class="w-full cursor-pointer">
+          <MainBouton 
+            variant="primary"
+            texte="SAUVEGARDER LA CONFIGURATION"
+            icone="panier"
+            class="w-full"
+          />
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- Modals -->
+  <ModalInfos id="info-modal" />
+  <ModalAjoutPanier id="cart-modal" />
+
+  <!-- Script pour gérer la fermeture des modals -->
+  <script>
+    // Gestion de la fermeture des modals
+    document.addEventListener('DOMContentLoaded', () => {
+      // Fermer avec les boutons de fermeture
+      document.querySelectorAll('.modal-close').forEach(button => {
+        button.addEventListener('click', (e) => {
+          const modalId = (e.currentTarget as HTMLElement).getAttribute('data-modal');
+          if (modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+              modal.classList.add('hidden');
+              document.body.style.overflow = 'auto';
+            }
+          }
+        });
+      });
+
+      // Fermer en cliquant sur le fond
+      document.querySelectorAll('.modal-infos, .modal-cart').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+          }
+        });
+      });
+
+      // Échapper pour fermer
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          document.querySelectorAll('.modal-infos:not(.hidden), .modal-cart:not(.hidden)').forEach(modal => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+          });
+        }
+      });
+    });
+  </script>
 
   <style>
     /* Filtre pour colorer les chevrons en vert */
@@ -495,6 +545,37 @@ import IconPanier from '../assets/icones/panier.svg';
 
       // Initialiser l'état des boutons
       updateSizeButtons();
+    }
+
+    // Gestion de l'ouverture des modals
+    const openInfoModal = document.getElementById('open-info-modal');
+    const openCartModal = document.getElementById('open-cart-modal');
+    const infoModal = document.getElementById('info-modal');
+    const cartModal = document.getElementById('cart-modal');
+
+    if (openInfoModal && infoModal) {
+      openInfoModal.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        infoModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      });
+    }
+
+    if (openCartModal && cartModal) {
+      openCartModal.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Mettre à jour la taille affichée dans le modal
+        const cartSizeDisplay = document.getElementById('cart-size');
+        if (cartSizeDisplay && sizeDisplay) {
+          cartSizeDisplay.textContent = sizeDisplay.textContent || '52-18';
+        }
+        
+        cartModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      });
     }
   </script>
 </Layout>

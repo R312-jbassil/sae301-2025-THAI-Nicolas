@@ -1,0 +1,152 @@
+---
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+---
+
+<div id={id} class="modal-infos fixed inset-0 z-50 hidden items-center justify-center px-4" style="background-color: rgba(240, 247, 244, 0.7); backdrop-filter: blur(4px);">
+  <div class="modal-infos-content bg-white rounded-3xl shadow-2xl max-w-5xl w-full relative animate-slide-up border-2 border-vert">
+    <!-- Bouton fermer -->
+    <button class="modal-close absolute top-6 right-6 w-10 h-10 rounded-full bg-vert-light hover:bg-vert transition-all duration-300 flex items-center justify-center group" data-modal={id}>
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-vert group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <!-- Header -->
+    <div class="bg-linear-to-br from-vert to-[#4a7d5f] rounded-t-3xl px-10 py-6 text-center">
+      <div class="w-16 h-16 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-vert" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h2 class="text-3xl font-bold text-white tracking-wider mb-2">ÉLÉGANCE</h2>
+      <p class="text-vert-light text-sm">Lunettes sur mesure</p>
+    </div>
+
+    <!-- Contenu -->
+    <div class="px-10 py-6">
+      <!-- Description -->
+      <div class="bg-vert-light rounded-2xl p-6 mb-6">
+        <h3 class="text-xl font-bold text-noir mb-3">Description</h3>
+        <p class="text-gris leading-relaxed text-sm">
+          Les lunettes ÉLÉGANCE allient style intemporel et confort optimal. Conçues avec des matériaux de haute qualité, 
+          elles s'adaptent parfaitement à votre visage pour un port agréable tout au long de la journée.
+        </p>
+      </div>
+
+      <!-- Caractéristiques -->
+      <div class="mb-6">
+        <h3 class="text-xl font-bold text-noir mb-4">Caractéristiques</h3>
+        <div class="grid grid-cols-2 gap-x-8 gap-y-3">
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-vert shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <p class="text-sm text-gris">Monture légère et résistante</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-vert shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <p class="text-sm text-gris">Protection UV 400</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-vert shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <p class="text-sm text-gris">Verres anti-reflets et anti-rayures</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-vert shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <p class="text-sm text-gris">Branches ajustables</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services -->
+      <div class="grid grid-cols-3 gap-6 pt-2">
+        <div class="text-center">
+          <div class="w-10 h-10 bg-vert rounded-full mx-auto mb-3 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+          </div>
+          <h4 class="text-sm font-semibold text-noir mb-1">Livraison gratuite</h4>
+          <p class="text-xs text-gris">Sous 3-5 jours ouvrés</p>
+        </div>
+        <div class="text-center">
+          <div class="w-10 h-10 bg-vert rounded-full mx-auto mb-3 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <h4 class="text-sm font-semibold text-noir mb-1">Garantie 2 ans</h4>
+          <p class="text-xs text-gris">Défaut de fabrication</p>
+        </div>
+        <div class="text-center">
+          <div class="w-10 h-10 bg-vert rounded-full mx-auto mb-3 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </div>
+          <h4 class="text-sm font-semibold text-noir mb-1">Retour facile</h4>
+          <p class="text-xs text-gris">Sous 30 jours</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .modal-infos {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .modal-infos.hidden {
+    display: none;
+  }
+
+  .modal-infos:not(.hidden) {
+    display: flex;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slide-up {
+    from {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.4s ease-out;
+  }
+
+  /* Scrollbar */
+  .modal-infos-content::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .modal-infos-content::-webkit-scrollbar-track {
+    background: #f0f7f4;
+    border-radius: 10px;
+  }
+
+  .modal-infos-content::-webkit-scrollbar-thumb {
+    background: #589772;
+    border-radius: 10px;
+  }
+</style>
