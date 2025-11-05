@@ -1,15 +1,21 @@
 /**
  * Configuration PocketBase pour TaVue
  * SDK Client pour l'authentification et les opérations CRUD
+ * Mode: développement (localhost) / production (déploiement VPS)
  */
 
 import PocketBase from "pocketbase";
 
-// URL du serveur PocketBase (local en dev, production en déploiement)
-const PB_URL = import.meta.env.PUBLIC_POCKETBASE_URL || "http://127.0.0.1:8090";
+// Configuration de l'URL selon l'environnement
+let path = "";
+if (import.meta.env.MODE === "development") {
+  path = "http://localhost:8090"; // localhost = machine de dev
+} else {
+  path = "https://tavue.nicolas-thai.fr:443"; // URL du site en production
+}
 
 // Instance singleton PocketBase
-export const pb = new PocketBase(PB_URL);
+export const pb = new PocketBase(path);
 
 // Activer le stockage automatique des tokens d'authentification
 pb.autoCancellation(false);
@@ -424,3 +430,6 @@ export function onAuthChange(callback: (user: User | null) => void) {
     callback(getCurrentUser());
   });
 }
+
+// Export par défaut pour compatibility
+export default pb;

@@ -4,7 +4,7 @@
  */
 
 import type { APIRoute } from "astro";
-import { pb } from "../../utils/pocketbase";
+import { pb } from "../../utils/pb";
 
 export const GET: APIRoute = async () => {
   try {
