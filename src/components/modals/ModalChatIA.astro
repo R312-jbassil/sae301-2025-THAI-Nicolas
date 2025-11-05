@@ -6,72 +6,71 @@ interface Props {
 const { id } = Astro.props;
 ---
 
-<div id={id} class="modal-chat fixed inset-0 z-50 hidden items-center justify-center px-4" style="background-color: rgba(240, 247, 244, 0.7); backdrop-filter: blur(4px);">
-  <div class="modal-chat-content bg-white rounded-3xl shadow-2xl w-full max-w-2xl h-[600px] relative flex flex-col border-2 border-vert">
+<div id={id} class="modal-chat fixed bottom-0 left-0 z-50 hidden" style="transition: all 0.3s ease;">
+  <div class="modal-chat-content bg-white rounded-t-3xl shadow-2xl w-[400px] h-[600px] relative flex flex-col border-2 border-vert border-b-0">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-vert to-[#4a7d5f] text-white px-6 py-4 rounded-t-3xl flex items-center justify-between">
+    <div class="bg-vert text-white px-4 py-3 rounded-t-3xl flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-vert" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-vert" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
         </div>
         <div>
-          <h3 class="font-bold text-lg">Assistant Lunettes IA</h3>
-          <p class="text-xs text-white/80">Je peux vous aider à choisir vos lunettes</p>
+          <h3 class="font-bold text-base">Assistant IA</h3>
+          <p class="text-xs text-white/80">En ligne</p>
         </div>
       </div>
-      <button class="modal-close w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 flex items-center justify-center" data-modal={id}>
+      <button class="modal-close w-8 h-8 rounded-full hover:bg-white/20 transition-all duration-300 flex items-center justify-center" data-modal={id}>
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
     </div>
 
     <!-- Messages Container -->
-    <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4">
-      <!-- Message d'info -->
-      <div class="flex gap-3 animate-slide-up">
-        <div class="w-8 h-8 bg-vert rounded-full flex items-center justify-center shrink-0">
+    <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+      <!-- Message de bienvenue -->
+      <div class="flex gap-2 animate-slide-up">
+        <div class="w-8 h-8 bg-vert rounded-full flex items-center justify-center shrink-0 mt-1">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
         </div>
-        <div class="bg-vert-light rounded-2xl rounded-tl-none px-4 py-3 max-w-[80%]">
-          <p class="text-sm text-gris">
-            🚧 <strong>Fonctionnalité en développement</strong><br><br>
-            L'assistant IA pour vous aider à choisir vos lunettes sera bientôt disponible ! 
-            En attendant, n'hésitez pas à explorer notre configurateur et nos modèles pré-définis.
+        <div class="bg-white rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%] shadow-sm">
+          <p class="text-sm text-noir leading-relaxed">
+            Bonjour ! Je suis votre assistant pour vous aider à choisir vos lunettes idéales. 
+            Comment puis-je vous aider aujourd'hui ?
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Input Area (Désactivé temporairement) -->
-    <div class="p-6 border-t border-gray-200">
-      <div class="flex gap-3">
+    <!-- Input Area -->
+    <div class="p-4 border-t border-gray-200 bg-white">
+      <div class="flex gap-2">
         <input 
           type="text" 
           id="chat-input"
-          placeholder="Fonctionnalité bientôt disponible..."
-          disabled
-          class="flex-1 border-2 border-gray-200 rounded-full px-6 py-3 text-sm bg-gray-100 text-gray-400 cursor-not-allowed"
+          placeholder="Écrivez votre message..."
+          class="flex-1 border-2 border-gray-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-vert transition-colors"
         />
         <button 
           id="chat-send-btn"
-          disabled
-          class="bg-gray-300 text-white rounded-full w-12 h-12 flex items-center justify-center shrink-0 cursor-not-allowed"
+          class="bg-vert hover:bg-[#4a7d5f] text-white rounded-full w-10 h-10 flex items-center justify-center shrink-0 transition-all duration-300"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
           </svg>
         </button>
       </div>
+      <p class="text-xs text-gris mt-2 text-center">Propulsé par l'IA TaVue</p>
     </div>
   </div>
 </div>
 
 <style>
+  /* Animation d'apparition */
   @keyframes slide-up {
     from {
       opacity: 0;
@@ -87,21 +86,32 @@ const { id } = Astro.props;
     animation: slide-up 0.3s ease-out;
   }
 
+  /* Animation du chatbot */
+  .modal-chat {
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modal-chat.show {
+    display: block !important;
+    transform: translateY(0);
+  }
+
+  /* Scrollbar personnalisée */
   #chat-messages::-webkit-scrollbar {
     width: 6px;
   }
 
   #chat-messages::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
+    background: transparent;
   }
 
   #chat-messages::-webkit-scrollbar-thumb {
-    background: #5c8d6f;
+    background: #d1d5db;
     border-radius: 10px;
   }
 
   #chat-messages::-webkit-scrollbar-thumb:hover {
-    background: #4a7d5f;
+    background: #9ca3af;
   }
 </style>

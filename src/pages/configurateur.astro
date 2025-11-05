@@ -7,6 +7,7 @@ import ModalInfos from '../components/modals/ModalInfos.astro';
 import ModalAjoutPanier from '../components/modals/ModalAjoutPanier.astro';
 import ModalChatIA from '../components/modals/ModalChatIA.astro';
 import Logo from '../assets/icones/logo.svg';
+import IconIa from '../assets/icones/ia.svg';
 import LunettesSVG from '../assets/lunettes.svg';
 import SelectConfigurateur from '../components/configurateur/SelectConfigurateur.astro';
 import Chevron from '../assets/icones/chevron.svg';
@@ -354,9 +355,7 @@ import IconPanier from '../assets/icones/panier.svg';
     class="fixed bottom-8 left-8 w-16 h-16 bg-vert rounded-full shadow-2xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-40 hover:shadow-vert/50 group"
     title="Ouvrir le chat IA"
   >
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-    </svg>
+    <img src={IconIa.src} alt="IA" class="w-8 h-8 group-hover:scale-110 transition-transform brightness-0 invert" />
     <!-- Badge de notification (optionnel) -->
     <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold animate-pulse">
       !
@@ -382,7 +381,7 @@ import IconPanier from '../assets/icones/panier.svg';
       });
 
       // Fermer en cliquant sur le fond
-      document.querySelectorAll('.modal-infos, .modal-cart, .modal-chat').forEach(modal => {
+      document.querySelectorAll('.modal-infos, .modal-cart').forEach(modal => {
         modal.addEventListener('click', (e) => {
           if (e.target === modal) {
             modal.classList.add('hidden');
@@ -391,6 +390,20 @@ import IconPanier from '../assets/icones/panier.svg';
           }
         });
       });
+      
+      // Gestion spécifique pour le chat (pas de fermeture sur fond)
+      const chatModal = document.getElementById('chat-modal');
+      if (chatModal) {
+        const closeBtn = chatModal.querySelector('.modal-close');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', () => {
+            chatModal.classList.remove('show');
+            setTimeout(() => {
+              chatModal.classList.add('hidden');
+            }, 300); // Attendre la fin de l'animation
+          });
+        }
+      }
 
       // Ouvrir le chat IA
       const openChatBtn = document.getElementById('open-chat-btn');
@@ -399,7 +412,7 @@ import IconPanier from '../assets/icones/panier.svg';
           const chatModal = document.getElementById('chat-modal');
           if (chatModal) {
             chatModal.classList.remove('hidden');
-            chatModal.classList.add('flex');
+            chatModal.classList.add('show');
             // Retirer le badge de notification
             const badge = openChatBtn.querySelector('span');
             if (badge) {
