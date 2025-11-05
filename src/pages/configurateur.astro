@@ -5,6 +5,7 @@ import BoutonConfigurateur from '../components/boutons/BoutonConfigurateur.astro
 import MainBouton from '../components/boutons/MainBouton.astro';
 import ModalInfos from '../components/modals/ModalInfos.astro';
 import ModalAjoutPanier from '../components/modals/ModalAjoutPanier.astro';
+import ModalChatIA from '../components/modals/ModalChatIA.astro';
 import Logo from '../assets/icones/logo.svg';
 import LunettesSVG from '../assets/lunettes.svg';
 import SelectConfigurateur from '../components/configurateur/SelectConfigurateur.astro';
@@ -23,15 +24,6 @@ import IconPanier from '../assets/icones/panier.svg';
           <img src={Logo.src} alt="TaVue" class="w-28 h-auto" />
         </a>
 
-        <!-- Boutons actions -->
-        <div class="flex gap-4">
-          <button class="bg-white border border-vert rounded-full px-6 py-3 text-vert text-sm font-medium tracking-wider hover:bg-vert hover:text-white transition-all duration-300">
-            VOIR EN 3D
-          </button>
-          <button class="bg-white border border-vert rounded-full px-6 py-3 text-vert text-sm font-medium tracking-wider hover:bg-vert hover:text-white transition-all duration-300">
-            GÉNÉRER PAR IA
-          </button>
-        </div>
       </div>
 
       <!-- Lunettes principale avec navigation -->
@@ -354,6 +346,22 @@ import IconPanier from '../assets/icones/panier.svg';
   <!-- Modals -->
   <ModalInfos id="info-modal" />
   <ModalAjoutPanier id="cart-modal" />
+  <ModalChatIA id="chat-modal" />
+
+  <!-- Bouton circulaire Chat IA (en bas à gauche) -->
+  <button 
+    id="open-chat-btn"
+    class="fixed bottom-8 left-8 w-16 h-16 bg-vert rounded-full shadow-2xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-40 hover:shadow-vert/50 group"
+    title="Ouvrir le chat IA"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    </svg>
+    <!-- Badge de notification (optionnel) -->
+    <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold animate-pulse">
+      !
+    </span>
+  </button>
 
   <!-- Script pour gérer la fermeture des modals -->
   <script>
@@ -374,14 +382,32 @@ import IconPanier from '../assets/icones/panier.svg';
       });
 
       // Fermer en cliquant sur le fond
-      document.querySelectorAll('.modal-infos, .modal-cart').forEach(modal => {
+      document.querySelectorAll('.modal-infos, .modal-cart, .modal-chat').forEach(modal => {
         modal.addEventListener('click', (e) => {
           if (e.target === modal) {
             modal.classList.add('hidden');
+            modal.classList.remove('flex');
             document.body.style.overflow = 'auto';
           }
         });
       });
+
+      // Ouvrir le chat IA
+      const openChatBtn = document.getElementById('open-chat-btn');
+      if (openChatBtn) {
+        openChatBtn.addEventListener('click', () => {
+          const chatModal = document.getElementById('chat-modal');
+          if (chatModal) {
+            chatModal.classList.remove('hidden');
+            chatModal.classList.add('flex');
+            // Retirer le badge de notification
+            const badge = openChatBtn.querySelector('span');
+            if (badge) {
+              badge.style.display = 'none';
+            }
+          }
+        });
+      }
 
       // Échapper pour fermer
       document.addEventListener('keydown', (e) => {
@@ -875,7 +901,58 @@ import IconPanier from '../assets/icones/panier.svg';
       }, 3000);
     }
 
-    // Fonction pour sauvegarder la configuration
+    // Fonction qui effectue réellement la sauvegarde (appelée par les boutons du modal)
+    async function saveConfigurationAction(addToCart: boolean) {
+      const config = (window as any).currentConfig;
+      const prix = (window as any).calculerPrixTotal();
+      const nameInput = document.getElementById('config-name-input') as HTMLInputElement;
+      const configName = nameInput?.value.trim() || 'ÉLÉGANCE';
+
+      const configData = {
+        nom: configName,
+        description: `Lunettes ${config.formeMonture} avec verres ${config.typeVerres}`,
+        prix: prix,
+        taille: config.taille,
+        couleur_monture: config.couleurMonture,
+        couleur_branches: config.couleurBranches,
+        couleur_verres: config.couleurVerres,
+        forme_monture: config.formeMonture,
+        epaisseur_monture: config.epaisseur,
+        types_verres: config.typeVerres,
+        est_dans_panier: addToCart, // Ajouter ce champ
+      };
+
+      console.log('Sauvegarde avec panier?', addToCart, configData);
+
+      try {
+        const result = await saveConfiguration(configData);
+        console.log('Résultat sauvegarde:', result);
+
+        if (result.success) {
+          // Fermer le modal
+          const modal = document.getElementById('cart-modal');
+          if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+          }
+          
+          showNotification(
+            addToCart ? 'Configuration ajoutée au panier !' : 'Configuration sauvegardée !',
+            'success'
+          );
+          setTimeout(() => {
+            window.location.href = addToCart ? '/panier' : '/galerie';
+          }, 1500);
+        } else {
+          showNotification('Erreur: ' + result.error, 'error');
+        }
+      } catch (error) {
+        console.error('Erreur catch:', error);
+        showNotification('Erreur lors de la sauvegarde', 'error');
+      }
+    }
+
+    // Fonction pour sauvegarder la configuration (ancienne version - gardée pour compatibilité)
     async function handleSaveConfiguration() {
       console.log('Début de la sauvegarde...');
       console.log('Auth valide?', pb.authStore.isValid);
@@ -949,15 +1026,101 @@ import IconPanier from '../assets/icones/panier.svg';
       }
     }
 
-    // Écouter le clic sur le bouton de sauvegarde
+    // Écouter le clic sur le bouton de sauvegarde - Ouvre le modal au lieu de sauvegarder directement
     document.addEventListener('DOMContentLoaded', () => {
       const openCartModal = document.getElementById('open-cart-modal');
       
       if (openCartModal) {
-        openCartModal.addEventListener('click', async (e) => {
+        openCartModal.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          await handleSaveConfiguration();
+          
+          // Vérifier l'authentification d'abord
+          if (!pb.authStore.isValid) {
+            console.log('Non connecté, redirection vers authentification');
+            localStorage.setItem('pendingConfiguration', JSON.stringify({
+              config: (window as any).currentConfig,
+              colors: (window as any).currentColors,
+              prix: (window as any).calculerPrixTotal()
+            }));
+            window.location.href = '/authentification?redirect=/configurateur&action=save';
+            return;
+          }
+          
+          // Récupérer les données pour remplir le modal
+          const config = (window as any).currentConfig;
+          const prix = (window as any).calculerPrixTotal();
+          const nameInput = document.getElementById('config-name-input') as HTMLInputElement;
+          const configName = nameInput?.value.trim() || 'ÉLÉGANCE';
+          
+          // Remplir le modal avec les données
+          document.getElementById('cart-prix')!.textContent = prix.toString() + ' €';
+          document.getElementById('cart-size')!.textContent = config.taille;
+          document.getElementById('cart-type-verres')!.textContent = config.typeVerres;
+          document.getElementById('cart-forme')!.textContent = config.formeMonture;
+          document.getElementById('cart-epaisseur')!.textContent = config.epaisseur;
+          
+          // Appliquer les couleurs au SVG du modal
+          const modalSvgContainer = document.getElementById('modal-preview-container');
+          if (modalSvgContainer) {
+            const svg = modalSvgContainer.querySelector('svg');
+            if (svg) {
+              const currentColors = (window as any).currentColors;
+              
+              // Appliquer les couleurs des verres
+              const verresGroup = svg.querySelector('#verres');
+              if (verresGroup) {
+                const verresPaths = verresGroup.querySelectorAll('path');
+                verresPaths.forEach(path => {
+                  (path as SVGPathElement).style.fill = currentColors.verres;
+                  (path as SVGPathElement).style.opacity = '0.5';
+                });
+              }
+
+              // Appliquer la couleur de la monture
+              const montureGroup = svg.querySelector('#monture');
+              if (montureGroup) {
+                const monturePaths = montureGroup.querySelectorAll('path.cls-4');
+                monturePaths.forEach(path => {
+                  (path as SVGPathElement).style.fill = currentColors.monture;
+                  (path as SVGPathElement).style.stroke = currentColors.monture;
+                });
+              }
+
+              // Appliquer la couleur des branches
+              const branchesGroup = svg.querySelector('#branches');
+              if (branchesGroup) {
+                const branchesPaths = branchesGroup.querySelectorAll('path.cls-4');
+                branchesPaths.forEach(path => {
+                  (path as SVGPathElement).style.fill = currentColors.branches;
+                  (path as SVGPathElement).style.stroke = currentColors.branches;
+                });
+              }
+            }
+          }
+          
+          // Ouvrir le modal
+          const modal = document.getElementById('cart-modal');
+          if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+          }
+        });
+      }
+
+      // Gestionnaires pour les boutons du modal
+      const saveOnlyBtn = document.getElementById('save-only-btn');
+      const saveAndCartBtn = document.getElementById('save-and-cart-btn');
+      
+      if (saveOnlyBtn) {
+        saveOnlyBtn.addEventListener('click', async () => {
+          await saveConfigurationAction(false); // false = ne pas ajouter au panier
+        });
+      }
+      
+      if (saveAndCartBtn) {
+        saveAndCartBtn.addEventListener('click', async () => {
+          await saveConfigurationAction(true); // true = ajouter au panier
         });
       }
 
