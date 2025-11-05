@@ -31,6 +31,7 @@ export interface User {
   username?: string;
   name?: string;
   avatar?: string;
+  verified: boolean;
   created: string;
   updated: string;
 }
@@ -121,6 +122,19 @@ export async function loginWithEmail(email: string, password: string) {
     const authData = await pb
       .collection("users")
       .authWithPassword(email, password);
+
+    // Vérifier si l'email est validé
+    if (!authData.record.verified) {
+      // Déconnecter l'utilisateur si email non vérifié
+      pb.authStore.clear();
+      return {
+        success: false,
+        error:
+          "Veuillez vérifier votre email avant de vous connecter. Un email de vérification vous a été envoyé.",
+        needsVerification: true,
+      };
+    }
+
     return { success: true, user: authData.record };
   } catch (error: any) {
     console.error("Erreur de connexion:", error);
@@ -148,12 +162,50 @@ export async function registerUser(
 
     const record = await pb.collection("users").create(userData);
 
-    // Auto-login après inscription
-    await loginWithEmail(email, password);
+    // Envoyer l'email de vérification
+    await pb.collection("users").requestVerification(email);
 
-    return { success: true, user: record };
+    return {
+      success: true,
+      user: record,
+      message:
+        "Compte créé avec succès ! Un email de vérification vous a été envoyé.",
+    };
   } catch (error: any) {
     console.error("Erreur d'inscription:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Renvoyer un email de vérification
+ */
+export async function resendVerificationEmail(email: string) {
+  try {
+    await pb.collection("users").requestVerification(email);
+    return {
+      success: true,
+      message: "Email de vérification renvoyé avec succès",
+    };
+  } catch (error: any) {
+    console.error("Erreur renvoi email:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Confirmer la vérification de l'email avec le token
+ */
+export async function confirmVerification(token: string) {
+  try {
+    await pb.collection("users").confirmVerification(token);
+    return {
+      success: true,
+      message:
+        "Email vérifié avec succès ! Vous pouvez maintenant vous connecter.",
+    };
+  } catch (error: any) {
+    console.error("Erreur confirmation email:", error);
     return { success: false, error: error.message };
   }
 }

@@ -309,6 +309,33 @@ import Logo from "../assets/icones/logo.svg";
         if (loginError) {
           loginError.textContent = result.error || 'Identifiants incorrects';
           loginError.classList.remove('hidden');
+          
+          // Si l'utilisateur doit vérifier son email, afficher un message spécial avec option de renvoyer
+          if ((result as any).needsVerification) {
+            loginError.innerHTML = `
+              ${result.error}
+              <button 
+                id="resend-verification" 
+                class="underline ml-2 hover:text-red-800 font-semibold"
+              >
+                Renvoyer l'email
+              </button>
+            `;
+            
+            // Ajouter l'écouteur pour le bouton de renvoi
+            setTimeout(() => {
+              const resendBtn = document.getElementById('resend-verification');
+              resendBtn?.addEventListener('click', async () => {
+                const { resendVerificationEmail } = await import('../utils/pb');
+                const resendResult = await resendVerificationEmail(email);
+                if (resendResult.success) {
+                  loginError.textContent = 'Email de vérification renvoyé avec succès !';
+                  loginError.classList.remove('bg-red-50', 'border-red-500', 'text-red-700');
+                  loginError.classList.add('bg-green-50', 'border-green-500', 'text-green-700');
+                }
+              });
+            }, 100);
+          }
         }
       }
     } catch (error) {
@@ -368,16 +395,17 @@ import Logo from "../assets/icones/logo.svg";
       const result = await registerUser(email, password, password, name);
       
       if (result.success) {
-        // Afficher le message de succès
+        // Afficher le message de succès avec instruction de vérification
         if (registerSuccess) {
-          registerSuccess.textContent = 'Compte créé avec succès ! Redirection...';
+          registerSuccess.textContent = result.message || 'Compte créé avec succès ! Vérifiez votre email.';
           registerSuccess.classList.remove('hidden');
         }
         
-        // Redirection vers la galerie après 1.5 secondes
+        // Redirection vers la page de connexion après 3 secondes pour permettre la lecture
         setTimeout(() => {
-          window.location.href = '/galerie';
-        }, 1500);
+          // Basculer vers le formulaire de connexion
+          backToLogin();
+        }, 3000);
       } else {
         // Afficher l'erreur
         if (registerError) {

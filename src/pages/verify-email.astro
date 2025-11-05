@@ -1,0 +1,118 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Logo from "../assets/icones/logo.svg";
+---
+
+<Layout title="Vérification email - TaVue" description="Vérification de votre adresse email">
+  <div class="min-h-screen bg-vert-light flex items-center justify-center p-8">
+    <div class="max-w-md w-full bg-white rounded-3xl p-12 shadow-lg text-center">
+      
+      <!-- Logo -->
+      <div class="flex justify-center mb-8">
+        <a href="/" aria-label="Retour à l'accueil">
+          <img 
+            src={Logo.src} 
+            alt="TaVue" 
+            class="w-32 h-auto"
+          />
+        </a>
+      </div>
+
+      <!-- Icône de chargement (par défaut) -->
+      <div id="loading-state">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-vert-light flex items-center justify-center">
+          <svg class="animate-spin h-10 w-10 text-vert" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+        <h1 class="text-3xl font-bold text-noir mb-4">Vérification en cours...</h1>
+        <p class="text-gris text-lg">Veuillez patienter pendant que nous vérifions votre email</p>
+      </div>
+
+      <!-- État de succès (caché par défaut) -->
+      <div id="success-state" class="hidden">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
+          <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+        <h1 class="text-3xl font-bold text-noir mb-4">Email vérifié !</h1>
+        <p class="text-gris text-lg mb-8">Votre adresse email a été vérifiée avec succès. Vous pouvez maintenant vous connecter.</p>
+        <a 
+          href="/authentification"
+          class="inline-block bg-vert text-white rounded-full px-8 py-4 font-bold text-base hover:bg-[#4a7d5f] transition-all duration-300"
+        >
+          Se connecter
+        </a>
+      </div>
+
+      <!-- État d'erreur (caché par défaut) -->
+      <div id="error-state" class="hidden">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-red-100 flex items-center justify-center">
+          <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </div>
+        <h1 class="text-3xl font-bold text-noir mb-4">Erreur de vérification</h1>
+        <p id="error-message" class="text-gris text-lg mb-8">Le lien de vérification est invalide ou a expiré.</p>
+        <a 
+          href="/authentification"
+          class="inline-block border-2 border-vert text-vert rounded-full px-8 py-4 font-bold text-base hover:bg-vert hover:text-white transition-all duration-300"
+        >
+          Retour à la connexion
+        </a>
+      </div>
+
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { confirmVerification } from '../utils/pb';
+
+  // Récupérer le token depuis l'URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  const loadingState = document.getElementById('loading-state');
+  const successState = document.getElementById('success-state');
+  const errorState = document.getElementById('error-state');
+  const errorMessage = document.getElementById('error-message');
+
+  async function verifyEmail() {
+    if (!token) {
+      // Pas de token dans l'URL
+      loadingState?.classList.add('hidden');
+      errorState?.classList.remove('hidden');
+      if (errorMessage) {
+        errorMessage.textContent = 'Aucun token de vérification trouvé dans l\'URL.';
+      }
+      return;
+    }
+
+    try {
+      const result = await confirmVerification(token);
+
+      loadingState?.classList.add('hidden');
+
+      if (result.success) {
+        successState?.classList.remove('hidden');
+      } else {
+        errorState?.classList.remove('hidden');
+        if (errorMessage && result.error) {
+          errorMessage.textContent = result.error;
+        }
+      }
+    } catch (error) {
+      loadingState?.classList.add('hidden');
+      errorState?.classList.remove('hidden');
+      if (errorMessage) {
+        errorMessage.textContent = 'Une erreur inattendue est survenue.';
+      }
+    }
+  }
+
+  // Lancer la vérification au chargement de la page
+  verifyEmail();
+</script>

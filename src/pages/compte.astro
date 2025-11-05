@@ -152,9 +152,9 @@ import Header from "../components/layouts/Header.astro";
                 </div>
                 <button 
                   id="verify-email-btn"
-                  class="text-vert hover:text-[#4a7d5f] font-semibold text-base transition-colors duration-200"
+                  class="text-vert hover:text-[#4a7d5f] font-semibold text-base transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Vérifier
+                  Renvoyer
                 </button>
               </div>
             </div>
@@ -238,13 +238,33 @@ import Header from "../components/layouts/Header.astro";
 
     // Statut de vérification email
     const emailVerifiedStatus = document.getElementById('email-verified-status');
-    const verifyEmailBtn = document.getElementById('verify-email-btn');
+    const verifyEmailBtn = document.getElementById('verify-email-btn') as HTMLButtonElement;
     if (emailVerifiedStatus && verifyEmailBtn) {
       if (user.verified) {
         emailVerifiedStatus.textContent = 'Email vérifié ✓';
         emailVerifiedStatus.classList.remove('text-gris');
         emailVerifiedStatus.classList.add('text-green-600');
         verifyEmailBtn.style.display = 'none';
+      } else {
+        // Ajouter l'événement pour renvoyer l'email de vérification
+        verifyEmailBtn.addEventListener('click', async () => {
+          verifyEmailBtn.disabled = true;
+          verifyEmailBtn.textContent = 'Envoi...';
+          
+          const { resendVerificationEmail } = await import('../utils/pb');
+          const result = await resendVerificationEmail(user.email);
+          
+          if (result.success) {
+            emailVerifiedStatus.textContent = 'Email de vérification envoyé ! Consultez votre boîte mail.';
+            emailVerifiedStatus.classList.remove('text-gris');
+            emailVerifiedStatus.classList.add('text-green-600');
+            verifyEmailBtn.textContent = 'Envoyé ✓';
+          } else {
+            alert('Erreur lors de l\'envoi de l\'email. Veuillez réessayer.');
+            verifyEmailBtn.disabled = false;
+            verifyEmailBtn.textContent = 'Renvoyer';
+          }
+        });
       }
     }
   }
