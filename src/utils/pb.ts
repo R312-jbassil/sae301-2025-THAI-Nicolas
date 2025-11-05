@@ -161,9 +161,7 @@ export async function registerUser(
 /**
  * Authentification OAuth (Google, Apple, etc.)
  */
-export async function loginWithOAuth(
-  provider: "google" | "apple" | "microsoft"
-) {
+export async function loginWithOAuth(provider: "google" | "apple" | "github") {
   try {
     const authData = await pb.collection("users").authWithOAuth2({ provider });
     return { success: true, user: authData.record };

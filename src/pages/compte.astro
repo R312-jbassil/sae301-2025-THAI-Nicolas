@@ -1,0 +1,331 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/layouts/Header.astro";
+---
+
+<Layout title="Mon compte - TaVue" description="Gérez votre profil et vos informations personnelles">
+  <Header />
+  
+  <main class="min-h-screen bg-vert-light py-12">
+    <div class="max-w-[1200px] mx-auto px-8">
+      
+      <!-- En-tête de la page -->
+      <div class="mb-12">
+        <h1 class="text-5xl font-bold text-noir mb-3">Mon compte</h1>
+        <p class="text-gris text-xl">Gérez vos informations personnelles</p>
+      </div>
+
+      <!-- Contenu principal -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Colonne gauche - Avatar et infos rapides -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-3xl p-8 shadow-sm">
+            
+            <!-- Avatar -->
+            <div class="flex flex-col items-center mb-6">
+              <div class="relative group">
+                <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-vert">
+                  <img 
+                    id="profile-avatar"
+                    src=""
+                    alt="Avatar"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <button 
+                  class="absolute bottom-0 right-0 w-10 h-10 bg-vert rounded-full flex items-center justify-center text-white hover:bg-[#4a7d5f] transition-colors duration-200 shadow-lg"
+                  aria-label="Changer l'avatar"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </button>
+              </div>
+              
+              <h2 id="profile-name" class="text-2xl font-bold text-noir mt-4 text-center"></h2>
+              <p id="profile-email" class="text-gris text-base mt-1 text-center"></p>
+            </div>
+
+            <!-- Statistiques -->
+            <div class="border-t border-gray-100 pt-6 space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="text-gris">Créations</span>
+                <span id="stats-creations" class="font-semibold text-noir">0</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gris">Commandes</span>
+                <span id="stats-orders" class="font-semibold text-noir">0</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gris">Membre depuis</span>
+                <span id="stats-member" class="font-semibold text-noir">-</span>
+              </div>
+            </div>
+
+            <!-- Bouton déconnexion -->
+            <button 
+              id="logout-btn-profile"
+              class="w-full mt-8 border-2 border-red-500 text-red-500 rounded-full px-6 py-3 font-semibold text-base hover:bg-red-500 hover:text-white transition-all duration-200"
+            >
+              Se déconnecter
+            </button>
+          </div>
+        </div>
+
+        <!-- Colonne droite - Informations détaillées -->
+        <div class="lg:col-span-2 space-y-8">
+          
+          <!-- Section Informations personnelles -->
+          <div class="bg-white rounded-3xl p-8 shadow-sm">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-2xl font-bold text-noir">Informations personnelles</h3>
+              <button 
+                id="edit-info-btn"
+                class="text-vert hover:text-[#4a7d5f] font-semibold text-base transition-colors duration-200"
+              >
+                Modifier
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="text-gris text-sm font-medium mb-2 block">Nom complet</label>
+                <input 
+                  type="text"
+                  id="input-name"
+                  class="w-full px-4 py-3 bg-vert-light rounded-xl text-noir text-base outline-none focus:ring-2 focus:ring-vert transition-all duration-200"
+                  disabled
+                />
+              </div>
+
+              <div>
+                <label class="text-gris text-sm font-medium mb-2 block">Email</label>
+                <input 
+                  type="email"
+                  id="input-email"
+                  class="w-full px-4 py-3 bg-vert-light rounded-xl text-noir text-base outline-none focus:ring-2 focus:ring-vert transition-all duration-200"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Boutons de sauvegarde (cachés par défaut) -->
+            <div id="save-buttons" class="hidden mt-6 flex gap-4">
+              <button 
+                id="save-info-btn"
+                class="flex-1 bg-vert text-white rounded-full px-6 py-3 font-semibold text-base hover:bg-[#4a7d5f] transition-all duration-200"
+              >
+                Enregistrer
+              </button>
+              <button 
+                id="cancel-info-btn"
+                class="flex-1 border-2 border-gris text-gris rounded-full px-6 py-3 font-semibold text-base hover:bg-gray-50 transition-all duration-200"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+
+          <!-- Section Sécurité -->
+          <div class="bg-white rounded-3xl p-8 shadow-sm">
+            <h3 class="text-2xl font-bold text-noir mb-6">Sécurité</h3>
+
+            <div class="space-y-4">
+              <div class="flex items-center justify-between p-4 bg-vert-light rounded-xl">
+                <div>
+                  <p class="font-semibold text-noir">Mot de passe</p>
+                  <p class="text-gris text-sm mt-1">Dernière modification il y a 3 mois</p>
+                </div>
+                <button 
+                  class="text-vert hover:text-[#4a7d5f] font-semibold text-base transition-colors duration-200"
+                >
+                  Changer
+                </button>
+              </div>
+
+              <div class="flex items-center justify-between p-4 bg-vert-light rounded-xl">
+                <div>
+                  <p class="font-semibold text-noir">Vérification email</p>
+                  <p id="email-verified-status" class="text-gris text-sm mt-1">Email non vérifié</p>
+                </div>
+                <button 
+                  id="verify-email-btn"
+                  class="text-vert hover:text-[#4a7d5f] font-semibold text-base transition-colors duration-200"
+                >
+                  Vérifier
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Préférences -->
+          <div class="bg-white rounded-3xl p-8 shadow-sm">
+            <h3 class="text-2xl font-bold text-noir mb-6">Préférences</h3>
+
+            <div class="space-y-4">
+              <div class="flex items-center justify-between p-4 bg-vert-light rounded-xl">
+                <div>
+                  <p class="font-semibold text-noir">Notifications par email</p>
+                  <p class="text-gris text-sm mt-1">Recevoir les nouveautés et promotions</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" checked>
+                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-vert rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-vert"></div>
+                </label>
+              </div>
+
+              <div class="flex items-center justify-between p-4 bg-vert-light rounded-xl">
+                <div>
+                  <p class="font-semibold text-noir">Sauvegardes automatiques</p>
+                  <p class="text-gris text-sm mt-1">Enregistrer automatiquement vos créations</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" checked>
+                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-vert rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-vert"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { pb, logout, getCurrentUser, isAuthenticated } from '../utils/pb';
+
+  // Redirection si non connecté
+  if (!isAuthenticated()) {
+    window.location.href = '/authentification';
+  }
+
+  const user = getCurrentUser();
+
+  if (user) {
+    // Avatar
+    const profileAvatar = document.getElementById('profile-avatar') as HTMLImageElement;
+    if (profileAvatar) {
+      if (user.avatar) {
+        profileAvatar.src = pb.files.getUrl(user, user.avatar, { thumb: '200x200' });
+      } else {
+        profileAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email)}&background=589772&color=ffffff&size=200`;
+      }
+    }
+
+    // Nom et email
+    const profileName = document.getElementById('profile-name');
+    const profileEmail = document.getElementById('profile-email');
+    const inputName = document.getElementById('input-name') as HTMLInputElement;
+    const inputEmail = document.getElementById('input-email') as HTMLInputElement;
+
+    if (profileName) profileName.textContent = user.name || 'Utilisateur';
+    if (profileEmail) profileEmail.textContent = user.email;
+    if (inputName) inputName.value = user.name || '';
+    if (inputEmail) inputEmail.value = user.email;
+
+    // Date de création du compte
+    const statsMember = document.getElementById('stats-member');
+    if (statsMember && user.created) {
+      const date = new Date(user.created);
+      const options: Intl.DateTimeFormatOptions = { month: 'short', year: 'numeric' };
+      statsMember.textContent = date.toLocaleDateString('fr-FR', options);
+    }
+
+    // Statut de vérification email
+    const emailVerifiedStatus = document.getElementById('email-verified-status');
+    const verifyEmailBtn = document.getElementById('verify-email-btn');
+    if (emailVerifiedStatus && verifyEmailBtn) {
+      if (user.verified) {
+        emailVerifiedStatus.textContent = 'Email vérifié ✓';
+        emailVerifiedStatus.classList.remove('text-gris');
+        emailVerifiedStatus.classList.add('text-green-600');
+        verifyEmailBtn.style.display = 'none';
+      }
+    }
+  }
+
+  // Mode édition
+  const editInfoBtn = document.getElementById('edit-info-btn');
+  const saveInfoBtn = document.getElementById('save-info-btn');
+  const cancelInfoBtn = document.getElementById('cancel-info-btn');
+  const saveButtons = document.getElementById('save-buttons');
+  const inputName = document.getElementById('input-name') as HTMLInputElement;
+  const inputEmail = document.getElementById('input-email') as HTMLInputElement;
+
+  let isEditing = false;
+  let originalName = '';
+  let originalEmail = '';
+
+  editInfoBtn?.addEventListener('click', () => {
+    isEditing = true;
+    originalName = inputName.value;
+    originalEmail = inputEmail.value;
+
+    inputName.disabled = false;
+    inputEmail.disabled = false;
+    saveButtons?.classList.remove('hidden');
+    editInfoBtn.textContent = 'En cours...';
+    editInfoBtn.classList.add('opacity-50', 'pointer-events-none');
+  });
+
+  cancelInfoBtn?.addEventListener('click', () => {
+    isEditing = false;
+    inputName.value = originalName;
+    inputEmail.value = originalEmail;
+    inputName.disabled = true;
+    inputEmail.disabled = true;
+    saveButtons?.classList.add('hidden');
+    editInfoBtn.textContent = 'Modifier';
+    editInfoBtn.classList.remove('opacity-50', 'pointer-events-none');
+  });
+
+  saveInfoBtn?.addEventListener('click', async () => {
+    if (!user) return;
+
+    try {
+      saveInfoBtn.textContent = 'Enregistrement...';
+      saveInfoBtn.classList.add('opacity-50', 'pointer-events-none');
+
+      const updatedData = {
+        name: inputName.value,
+        email: inputEmail.value,
+      };
+
+      await pb.collection('users').update(user.id, updatedData);
+
+      // Mettre à jour l'affichage
+      const profileName = document.getElementById('profile-name');
+      const profileEmail = document.getElementById('profile-email');
+      if (profileName) profileName.textContent = updatedData.name || 'Utilisateur';
+      if (profileEmail) profileEmail.textContent = updatedData.email;
+
+      // Sortir du mode édition
+      isEditing = false;
+      inputName.disabled = true;
+      inputEmail.disabled = true;
+      saveButtons?.classList.add('hidden');
+      editInfoBtn.textContent = 'Modifier';
+      editInfoBtn.classList.remove('opacity-50', 'pointer-events-none');
+
+      alert('Informations mises à jour avec succès !');
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour:', error);
+      alert('Une erreur est survenue. Veuillez réessayer.');
+    } finally {
+      saveInfoBtn.textContent = 'Enregistrer';
+      saveInfoBtn.classList.remove('opacity-50', 'pointer-events-none');
+    }
+  });
+
+  // Déconnexion
+  const logoutBtn = document.getElementById('logout-btn-profile');
+  logoutBtn?.addEventListener('click', () => {
+    logout();
+    window.location.href = '/';
+  });
+</script>

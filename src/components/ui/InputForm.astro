@@ -126,29 +126,6 @@ const inputId = id || name;
   </div>
 </div>
 
-{type === 'password' && (
-  <script define:vars={{ inputId }}>
-    const toggleBtn = document.getElementById(`toggle-${inputId}`);
-    const input = document.getElementById(inputId);
-    const iconVisible = document.getElementById(`icon-visible-${inputId}`);
-    const iconHidden = document.getElementById(`icon-hidden-${inputId}`);
-    
-    if (toggleBtn && input && iconVisible && iconHidden) {
-      toggleBtn.addEventListener('click', () => {
-        if (input.type === 'password') {
-          input.type = 'text';
-          iconVisible.classList.add('hidden');
-          iconHidden.classList.remove('hidden');
-        } else {
-          input.type = 'password';
-          iconVisible.classList.remove('hidden');
-          iconHidden.classList.add('hidden');
-        }
-      });
-    }
-  </script>
-)}
-
 <style>
   /* Supprimer le style par défaut des inputs sur focus */
   input:focus {

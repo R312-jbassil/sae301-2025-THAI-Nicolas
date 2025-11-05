@@ -47,19 +47,24 @@ import Logo from "../assets/icones/logo.svg";
             </p>
 
             <!-- Formulaire -->
-            <form class="space-y-6">
+            <form id="login-form-element" class="space-y-6">
+              <!-- Message d'erreur -->
+              <div id="login-error" class="hidden bg-red-50 border-2 border-red-500 text-red-700 px-4 py-3 rounded-xl text-sm"></div>
+              
               <InputForm 
                 type="email" 
                 placeholder="Email" 
                 icone="email"
-                name="email"
+                name="login-email"
+                required
               />
               
               <InputForm 
                 type="password" 
                 placeholder="Mot de passe" 
                 icone="password"
-                name="password"
+                name="login-password"
+                required
               />
 
               <div class="text-right">
@@ -68,12 +73,13 @@ import Logo from "../assets/icones/logo.svg";
                 </button>
               </div>
 
-              <MainBouton 
-                variant="primary" 
-                texte="Se connecter" 
+              <button 
                 type="submit"
-                class="w-full"
-              />
+                id="login-submit"
+                class="w-full bg-vert text-white rounded-full px-8 py-4 font-bold text-base hover:bg-[#4a7d5f] transition-all duration-300"
+              >
+                Se connecter
+              </button>
             </form>
           </div>
         </div>
@@ -115,34 +121,44 @@ import Logo from "../assets/icones/logo.svg";
             </p>
 
             <!-- Formulaire -->
-            <form class="space-y-6">
+            <form id="register-form-element" class="space-y-6">
+              <!-- Message d'erreur -->
+              <div id="register-error" class="hidden bg-red-50 border-2 border-red-500 text-red-700 px-4 py-3 rounded-xl text-sm"></div>
+              
+              <!-- Message de succès -->
+              <div id="register-success" class="hidden bg-green-50 border-2 border-green-500 text-green-700 px-4 py-3 rounded-xl text-sm"></div>
+              
               <InputForm 
                 type="text" 
                 placeholder="Nom" 
                 icone="compte"
-                name="name"
+                name="register-name"
+                required
               />
 
               <InputForm 
                 type="email" 
                 placeholder="Email" 
                 icone="email"
-                name="email"
+                name="register-email"
+                required
               />
               
               <InputForm 
                 type="password" 
-                placeholder="Mot de passe" 
+                placeholder="Mot de passe (min. 8 caractères)" 
                 icone="password"
-                name="password"
+                name="register-password"
+                required
               />
 
-              <MainBouton 
-                variant="primary" 
-                texte="S'inscrire" 
+              <button 
                 type="submit"
-                class="w-full"
-              />
+                id="register-submit"
+                class="w-full bg-vert text-white rounded-full px-8 py-4 font-bold text-base hover:bg-[#4a7d5f] transition-all duration-300"
+              >
+                S'inscrire
+              </button>
             </form>
           </div>
         </div>
@@ -178,6 +194,10 @@ import Logo from "../assets/icones/logo.svg";
 </Layout>
 
 <script>
+  import { loginWithEmail, registerUser } from '../utils/pb';
+  
+  console.log('Script loaded, functions:', { loginWithEmail, registerUser });
+
   // Animation du slider overlay
   const overlayPanel = document.getElementById('overlay-panel');
   const overlayContent = document.getElementById('overlay-content');
@@ -255,6 +275,138 @@ import Logo from "../assets/icones/logo.svg";
   }
   
   toRegisterBtn?.addEventListener('click', goToRegister);
+
+  // Gestion de la connexion
+  const loginFormElement = document.getElementById('login-form-element') as HTMLFormElement;
+  const loginError = document.getElementById('login-error');
+  const loginSubmit = document.getElementById('login-submit') as HTMLButtonElement;
+
+  loginFormElement?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Récupérer les valeurs
+    const formData = new FormData(loginFormElement);
+    const email = formData.get('login-email') as string;
+    const password = formData.get('login-password') as string;
+
+    // Désactiver le bouton pendant le traitement
+    if (loginSubmit) {
+      loginSubmit.disabled = true;
+      loginSubmit.textContent = 'Connexion...';
+    }
+
+    // Masquer les erreurs précédentes
+    loginError?.classList.add('hidden');
+
+    try {
+      const result = await loginWithEmail(email, password);
+      
+      if (result.success) {
+        // Redirection vers la page d'accueil ou galerie
+        window.location.href = '/galerie';
+      } else {
+        // Afficher l'erreur
+        if (loginError) {
+          loginError.textContent = result.error || 'Identifiants incorrects';
+          loginError.classList.remove('hidden');
+        }
+      }
+    } catch (error) {
+      if (loginError) {
+        loginError.textContent = 'Une erreur est survenue. Veuillez réessayer.';
+        loginError.classList.remove('hidden');
+      }
+    } finally {
+      // Réactiver le bouton
+      if (loginSubmit) {
+        loginSubmit.disabled = false;
+        loginSubmit.textContent = 'Se connecter';
+      }
+    }
+  });
+
+  // Gestion de l'inscription
+  const registerFormElement = document.getElementById('register-form-element') as HTMLFormElement;
+  const registerError = document.getElementById('register-error');
+  const registerSuccess = document.getElementById('register-success');
+  const registerSubmit = document.getElementById('register-submit') as HTMLButtonElement;
+
+  console.log('Register form:', registerFormElement);
+
+  registerFormElement?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    console.log('Form submitted!');
+    
+    // Récupérer les valeurs
+    const formData = new FormData(registerFormElement);
+    const name = formData.get('register-name') as string;
+    const email = formData.get('register-email') as string;
+    const password = formData.get('register-password') as string;
+    
+    console.log('Form data:', { name, email, password: password ? '***' : 'empty' });
+
+    // Masquer les messages précédents
+    registerError?.classList.add('hidden');
+    registerSuccess?.classList.add('hidden');
+
+    // Validation côté client
+    if (password.length < 8) {
+      if (registerError) {
+        registerError.textContent = 'Le mot de passe doit contenir au moins 8 caractères';
+        registerError.classList.remove('hidden');
+      }
+      return;
+    }
+
+    // Désactiver le bouton pendant le traitement
+    if (registerSubmit) {
+      registerSubmit.disabled = true;
+      registerSubmit.textContent = 'Inscription...';
+    }
+
+    try {
+      const result = await registerUser(email, password, password, name);
+      
+      if (result.success) {
+        // Afficher le message de succès
+        if (registerSuccess) {
+          registerSuccess.textContent = 'Compte créé avec succès ! Redirection...';
+          registerSuccess.classList.remove('hidden');
+        }
+        
+        // Redirection vers la galerie après 1.5 secondes
+        setTimeout(() => {
+          window.location.href = '/galerie';
+        }, 1500);
+      } else {
+        // Afficher l'erreur
+        if (registerError) {
+          let errorMessage = result.error || 'Une erreur est survenue';
+          
+          // Traduire les erreurs courantes
+          if (errorMessage.includes('already exists')) {
+            errorMessage = 'Cet email est déjà utilisé';
+          } else if (errorMessage.includes('password')) {
+            errorMessage = 'Le mot de passe ne respecte pas les critères';
+          }
+          
+          registerError.textContent = errorMessage;
+          registerError.classList.remove('hidden');
+        }
+      }
+    } catch (error) {
+      if (registerError) {
+        registerError.textContent = 'Une erreur est survenue. Veuillez réessayer.';
+        registerError.classList.remove('hidden');
+      }
+    } finally {
+      // Réactiver le bouton
+      if (registerSubmit) {
+        registerSubmit.disabled = false;
+        registerSubmit.textContent = 'S\'inscrire';
+      }
+    }
+  });
 
   // Gestion des boutons de visibilité des mots de passe avec délégation d'événements globale
   document.body.addEventListener('click', (e) => {
