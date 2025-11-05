@@ -24,11 +24,11 @@ const getVariantClasses = () => {
   if (variant === 'normal') {
     return isActive 
       ? 'bg-vert text-white border-2 border-vert'
-      : 'bg-transparent text-vert border-2 border-vert hover:bg-vert-light';
+      : 'bg-transparent text-vert border-2 border-vert';
   } else {
     return isActive
       ? 'bg-transparent text-vert border-2 border-vert'
-      : 'bg-transparent text-vert border-2 border-vert hover:bg-vert-light';
+      : 'bg-transparent text-vert border-2 border-vert';
   }
 };
 ---
@@ -38,6 +38,7 @@ const getVariantClasses = () => {
   style="height: 54px; padding-left: 26px; padding-right: 26px;"
   class={`
     ${getVariantClasses()}
+    bouton-configurateur
     rounded-full
     font-bold
     text-sm
@@ -59,3 +60,15 @@ const getVariantClasses = () => {
 >
   <span>{texte}</span>
 </button>
+
+<style>
+  /* Hover pour les boutons inactifs */
+  .bouton-configurateur[aria-pressed="false"]:hover {
+    background-color: #F0F7F4;
+  }
+  
+  /* Hover pour les boutons actifs - garde le bg vert foncé */
+  .bouton-configurateur[aria-pressed="true"]:hover {
+    background-color: #589772;
+  }
+</style>

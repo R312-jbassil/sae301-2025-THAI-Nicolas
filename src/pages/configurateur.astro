@@ -1,0 +1,500 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BoutonCirculaire from '../components/boutons/BoutonCirculaire.astro';
+import BoutonConfigurateur from '../components/boutons/BoutonConfigurateur.astro';
+import MainBouton from '../components/boutons/MainBouton.astro';
+import Logo from '../assets/icones/logo.svg';
+import LunettesSVG from '../assets/lunettes.svg';
+import SelectConfigurateur from '../components/configurateur/SelectConfigurateur.astro';
+import Chevron from '../assets/icones/chevron.svg';
+import IconPanier from '../assets/icones/panier.svg';
+---
+
+<Layout title="Configurateur - TaVue" description="Configurez vos lunettes personnalisées">
+  <div class="h-screen flex bg-neutral-100 overflow-hidden">
+    <!-- Partie gauche - Visualisation 3D -->
+    <div class="w-2/3 flex flex-col items-start px-20 py-16">
+      <!-- Header avec logo et boutons -->
+      <div class="flex items-start justify-between w-full mb-16">
+        <!-- Logo -->
+        <a href="/" class="transition-transform duration-300 hover:scale-110 active:scale-95">
+          <img src={Logo.src} alt="TaVue" class="w-28 h-auto" />
+        </a>
+
+        <!-- Boutons actions -->
+        <div class="flex gap-4">
+          <button class="bg-white border border-vert rounded-full px-6 py-3 text-vert text-sm font-medium tracking-wider hover:bg-vert hover:text-white transition-all duration-300">
+            VOIR EN 3D
+          </button>
+          <button class="bg-white border border-vert rounded-full px-6 py-3 text-vert text-sm font-medium tracking-wider hover:bg-vert hover:text-white transition-all duration-300">
+            GÉNÉRER PAR IA
+          </button>
+        </div>
+      </div>
+
+      <!-- Lunettes principale avec navigation -->
+      <div class="flex-1 flex items-center justify-center w-full relative">
+        <!-- Flèche gauche -->
+        <button class="absolute left-10 top-70 hover:opacity-80 transition-opacity chevron-vert">
+          <img src={Chevron.src} alt="Précédent" class="w-full h-5 -rotate-90" />
+        </button>
+
+        <!-- Lunettes -->
+        <div class="w-full max-w-3xl">
+          <img src={LunettesSVG.src} alt="Lunettes" class="w-full h-auto" />
+        </div>
+
+        <!-- Flèche droite -->
+        <button class="absolute right-10 top-70 hover:opacity-80 transition-opacity chevron-vert">
+          <img src={Chevron.src} alt="Suivant" class="w-full h-5 rotate-90" />
+        </button>
+      </div>
+
+      <!-- Miniatures -->
+      <div class="flex gap-4">
+        <button class="bg-white border-2 border-vert rounded-xl w-32 h-32 p-4 hover:shadow-lg transition-shadow">
+          <img src={LunettesSVG.src} alt="Vue 1" class="w-full h-full object-contain" />
+        </button>
+        <button class="bg-white border-2 border-border rounded-xl w-32 h-32 p-4 hover:border-vert hover:shadow-lg transition-all">
+          <img src={LunettesSVG.src} alt="Vue 2" class="w-full h-full object-contain transform rotate-180" />
+        </button>
+        <button class="bg-white border-2 border-border rounded-xl w-32 h-32 p-4 hover:border-vert hover:shadow-lg transition-all">
+          <img src={LunettesSVG.src} alt="Vue 3" class="w-full h-full object-contain" />
+        </button>
+      </div>
+    </div>
+
+    <!-- Partie droite - Configuration -->
+    <div class="w-1/3 bg-white shadow-lg flex flex-col">
+      <!-- Configuration -->
+      <div class="flex-1 overflow-y-auto px-12 py-12">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+          <h1 class="text-4xl font-bold text-noir tracking-widest">ÉLÉGANCE</h1>
+          <BoutonCirculaire icone="infos" taille="small" />
+        </div>
+
+        <!-- Taille -->
+        <div class="border-b border-gray-200 pb-8 mb-8">
+          <div class="flex items-center justify-between">
+            <p class="text-xl font-semibold text-noir">TAILLE</p>
+            <div class="flex items-center gap-5">
+              <button class="hover:text-vert transition-colors" id="size-decrease">
+                <img src={Chevron.src} alt="Précédent" class="w-full h-2.5 -rotate-90" />
+              </button>
+              <span class="text-lg font-medium text-noir" id="size-display">52-18</span>
+              <button class="hover:text-vert transition-colors" id="size-increase">
+                <img src={Chevron.src} alt="Suivant" class="w-full h-2.5 rotate-90" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Onglets -->
+        <div class="flex gap-3 mb-8" id="category-tabs">
+          <BoutonConfigurateur texte="VERRES" isActive={true} />
+          <BoutonConfigurateur texte="MONTURE" isActive={false} />
+          <BoutonConfigurateur texte="BRANCHES" isActive={false} />
+          <BoutonConfigurateur texte="ETUI" isActive={false} />
+        </div>
+
+        <!-- Contenu pour VERRES -->
+        <div id="content-verres" class="category-content">
+          <!-- Type de verres -->
+          <div class="mb-8 accordion-section">
+            <button class="flex items-center justify-between w-full mb-6 accordion-trigger" data-accordion="type-verres">
+              <h3 class="text-xl font-semibold text-noir">TYPE DE VERRES</h3>
+              <img src={Chevron.src} alt="Déplier" class="w-4.5 h-2.5 accordion-chevron transition-transform duration-300" />
+            </button>
+
+            <div class="accordion-content overflow-hidden transition-all duration-300" data-accordion-content="type-verres">
+              <div class="space-y-4">
+                <SelectConfigurateur 
+                  titre="Classique"
+                  isSelected={true}
+                />
+                <SelectConfigurateur 
+                  titre="Fumé"
+                  isSelected={false}
+                />
+                <SelectConfigurateur 
+                  titre="Polarisé"
+                  prix={40}
+                  isSelected={false}
+                />
+                <SelectConfigurateur 
+                  titre="Photochromique"
+                  prix={80}
+                  isSelected={false}
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Couleur des verres -->
+          <div class="mb-8 accordion-section">
+            <button class="flex items-center justify-between w-full mb-6 accordion-trigger" data-accordion="couleur-verres">
+              <h3 class="text-xl font-semibold text-noir">COULEUR DES VERRES</h3>
+              <img src={Chevron.src} alt="Déplier" class="w-4.5 h-2.5 accordion-chevron transition-transform duration-300" />
+            </button>
+
+            <div class="accordion-content overflow-hidden transition-all duration-300" data-accordion-content="couleur-verres">
+              <div class="flex gap-4">
+                <button class="w-12 h-12 rounded-full bg-gris border-2 border-noir"></button>
+                <button class="w-12 h-12 rounded-full bg-[#8b5a3c] border-2 border-border hover:border-noir transition-colors"></button>
+                <button class="w-12 h-12 rounded-full bg-[#7fa5c1] border-2 border-border hover:border-noir transition-colors"></button>
+                <button class="w-12 h-12 rounded-full bg-[#c8a882] border-2 border-border hover:border-noir transition-colors"></button>
+                <button class="w-12 h-12 rounded-full bg-[#d4a5a5] border-2 border-border hover:border-noir transition-colors"></button>
+                <button class="w-12 h-12 rounded-full bg-vert border-2 border-border hover:border-noir transition-colors relative">
+                  <span class="absolute inset-0 flex items-center justify-center text-white text-2xl">+</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contenu pour MONTURE -->
+        <div id="content-monture" class="category-content hidden">
+          <!-- Forme de monture -->
+          <div class="mb-8 accordion-section">
+            <button class="flex items-center justify-between w-full mb-6 accordion-trigger" data-accordion="forme-monture">
+              <h3 class="text-xl font-semibold text-noir">FORME DE MONTURE</h3>
+              <img src={Chevron.src} alt="Déplier" class="w-4.5 h-2.5 accordion-chevron transition-transform duration-300" />
+            </button>
+
+            <div class="accordion-content overflow-hidden transition-all duration-300" data-accordion-content="forme-monture">
+              <div class="space-y-4">
+                <SelectConfigurateur 
+                  titre="Rectangulaire"
+                  isSelected={true}
+                />
+                <SelectConfigurateur 
+                  titre="Ronde"
+                  isSelected={false}
+                />
+                <SelectConfigurateur 
+                  titre="Carrée"
+                  isSelected={false}
+                />
+                <SelectConfigurateur 
+                  titre="Aviateur"
+                  isSelected={false}
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Couleur de monture -->
+          <div class="mb-8 accordion-section">
+            <button class="flex items-center justify-between w-full mb-6 accordion-trigger" data-accordion="couleur-monture">
+              <h3 class="text-xl font-semibold text-noir">COULEUR DE MONTURE</h3>
+              <img src={Chevron.src} alt="Déplier" class="w-4.5 h-2.5 accordion-chevron transition-transform duration-300" />
+            </button>
+
+            <div class="accordion-content overflow-hidden transition-all duration-300" data-accordion-content="couleur-monture">
+              <div class="flex gap-4">
+                <button class="w-12 h-12 rounded-full bg-noir border-2 border-noir"></button>
+                <button class="w-12 h-12 rounded-full bg-[#8b5a3c] border-2 border-border hover:border-noir transition-colors"></button>
+                <button class="w-12 h-12 rounded-full bg-[#c8a882] border-2 border-border hover:border-noir transition-colors"></button>
+                <button class="w-12 h-12 rounded-full bg-vert border-2 border-border hover:border-noir transition-colors"></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Épaisseur -->
+          <div class="mb-8 accordion-section">
+            <button class="flex items-center justify-between w-full mb-6 accordion-trigger" data-accordion="epaisseur">
+              <h3 class="text-xl font-semibold text-noir">ÉPAISSEUR</h3>
+              <img src={Chevron.src} alt="Déplier" class="w-4.5 h-2.5 accordion-chevron transition-transform duration-300" />
+            </button>
+
+            <div class="accordion-content overflow-hidden transition-all duration-300" data-accordion-content="epaisseur">
+              <div class="space-y-4">
+                <SelectConfigurateur 
+                  titre="Fine"
+                  isSelected={false}
+                />
+                <SelectConfigurateur 
+                  titre="Moyenne"
+                  isSelected={true}
+                />
+                <SelectConfigurateur 
+                  titre="Épaisse"
+                  isSelected={false}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contenu pour BRANCHES -->
+        <div id="content-branches" class="category-content hidden">
+          <!-- Couleur des branches -->
+          <div class="mb-8 accordion-section">
+            <button class="flex items-center justify-between w-full mb-6 accordion-trigger" data-accordion="couleur-branches">
+              <h3 class="text-xl font-semibold text-noir">COULEUR DES BRANCHES</h3>
+              <img src={Chevron.src} alt="Déplier" class="w-4.5 h-2.5 accordion-chevron transition-transform duration-300" />
+            </button>
+
+            <div class="accordion-content overflow-hidden transition-all duration-300" data-accordion-content="couleur-branches">
+              <div class="flex gap-4">
+                <button class="w-12 h-12 rounded-full bg-noir border-2 border-noir"></button>
+                <button class="w-12 h-12 rounded-full bg-vert border-2 border-border hover:border-noir transition-colors"></button>
+                <button class="w-12 h-12 rounded-full bg-[#c8a882] border-2 border-border hover:border-noir transition-colors"></button>
+                <button class="w-12 h-12 rounded-full bg-gray-400 border-2 border-border hover:border-noir transition-colors"></button>
+                <button class="w-12 h-12 rounded-full bg-[#8b5a3c] border-2 border-border hover:border-noir transition-colors"></button>
+                <button class="w-12 h-12 rounded-full bg-[#d4a5a5] border-2 border-border hover:border-noir transition-colors"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contenu pour ETUI -->
+        <div id="content-etui" class="category-content hidden">
+          <p class="text-gray-500 text-center py-8">Contenu étui à venir...</p>
+        </div>
+      </div>
+
+      <!-- Footer fixe -->
+      <div class="border-t border-gray-200 px-12 py-10 bg-white">
+        <!-- Prix et compte -->
+        <div class="flex items-center justify-between mb-6">
+          <button class="flex items-center gap-3 text-noir hover:text-vert transition-colors cursor-pointer">
+            <img src={Chevron.src} alt="Suivant" class="w-4 h-2.5 rotate-90" />
+            <span class="text-lg font-medium tracking-wide">CRÉER UN COMPTE</span>
+          </button>
+          <p class="text-3xl font-bold text-noir">189€</p>
+        </div>
+
+        <!-- Bouton panier -->
+        <MainBouton 
+          variant="primary"
+          texte="AJOUTER AU PANIER"
+          icone="panier"
+          class="w-full"
+        />
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* Filtre pour colorer les chevrons en vert */
+    .chevron-vert img {
+      filter: invert(52%) sepia(22%) saturate(870%) hue-rotate(93deg) brightness(91%) contrast(87%);
+    }
+
+    /* Accordéon - contenu caché par défaut */
+    .accordion-content {
+      max-height: 0;
+      opacity: 0;
+    }
+
+    /* Accordéon ouvert */
+    .accordion-content.open {
+      max-height: 1000px;
+      opacity: 1;
+    }
+
+    /* Rotation du chevron */
+    .accordion-chevron.open {
+      transform: rotate(180deg);
+    }
+  </style>
+
+  <script>
+    // Gestion des onglets de catégories
+    const tabsContainer = document.getElementById('category-tabs');
+    if (tabsContainer) {
+      tabsContainer.addEventListener('click', (e) => {
+        const button = (e.target as HTMLElement).closest('button');
+        if (!button) return;
+
+        // Retirer l'état actif de tous les boutons
+        const allButtons = tabsContainer.querySelectorAll('button');
+        allButtons.forEach(btn => {
+          btn.classList.remove('bg-vert', 'text-white');
+          btn.classList.add('bg-transparent', 'text-vert');
+          btn.setAttribute('aria-pressed', 'false');
+        });
+
+        // Activer le bouton cliqué
+        button.classList.remove('bg-transparent', 'text-vert');
+        button.classList.add('bg-vert', 'text-white');
+        button.setAttribute('aria-pressed', 'true');
+
+        // Récupérer le texte du bouton pour afficher le bon contenu
+        const buttonText = button.textContent?.trim().toLowerCase() || '';
+        
+        // Cacher tous les contenus
+        document.querySelectorAll('.category-content').forEach(content => {
+          content.classList.add('hidden');
+        });
+
+        // Afficher le contenu correspondant
+        const contentId = `content-${buttonText}`;
+        const targetContent = document.getElementById(contentId);
+        if (targetContent) {
+          targetContent.classList.remove('hidden');
+          
+          // Ouvrir le premier accordéon de cette catégorie
+          const firstAccordion = targetContent.querySelector('.accordion-trigger');
+          if (firstAccordion) {
+            const accordionId = firstAccordion.getAttribute('data-accordion');
+            const content = targetContent.querySelector(`[data-accordion-content="${accordionId}"]`);
+            const chevron = firstAccordion.querySelector('.accordion-chevron');
+            
+            if (content && chevron) {
+              content.classList.add('open');
+              chevron.classList.add('open');
+            }
+          }
+        }
+      });
+    }
+
+    // Gestion des accordéons
+    const accordionTriggers = document.querySelectorAll('.accordion-trigger');
+    
+    // Ouvrir le premier accordéon par défaut
+    const firstContent = document.querySelector('[data-accordion-content="type-verres"]');
+    const firstChevron = document.querySelector('[data-accordion="type-verres"] .accordion-chevron');
+    if (firstContent && firstChevron) {
+      firstContent.classList.add('open');
+      firstChevron.classList.add('open');
+    }
+
+    accordionTriggers.forEach(trigger => {
+      trigger.addEventListener('click', () => {
+        const accordionId = trigger.getAttribute('data-accordion');
+        const content = document.querySelector(`[data-accordion-content="${accordionId}"]`);
+        const chevron = trigger.querySelector('.accordion-chevron');
+
+        if (!content || !chevron) return;
+
+        // Trouver la section parente (category-content)
+        const categorySection = trigger.closest('.category-content');
+        if (!categorySection) return;
+
+        // Vérifier si cet accordéon est déjà ouvert
+        const isOpen = content.classList.contains('open');
+
+        // Fermer tous les accordéons de cette section
+        const allAccordionsInSection = categorySection.querySelectorAll('.accordion-content');
+        const allChevronsInSection = categorySection.querySelectorAll('.accordion-chevron');
+        
+        allAccordionsInSection.forEach(acc => acc.classList.remove('open'));
+        allChevronsInSection.forEach(chev => chev.classList.remove('open'));
+
+        // Si l'accordéon n'était pas ouvert, l'ouvrir
+        if (!isOpen) {
+          content.classList.add('open');
+          chevron.classList.add('open');
+        }
+      });
+    });
+
+    // Gestion de la sélection des options dans les accordéons
+    document.addEventListener('click', (e) => {
+      // Chercher un bouton avec aria-pressed (c'est un SelectConfigurateur)
+      const selectButton = (e.target as HTMLElement).closest('button[aria-pressed]');
+      if (!selectButton) return;
+
+      // Vérifier que ce n'est pas un bouton de couleur (qui a rounded-full)
+      if (selectButton.classList.contains('rounded-full')) return;
+
+      // Trouver le conteneur space-y-4 parent (qui contient tous les selects du même groupe)
+      const selectContainer = selectButton.closest('.space-y-4');
+      if (!selectContainer) return;
+
+      // Désélectionner tous les boutons de ce groupe
+      const allSelects = selectContainer.querySelectorAll('button[aria-pressed]');
+      allSelects.forEach(btn => {
+        btn.classList.remove('border-[#589772]', 'bg-[#f0f7f4]');
+        btn.classList.add('border-[#E8E8E8]', 'bg-white');
+        btn.setAttribute('aria-pressed', 'false');
+      });
+
+      // Sélectionner le bouton cliqué
+      selectButton.classList.remove('border-[#E8E8E8]', 'bg-white');
+      selectButton.classList.add('border-[#589772]', 'bg-[#f0f7f4]');
+      selectButton.setAttribute('aria-pressed', 'true');
+    });
+
+    // Gestion de la sélection des couleurs (cercles)
+    document.addEventListener('click', (e) => {
+      const colorButton = (e.target as HTMLElement).closest('button.rounded-full');
+      if (!colorButton) return;
+
+      // Vérifier que c'est bien un bouton de couleur (qui a w-12 h-12)
+      if (!colorButton.classList.contains('w-12') || !colorButton.classList.contains('h-12')) return;
+
+      // Trouver le conteneur parent des couleurs (le flex gap-4)
+      const colorContainer = colorButton.parentElement;
+      if (!colorContainer) return;
+
+      // Désélectionner tous les cercles de ce conteneur
+      const allColors = colorContainer.querySelectorAll('button.rounded-full.w-12.h-12');
+      allColors.forEach(btn => {
+        if (btn.classList.contains('border-noir')) {
+          btn.classList.remove('border-noir');
+          btn.classList.add('border-border');
+        }
+      });
+
+      // Sélectionner le cercle cliqué
+      colorButton.classList.remove('border-border');
+      colorButton.classList.add('border-noir');
+    });
+
+    // Gestion de la taille
+    const sizeIncrease = document.getElementById('size-increase');
+    const sizeDecrease = document.getElementById('size-decrease');
+    const sizeDisplay = document.getElementById('size-display');
+    
+    // Tailles disponibles
+    const sizes = ['48-16', '50-17', '52-18', '54-19', '56-20'];
+    let currentSizeIndex = 2; // Commence à 52-18
+
+    if (sizeIncrease && sizeDecrease && sizeDisplay) {
+      sizeIncrease.addEventListener('click', () => {
+        if (currentSizeIndex < sizes.length - 1) {
+          currentSizeIndex++;
+          sizeDisplay.textContent = sizes[currentSizeIndex];
+          updateSizeButtons();
+        }
+      });
+
+      sizeDecrease.addEventListener('click', () => {
+        if (currentSizeIndex > 0) {
+          currentSizeIndex--;
+          sizeDisplay.textContent = sizes[currentSizeIndex];
+          updateSizeButtons();
+        }
+      });
+
+      function updateSizeButtons() {
+        if (!sizeDecrease || !sizeIncrease) return;
+        
+        // Désactiver/activer les boutons selon la position
+        if (currentSizeIndex === 0) {
+          sizeDecrease.style.opacity = '0.3';
+          sizeDecrease.style.cursor = 'not-allowed';
+        } else {
+          sizeDecrease.style.opacity = '1';
+          sizeDecrease.style.cursor = 'pointer';
+        }
+
+        if (currentSizeIndex === sizes.length - 1) {
+          sizeIncrease.style.opacity = '0.3';
+          sizeIncrease.style.cursor = 'not-allowed';
+        } else {
+          sizeIncrease.style.opacity = '1';
+          sizeIncrease.style.cursor = 'pointer';
+        }
+      }
+
+      // Initialiser l'état des boutons
+      updateSizeButtons();
+    }
+  </script>
+</Layout>
