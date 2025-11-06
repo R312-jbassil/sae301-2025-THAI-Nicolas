@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/layouts/Header.astro';
+import ModalConfirm from '../components/modals/ModalConfirm.astro';
 import LunettesSVG from '../assets/lunettes.svg';
 import { pb, getNombreLunettesSauvegardes, getLunettesParUtilisateur } from '../utils/pb';
 
@@ -225,6 +226,13 @@ const hasConfigurations = savedConfigurations.length > 0;
       )}
     </main>
   </div>
+
+  <!-- Modal de confirmation pour suppression -->
+  <ModalConfirm 
+    id="delete-config-confirm" 
+    title="Supprimer cette configuration ?"
+    message="Cette action est irréversible. Voulez-vous vraiment supprimer cette configuration ?"
+  />
 </Layout>
 
 <style>
@@ -352,7 +360,53 @@ const hasConfigurations = savedConfigurations.length > 0;
         
         if (!configId) return;
         
-        if (confirm(`Êtes-vous sûr de vouloir supprimer la configuration "${configName}" ?`)) {
+        // Ouvrir le modal de confirmation
+        const modal = document.getElementById('delete-config-confirm');
+        if (!modal) return;
+        
+        // Mettre à jour le message avec le nom de la config
+        const messageEl = modal.querySelector('p');
+        if (messageEl) {
+          messageEl.textContent = `Voulez-vous vraiment supprimer la configuration "${configName}" ? Cette action est irréversible.`;
+        }
+        
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        
+        // Attendre la réponse
+        const confirmed = await new Promise<boolean>((resolve) => {
+          const confirmBtn = modal.querySelector('.modal-confirm-btn');
+          const cancelBtn = modal.querySelector('.modal-cancel');
+          const overlay = modal.querySelector('.modal-overlay');
+          
+          const close = (result: boolean) => {
+            if (modal) {
+              modal.classList.add('hidden');
+              document.body.style.overflow = 'auto';
+            }
+            confirmBtn?.removeEventListener('click', handleConfirm);
+            cancelBtn?.removeEventListener('click', handleCancel);
+            overlay?.removeEventListener('click', handleOverlay);
+            document.removeEventListener('keydown', handleEscape);
+            resolve(result);
+          };
+          
+          const handleConfirm = () => close(true);
+          const handleCancel = () => close(false);
+          const handleOverlay = (e: Event) => {
+            if (e.target === overlay) close(false);
+          };
+          const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') close(false);
+          };
+          
+          confirmBtn?.addEventListener('click', handleConfirm);
+          cancelBtn?.addEventListener('click', handleCancel);
+          overlay?.addEventListener('click', handleOverlay);
+          document.addEventListener('keydown', handleEscape);
+        });
+        
+        if (confirmed) {
           const result = await deleteConfiguration(configId);
           
           if (result.success) {

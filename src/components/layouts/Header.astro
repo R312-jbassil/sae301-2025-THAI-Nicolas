@@ -169,12 +169,12 @@ import BoutonCirculaire from "../boutons/BoutonCirculaire.astro";
             userAvatar.src = pb.files.getUrl(user, user.avatar, { thumb: '100x100' });
           } else {
             // Avatar par défaut avec initiales
-            userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email)}&background=589772&color=ffffff&size=100`;
+            userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.nom || user.email)}&background=589772&color=ffffff&size=100`;
           }
         }
 
         if (userName) {
-          userName.textContent = user.name || 'Utilisateur';
+          userName.textContent = user.nom || 'Utilisateur';
         }
 
         if (userEmail) {

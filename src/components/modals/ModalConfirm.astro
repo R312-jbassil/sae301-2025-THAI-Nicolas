@@ -1,0 +1,166 @@
+---
+interface Props {
+  id: string;
+  title?: string;
+  message: string;
+}
+
+const { id, title = "Confirmation", message } = Astro.props;
+---
+
+<!-- Backdrop avec filtre noir léger -->
+<div id={id} class="modal-confirm fixed inset-0 z-50 hidden">
+  <!-- Overlay semi-transparent -->
+  <div class="modal-overlay absolute inset-0 bg-black/30"></div>
+  
+  <!-- Modal centré -->
+  <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+    <div class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 transform transition-all">
+      
+      <!-- Titre (optionnel) -->
+      {title && (
+        <h3 class="text-xl font-bold text-noir mb-4">{title}</h3>
+      )}
+      
+      <!-- Message -->
+      <p class="text-base text-gris leading-relaxed mb-8">{message}</p>
+      
+      <!-- Boutons -->
+      <div class="flex gap-3">
+        <!-- Bouton Annuler (outline) -->
+        <button 
+          class="modal-cancel flex-1 border-2 border-gris text-gris rounded-full px-6 py-3 font-semibold text-base hover:bg-gray-50 transition-all duration-200 cursor-pointer"
+        >
+          Annuler
+        </button>
+        
+        <!-- Bouton OK (vert) -->
+        <button 
+          class="modal-confirm-btn flex-1 bg-vert text-white rounded-full px-6 py-3 font-semibold text-base hover:bg-[#4a7d5f] transition-all duration-200 cursor-pointer"
+        >
+          OK
+        </button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Animation d'apparition */
+  .modal-confirm {
+    animation: fadeIn 0.2s ease-out;
+  }
+  
+  .modal-confirm .modal-content {
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  /* État caché */
+  .modal-confirm.hidden {
+    display: none;
+  }
+</style>
+
+<script>
+  // Attendre que le DOM soit chargé
+  document.addEventListener('DOMContentLoaded', () => {
+    // Récupérer tous les modals de confirmation
+    const modals = document.querySelectorAll('.modal-confirm');
+    
+    modals.forEach((modal) => {
+      const modalId = modal.id;
+      const functionName = 'openConfirmModal_' + modalId;
+      
+      // Créer la fonction pour ce modal
+      // @ts-ignore
+      window[functionName] = function() {
+        return new Promise((resolve) => {
+          if (!modal) {
+            console.error('Modal non trouvé:', modalId);
+            resolve(false);
+            return;
+          }
+          
+          console.log('🔓 Ouverture du modal:', modalId);
+          
+          // Afficher le modal
+          modal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+          
+          // Trouver les boutons
+          const confirmBtn = modal.querySelector('.modal-confirm-btn');
+          const cancelBtn = modal.querySelector('.modal-cancel');
+          const overlay = modal.querySelector('.modal-overlay');
+          
+          // Fonction pour fermer et résoudre
+          // @ts-ignore
+          function closeAndResolve(result) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            
+            // Nettoyer les listeners
+            if (confirmBtn) confirmBtn.removeEventListener('click', handleConfirm);
+            if (cancelBtn) cancelBtn.removeEventListener('click', handleCancel);
+            if (overlay) overlay.removeEventListener('click', handleOverlay);
+            document.removeEventListener('keydown', handleEscape);
+            
+            console.log('🔒 Modal fermé, résultat:', result);
+            resolve(result);
+          }
+          
+          // Handlers
+          function handleConfirm() {
+            closeAndResolve(true);
+          }
+          
+          function handleCancel() {
+            closeAndResolve(false);
+          }
+          
+          // @ts-ignore
+          function handleOverlay(e) {
+            if (e.target === overlay) {
+              closeAndResolve(false);
+            }
+          }
+          
+          // @ts-ignore
+          function handleEscape(e) {
+            if (e.key === 'Escape') {
+              closeAndResolve(false);
+            }
+          }
+          
+          // Attacher les listeners
+          if (confirmBtn) confirmBtn.addEventListener('click', handleConfirm);
+          if (cancelBtn) cancelBtn.addEventListener('click', handleCancel);
+          if (overlay) overlay.addEventListener('click', handleOverlay);
+          document.addEventListener('keydown', handleEscape);
+        });
+      };
+      
+      console.log('✅ Modal fonction enregistrée:', functionName);
+    });
+  });
+</script>

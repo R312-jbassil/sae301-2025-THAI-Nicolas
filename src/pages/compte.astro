@@ -220,7 +220,7 @@ import Header from "../components/layouts/Header.astro";
       if (user.avatar) {
         profileAvatar.src = pb.files.getUrl(user, user.avatar, { thumb: '200x200' });
       } else {
-        profileAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email)}&background=589772&color=ffffff&size=200`;
+        profileAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.nom || user.email)}&background=589772&color=ffffff&size=200`;
       }
     }
 
@@ -247,9 +247,9 @@ import Header from "../components/layouts/Header.astro";
     const inputName = document.getElementById('input-name') as HTMLInputElement;
     const inputEmail = document.getElementById('input-email') as HTMLInputElement;
 
-    if (profileName) profileName.textContent = user.name || 'Utilisateur';
+    if (profileName) profileName.textContent = user.nom || 'Utilisateur';
     if (profileEmail) profileEmail.textContent = user.email;
-    if (inputName) inputName.value = user.name || '';
+    if (inputName) inputName.value = user.nom || '';
     if (inputEmail) inputEmail.value = user.email;
 
     // Date de création du compte
@@ -336,17 +336,36 @@ import Header from "../components/layouts/Header.astro";
       saveInfoBtn.classList.add('opacity-50', 'pointer-events-none');
 
       const updatedData = {
-        name: inputName.value,
+        nom: inputName.value,  // ✅ CORRIGÉ: utilise "nom" au lieu de "name"
         email: inputEmail.value,
       };
 
+      // Mettre à jour l'utilisateur dans PocketBase
       await pb.collection('users').update(user.id, updatedData);
+
+      // Récupérer l'utilisateur complet mis à jour (comme pour l'avatar)
+      const updatedUser = await pb.collection('users').getOne(user.id);
+
+      // IMPORTANT: Mettre à jour l'authStore avec les nouvelles données
+      pb.authStore.save(pb.authStore.token, updatedUser);
+
+      // Mettre à jour les cookies pour persister les changements
+      document.cookie = `pb_auth=${JSON.stringify({
+        token: pb.authStore.token,
+        model: updatedUser
+      })}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
 
       // Mettre à jour l'affichage
       const profileName = document.getElementById('profile-name');
       const profileEmail = document.getElementById('profile-email');
-      if (profileName) profileName.textContent = updatedData.name || 'Utilisateur';
-      if (profileEmail) profileEmail.textContent = updatedData.email;
+      if (profileName) profileName.textContent = updatedUser.nom || 'Utilisateur';
+      if (profileEmail) profileEmail.textContent = updatedUser.email;
+
+      // Mettre à jour aussi l'avatar dans le header si le nom a changé
+      const headerAvatar = document.getElementById('user-avatar') as HTMLImageElement;
+      if (headerAvatar && !updatedUser.avatar) {
+        headerAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(updatedUser.nom || updatedUser.email)}&background=589772&color=ffffff&size=100`;
+      }
 
       // Sortir du mode édition
       isEditing = false;

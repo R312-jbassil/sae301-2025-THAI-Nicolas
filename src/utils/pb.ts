@@ -29,7 +29,8 @@ export interface User {
   id: string;
   email: string;
   username?: string;
-  name?: string;
+  nom?: string; // ✅ Correspond au schéma PocketBase
+  prenom?: string; // ✅ Correspond au schéma PocketBase
   avatar?: string;
   verified: boolean;
   created: string;
@@ -224,14 +225,14 @@ export async function registerUser(
   email: string,
   password: string,
   passwordConfirm: string,
-  name?: string
+  nom?: string
 ) {
   try {
     const userData = {
       email,
       password,
       passwordConfirm,
-      name: name || email.split("@")[0],
+      nom: nom || email.split("@")[0], // ✅ Utilise "nom" au lieu de "name"
       emailVisibility: true,
     };
 
@@ -758,6 +759,193 @@ export function onAuthChange(callback: (user: User | null) => void) {
   pb.authStore.onChange(() => {
     callback(getCurrentUser());
   });
+}
+
+/**
+ * ========================================
+ * CHAT IA - Gestion de l'historique
+ * ========================================
+ */
+
+export interface ChatMessage {
+  role: "user" | "assistant" | "system";
+  content: string;
+  timestamp: string;
+}
+
+export interface ChatIA {
+  id: string;
+  user_id: string;
+  nom: string; // Titre de la conversation
+  messages: ChatMessage[]; // Historique JSON
+  configuration_resultat?: string; // ID de la config finale (optionnel)
+  created: string;
+  updated: string;
+}
+
+/**
+ * Récupérer la conversation active de l'utilisateur
+ * (la plus récente ou en créer une nouvelle)
+ */
+export async function getChatConversation(userId?: string): Promise<{
+  success: boolean;
+  conversation?: ChatIA;
+  error?: string;
+}> {
+  try {
+    const currentUserId = userId || getCurrentUser()?.id;
+    if (!currentUserId) {
+      return { success: false, error: "Utilisateur non connecté" };
+    }
+
+    // Chercher la conversation la plus récente
+    const conversations = await pb.collection("chat_ia").getList<ChatIA>(1, 1, {
+      filter: `user_id = "${currentUserId}"`,
+      sort: "-updated",
+    });
+
+    if (conversations.items.length > 0) {
+      const conv = conversations.items[0];
+
+      // Limiter l'historique à 50 messages max (25 échanges)
+      if (conv.messages && conv.messages.length > 50) {
+        conv.messages = conv.messages.slice(-50);
+        await pb.collection("chat_ia").update(conv.id, {
+          messages: conv.messages,
+        });
+      }
+
+      return { success: true, conversation: conv };
+    } else {
+      // Créer une nouvelle conversation
+      const newConv = await pb.collection("chat_ia").create<ChatIA>({
+        user_id: currentUserId,
+        nom: "Nouvelle conversation",
+        messages: [],
+      });
+
+      return { success: true, conversation: newConv };
+    }
+  } catch (error) {
+    console.error("Erreur getChatConversation:", error);
+    return { success: false, error: String(error) };
+  }
+}
+
+/**
+ * Ajouter un message à la conversation
+ */
+export async function addChatMessage(
+  conversationId: string,
+  role: "user" | "assistant",
+  content: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Récupérer la conversation actuelle
+    const conversation = await pb
+      .collection("chat_ia")
+      .getOne<ChatIA>(conversationId);
+
+    // Ajouter le nouveau message
+    const newMessage: ChatMessage = {
+      role,
+      content,
+      timestamp: new Date().toISOString(),
+    };
+
+    const updatedMessages = [...(conversation.messages || []), newMessage];
+
+    // Limiter à 50 messages max
+    const limitedMessages = updatedMessages.slice(-50);
+
+    // Générer un titre si c'est le premier message utilisateur
+    let nom = conversation.nom;
+    if (nom === "Nouvelle conversation" && role === "user") {
+      // Prendre les 30 premiers caractères du message comme titre
+      nom = content.substring(0, 30) + (content.length > 30 ? "..." : "");
+    }
+
+    // Mettre à jour la conversation
+    await pb.collection("chat_ia").update(conversationId, {
+      messages: limitedMessages,
+      nom,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Erreur addChatMessage:", error);
+    return { success: false, error: String(error) };
+  }
+}
+
+/**
+ * Réinitialiser l'historique de conversation (reset)
+ */
+export async function resetChatConversation(userId?: string): Promise<{
+  success: boolean;
+  newConversation?: ChatIA;
+  error?: string;
+}> {
+  try {
+    const currentUserId = userId || getCurrentUser()?.id;
+    if (!currentUserId) {
+      return { success: false, error: "Utilisateur non connecté" };
+    }
+
+    // Créer une nouvelle conversation vide
+    const newConv = await pb.collection("chat_ia").create<ChatIA>({
+      user_id: currentUserId,
+      nom: "Nouvelle conversation",
+      messages: [],
+    });
+
+    return { success: true, newConversation: newConv };
+  } catch (error) {
+    console.error("Erreur resetChatConversation:", error);
+    return { success: false, error: String(error) };
+  }
+}
+
+/**
+ * Récupérer toutes les conversations d'un utilisateur (historique)
+ */
+export async function getAllChatConversations(userId?: string): Promise<{
+  success: boolean;
+  conversations?: ChatIA[];
+  error?: string;
+}> {
+  try {
+    const currentUserId = userId || getCurrentUser()?.id;
+    if (!currentUserId) {
+      return { success: false, error: "Utilisateur non connecté" };
+    }
+
+    const conversations = await pb.collection("chat_ia").getFullList<ChatIA>({
+      filter: `user_id = "${currentUserId}"`,
+      sort: "-updated",
+    });
+
+    return { success: true, conversations };
+  } catch (error) {
+    console.error("Erreur getAllChatConversations:", error);
+    return { success: false, error: String(error) };
+  }
+}
+
+/**
+ * Supprimer une conversation
+ */
+export async function deleteChatConversation(conversationId: string): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    await pb.collection("chat_ia").delete(conversationId);
+    return { success: true };
+  } catch (error) {
+    console.error("Erreur deleteChatConversation:", error);
+    return { success: false, error: String(error) };
+  }
 }
 
 // Export par défaut pour compatibility

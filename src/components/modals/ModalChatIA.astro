@@ -21,11 +21,24 @@ const { id } = Astro.props;
           <p class="text-xs text-white/80">En ligne</p>
         </div>
       </div>
-      <button class="modal-close w-8 h-8 rounded-full hover:bg-white/20 transition-all duration-300 flex items-center justify-center" data-modal={id}>
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
+      <div class="flex items-center gap-2">
+        <!-- Bouton Reset -->
+        <button 
+          id="reset-chat-btn"
+          class="w-8 h-8 rounded-full hover:bg-white/20 transition-all duration-300 flex items-center justify-center"
+          title="Réinitialiser la conversation"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+        <!-- Bouton fermer -->
+        <button class="modal-close w-8 h-8 rounded-full hover:bg-white/20 transition-all duration-300 flex items-center justify-center" data-modal={id}>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- Messages Container -->
@@ -117,16 +130,51 @@ const { id } = Astro.props;
 </style>
 
 <script>
+  import { getChatConversation, addChatMessage, resetChatConversation, type ChatIA } from '../../utils/pb';
+
   // Historique de la conversation
   let conversationHistory: Array<{ role: string, content: string }> = [];
+  let currentConversation: ChatIA | null = null;
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     const chatInput = document.getElementById('chat-input') as HTMLInputElement;
     const sendBtn = document.getElementById('chat-send-btn') as HTMLButtonElement;
     const messagesContainer = document.getElementById('chat-messages') as HTMLElement;
 
-    // Fonction pour ajouter un message à l'interface
-    function addMessage(content: string, isUser: boolean) {
+    // Charger la conversation existante au chargement
+    const result = await getChatConversation();
+    if (result.success && result.conversation) {
+      currentConversation = result.conversation;
+      
+      // Charger l'historique depuis PocketBase
+      if (currentConversation.messages && currentConversation.messages.length > 0) {
+        conversationHistory = currentConversation.messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
+        
+        // Afficher les messages existants dans l'interface (sauf le message de bienvenue système)
+        if (messagesContainer) {
+          currentConversation.messages.forEach(msg => {
+            if (msg.role !== 'system') {
+              addMessageToUI(msg.content, msg.role === 'user', false); // false = ne pas sauvegarder
+            }
+          });
+        }
+      }
+      
+      console.log('💬 Conversation chargée:', currentConversation.id, 'avec', conversationHistory.length, 'messages');
+    } else {
+      console.error('❌ Erreur chargement conversation:', result.error);
+    }
+
+    // Fonction pour ajouter un message à l'interface ET le sauvegarder dans PocketBase
+    async function addMessage(content: string, isUser: boolean) {
+      await addMessageToUI(content, isUser, true); // true = sauvegarder dans PocketBase
+    }
+
+    // Fonction pour ajouter un message uniquement à l'interface (sans sauvegarder)
+    async function addMessageToUI(content: string, isUser: boolean, saveToDb: boolean = false) {
       const messageDiv = document.createElement('div');
       messageDiv.className = `flex gap-2 animate-slide-up ${isUser ? 'justify-end' : ''}`;
 
@@ -155,6 +203,12 @@ const { id } = Astro.props;
       
       // Scroll automatique vers le bas
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      // Sauvegarder dans PocketBase si demandé
+      if (saveToDb && currentConversation) {
+        const role = isUser ? 'user' : 'assistant';
+        await addChatMessage(currentConversation.id, role, content);
+      }
     }
 
     // Fonction pour afficher le loader
@@ -358,6 +412,80 @@ const { id } = Astro.props;
         if (e.key === 'Enter') {
           e.preventDefault();
           sendMessage();
+        }
+      });
+    }
+
+    // Bouton Reset
+    const resetBtn = document.getElementById('reset-chat-btn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', async () => {
+        // Ouvrir le modal de confirmation
+        const modal = document.getElementById('reset-chat-confirm');
+        if (!modal) return;
+        
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        
+        // Attendre la réponse
+        const confirmed = await new Promise<boolean>((resolve) => {
+          const confirmBtn = modal.querySelector('.modal-confirm-btn');
+          const cancelBtn = modal.querySelector('.modal-cancel');
+          const overlay = modal.querySelector('.modal-overlay');
+          
+          const close = (result: boolean) => {
+            if (modal) {
+              modal.classList.add('hidden');
+              document.body.style.overflow = 'auto';
+            }
+            confirmBtn?.removeEventListener('click', handleConfirm);
+            cancelBtn?.removeEventListener('click', handleCancel);
+            overlay?.removeEventListener('click', handleOverlay);
+            resolve(result);
+          };
+          
+          const handleConfirm = () => close(true);
+          const handleCancel = () => close(false);
+          const handleOverlay = (e: Event) => {
+            if (e.target === overlay) close(false);
+          };
+          
+          confirmBtn?.addEventListener('click', handleConfirm);
+          cancelBtn?.addEventListener('click', handleCancel);
+          overlay?.addEventListener('click', handleOverlay);
+        });
+        
+        if (!confirmed) return;
+
+        try {
+          // Créer une nouvelle conversation
+          const result = await resetChatConversation();
+          
+          if (result.success && result.newConversation) {
+            // Mettre à jour la conversation courante
+            currentConversation = result.newConversation;
+            conversationHistory = [];
+            
+            // Vider l'interface (garder seulement le message de bienvenue)
+            if (messagesContainer) {
+              // Garder seulement le premier message (bienvenue)
+              const welcomeMessage = messagesContainer.firstElementChild;
+              messagesContainer.innerHTML = '';
+              if (welcomeMessage) {
+                messagesContainer.appendChild(welcomeMessage);
+              }
+            }
+            
+            console.log('✅ Conversation réinitialisée');
+            
+            // Afficher un message de confirmation
+            addMessageToUI('Conversation réinitialisée ! Comment puis-je vous aider ?', false, false);
+          } else {
+            alert('Erreur lors de la réinitialisation: ' + result.error);
+          }
+        } catch (error) {
+          console.error('Erreur reset:', error);
+          alert('Une erreur est survenue lors de la réinitialisation.');
         }
       });
     }

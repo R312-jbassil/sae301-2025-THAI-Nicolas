@@ -6,6 +6,7 @@ import MainBouton from '../components/boutons/MainBouton.astro';
 import ModalInfos from '../components/modals/ModalInfos.astro';
 import ModalAjoutPanier from '../components/modals/ModalAjoutPanier.astro';
 import ModalChatIA from '../components/modals/ModalChatIA.astro';
+import ModalConfirm from '../components/modals/ModalConfirm.astro';
 import Logo from '../assets/icones/logo.svg';
 import IconIa from '../assets/icones/ia.svg';
 import LunettesSVG from '../assets/lunettes.svg';
@@ -365,6 +366,11 @@ import IconPanier from '../assets/icones/panier.svg';
   <ModalInfos id="info-modal" />
   <ModalAjoutPanier id="cart-modal" />
   <ModalChatIA id="chat-modal" />
+  <ModalConfirm 
+    id="reset-chat-confirm" 
+    title="Réinitialiser la conversation ?"
+    message="Voulez-vous vraiment réinitialiser la conversation ? Cet historique sera sauvegardé mais une nouvelle conversation sera créée."
+  />
 
   <!-- Bouton circulaire Chat IA (en bas à gauche) -->
   <button 
