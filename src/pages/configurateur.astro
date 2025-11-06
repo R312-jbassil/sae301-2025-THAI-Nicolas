@@ -7,6 +7,7 @@ import ModalInfos from '../components/modals/ModalInfos.astro';
 import ModalAjoutPanier from '../components/modals/ModalAjoutPanier.astro';
 import ModalChatIA from '../components/modals/ModalChatIA.astro';
 import ModalConfirm from '../components/modals/ModalConfirm.astro';
+import ModalAuthRequired from '../components/modals/ModalAuthRequired.astro';
 import Logo from '../assets/icones/logo.svg';
 import IconIa from '../assets/icones/ia.svg';
 import LunettesSVG from '../assets/lunettes.svg';
@@ -334,11 +335,11 @@ import IconPanier from '../assets/icones/panier.svg';
           <p class="text-3xl font-bold text-noir">149€</p>
         </div>
 
-        <!-- Bouton sauvegarde -->
+        <!-- Bouton sauvegarde avec CTA émotionnel -->
         <div id="open-cart-modal" class="w-full cursor-pointer">
           <MainBouton 
             variant="primary"
-            texte="SAUVEGARDER LA CONFIGURATION"
+            texte="SAUVEGARDER MON MODÈLE UNIQUE"
             icone="panier"
             class="w-full"
           />
@@ -351,6 +352,7 @@ import IconPanier from '../assets/icones/panier.svg';
   <ModalInfos id="info-modal" />
   <ModalAjoutPanier id="cart-modal" />
   <ModalChatIA id="chat-modal" />
+  <ModalAuthRequired id="auth-required-modal" />
   <ModalConfirm 
     id="reset-chat-confirm" 
     title="Réinitialiser la conversation ?"
@@ -1086,15 +1088,23 @@ import IconPanier from '../assets/icones/panier.svg';
       console.log('Auth valide?', pb.authStore.isValid);
       console.log('User:', pb.authStore.model);
       
-      // Vérifier l'authentification
+      // Vérifier l'authentification - Afficher le modal d'authentification requise
       if (!pb.authStore.isValid) {
-        console.log('Non connecté, stockage dans localStorage');
+        console.log('Non connecté, affichage du modal d\'authentification');
+        
+        // Stocker la configuration dans localStorage pour la récupérer après connexion
         localStorage.setItem('pendingConfiguration', JSON.stringify({
           config: (window as any).currentConfig,
           colors: (window as any).currentColors,
           prix: (window as any).calculerPrixTotal()
         }));
-        window.location.href = '/authentification?redirect=/configurateur&action=save';
+        
+        // Afficher le modal
+        const modal = document.getElementById('auth-required-modal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+        }
         return;
       }
 

@@ -20,6 +20,8 @@ export interface Modele {
   taille: string;
   nouveaute?: boolean;
   bestseller?: boolean;
+  nombrePersonnalisations?: number; // Nombre d'utilisateurs ayant personnalisé ce modèle
+  stock?: "limité" | "normal" | "dernieres-pieces"; // Indication de stock
 }
 
 export const modeles: Modele[] = [
@@ -46,6 +48,7 @@ export const modeles: Modele[] = [
     epaisseur: "moyen",
     taille: "52-18",
     bestseller: true,
+    nombrePersonnalisations: 287, // Preuve sociale
   },
   {
     id: "vintage",
@@ -70,6 +73,8 @@ export const modeles: Modele[] = [
     epaisseur: "fin",
     taille: "48-16",
     nouveaute: true,
+    nombrePersonnalisations: 156, // Preuve sociale
+    stock: "limité", // Rareté
   },
   {
     id: "soleil",
