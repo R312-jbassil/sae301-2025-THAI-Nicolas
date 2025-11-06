@@ -284,6 +284,23 @@ import IconPanier from '../assets/icones/panier.svg';
               </div>
             </div>
           </div>
+
+          <!-- Matériau -->
+          <div class="mb-8 accordion-section">
+            <button class="flex items-center justify-between w-full mb-6 accordion-trigger" data-accordion="materiau">
+              <h3 class="text-xl font-semibold text-noir">MATÉRIAU</h3>
+              <img src={Chevron.src} alt="Déplier" class="w-4.5 h-2.5 accordion-chevron transition-transform duration-300" />
+            </button>
+
+            <div class="accordion-content overflow-hidden transition-all duration-300" data-accordion-content="materiau">
+              <div class="space-y-4" id="materiaux-list">
+                <!-- Les matériaux seront chargés dynamiquement depuis PocketBase -->
+                <div class="text-center py-4 text-gris">
+                  <p>Chargement des matériaux...</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Contenu pour BRANCHES -->
@@ -598,6 +615,17 @@ import IconPanier from '../assets/icones/panier.svg';
       } else if (accordionId === 'epaisseur') {
         currentConfig.epaisseur = optionValue.toLowerCase();
         console.log('epaisseur mis à jour:', currentConfig.epaisseur);
+      } else if (accordionId === 'materiau') {
+        // Récupérer les données du matériau
+        const materiauId = selectButton.getAttribute('data-materiau-id');
+        const materiauPrix = parseFloat(selectButton.getAttribute('data-materiau-prix') || '0');
+        
+        currentConfig.materiauId = materiauId;
+        currentConfig.materiauNom = optionValue;
+        currentConfig.materiauPrix = materiauPrix;
+        
+        console.log('matériau mis à jour:', currentConfig.materiauNom, '+', materiauPrix, '€');
+        updatePriceDisplay();
       }
     });
 
@@ -616,7 +644,10 @@ import IconPanier from '../assets/icones/panier.svg';
       formeMonture: 'rectangulaire',
       couleurMonture: '#1A1A1A',
       epaisseur: 'moyen',
-      couleurBranches: '#1A1A1A'
+      couleurBranches: '#1A1A1A',
+      materiauId: null as string | null, // ID du matériau sélectionné
+      materiauNom: 'Acétate de cellulose', // Nom pour affichage
+      materiauPrix: 0 // Prix supplémentaire
     };
 
     // Prix de base et suppléments
@@ -638,6 +669,11 @@ import IconPanier from '../assets/icones/panier.svg';
       const typeVerres = currentConfig.typeVerres as keyof typeof prixOptions.typeVerres;
       if (prixOptions.typeVerres[typeVerres] !== undefined) {
         total += prixOptions.typeVerres[typeVerres];
+      }
+      
+      // Ajouter le prix du matériau
+      if (currentConfig.materiauPrix) {
+        total += currentConfig.materiauPrix;
       }
       
       return total;
@@ -697,10 +733,72 @@ import IconPanier from '../assets/icones/panier.svg';
     (window as any).applySVGColors = applySVGColors;
     (window as any).updatePriceDisplay = updatePriceDisplay;
 
+    // Fonction pour charger les matériaux depuis PocketBase
+    async function loadMateriaux() {
+      const { getMateriaux } = await import('../utils/pb');
+      const result = await getMateriaux();
+      
+      if (result.success && result.materiaux) {
+        const materiauxList = document.getElementById('materiaux-list');
+        if (!materiauxList) return;
+        
+        // Vider le message de chargement
+        materiauxList.innerHTML = '';
+        
+        // Créer un bouton pour chaque matériau
+        result.materiaux.forEach((materiau: any, index: number) => {
+          const button = document.createElement('button');
+          button.className = `w-full px-6 py-4 rounded-xl border-2 transition-all duration-200 hover:shadow-md flex items-center justify-between ${
+            index === 0 ? 'border-[#589772] bg-[#f0f7f4]' : 'border-[#E8E8E8] bg-white'
+          }`;
+          button.setAttribute('aria-pressed', index === 0 ? 'true' : 'false');
+          button.setAttribute('data-value', materiau.libelle);
+          button.setAttribute('data-materiau-id', materiau.id);
+          button.setAttribute('data-materiau-prix', materiau.prix_supplementaire.toString());
+          
+          const leftDiv = document.createElement('div');
+          leftDiv.className = 'flex items-center gap-3';
+          
+          const span = document.createElement('span');
+          span.className = 'font-medium text-noir';
+          span.textContent = materiau.libelle;
+          
+          leftDiv.appendChild(span);
+          button.appendChild(leftDiv);
+          
+          // Afficher le prix supplémentaire si > 0
+          if (materiau.prix_supplementaire > 0) {
+            const priceSpan = document.createElement('span');
+            priceSpan.className = 'text-sm text-vert font-semibold';
+            priceSpan.textContent = `+${materiau.prix_supplementaire}€`;
+            button.appendChild(priceSpan);
+          }
+          
+          materiauxList.appendChild(button);
+          
+          // Sélectionner le premier matériau par défaut
+          if (index === 0) {
+            currentConfig.materiauId = materiau.id;
+            currentConfig.materiauNom = materiau.libelle;
+            currentConfig.materiauPrix = materiau.prix_supplementaire;
+          }
+        });
+        
+        updatePriceDisplay(); // Mettre à jour le prix après chargement
+      } else {
+        console.error('Erreur chargement matériaux:', result.error);
+        const materiauxList = document.getElementById('materiaux-list');
+        if (materiauxList) {
+          materiauxList.innerHTML = '<div class="text-center py-4 text-red-500"><p>Erreur de chargement des matériaux</p></div>';
+        }
+      }
+    }
+
     // Appliquer les couleurs au chargement
     document.addEventListener('DOMContentLoaded', () => {
       applySVGColors();
       updatePriceDisplay(); // Initialiser le prix au chargement
+      loadMateriaux(); // Charger les matériaux depuis PocketBase
 
       // Gestion des color pickers personnalisés
       const colorPickerVerres = document.querySelector('.color-picker-verres');
@@ -923,7 +1021,7 @@ import IconPanier from '../assets/icones/panier.svg';
 
       const configData = {
         nom: configName,
-        description: `Lunettes ${config.formeMonture} avec verres ${config.typeVerres}`,
+        description: `Lunettes ${config.formeMonture} en ${config.materiauNom} avec verres ${config.typeVerres}`,
         prix: prix,
         taille: config.taille,
         couleur_monture: config.couleurMonture,
@@ -932,6 +1030,7 @@ import IconPanier from '../assets/icones/panier.svg';
         forme_monture: config.formeMonture,
         epaisseur_monture: config.epaisseur,
         types_verres: config.typeVerres,
+        materiau_id: config.materiauId, // Ajouter l'ID du matériau
         est_dans_panier: addToCart, // Ajouter ce champ
       };
 
@@ -1072,6 +1171,7 @@ import IconPanier from '../assets/icones/panier.svg';
           document.getElementById('cart-type-verres')!.textContent = config.typeVerres;
           document.getElementById('cart-forme')!.textContent = config.formeMonture;
           document.getElementById('cart-epaisseur')!.textContent = config.epaisseur;
+          document.getElementById('cart-materiau')!.textContent = config.materiauNom;
           
           // Appliquer les couleurs au SVG du modal
           const modalSvgContainer = document.getElementById('modal-preview-container');

@@ -3,33 +3,58 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/layouts/Header.astro';
 import { pb } from '../utils/pb';
 
-// Vérifier l'authentification via le cookie
-const authCookie = Astro.cookies.get('pb_auth');
+// Récupérer les configurations dans le panier (avec cookie)
 let user = null;
-let configurations = [];
+let panierConfigurations: any[] = [];
 let total = 0;
 
-if (authCookie) {
+const authCookie = Astro.cookies.get('pb_auth');
+
+if (authCookie?.value) {
   try {
     const cookieData = JSON.parse(authCookie.value);
     pb.authStore.save(cookieData.token, cookieData.model);
     
-    if (pb.authStore.isValid) {
-      user = pb.authStore.model;
+    user = pb.authStore.model;
+    if (user?.id) {
+      const filter = `user_id = "${user.id}" && est_dans_panier = true`;
       
-      // Récupérer les configurations dans le panier
-      configurations = await pb.collection('configurations').getFullList({
-        filter: `user_id = "${user.id}" && est_dans_panier = true`,
-        sort: '-created',
+      const records = await pb.collection("configuration_lunettes").getFullList({
+        filter,
+        expand: "materiau_id",
+        sort: "-created",
+      });
+
+      // Transformer les données pour l'affichage
+      panierConfigurations = records.map((config: any) => {
+        const materiauNom = config.expand?.materiau_id?.libelle || 'Acétate de cellulose';
+        
+        return {
+          id: config.id,
+          nom: config.nom || 'SANS NOM',
+          description: config.description || '',
+          prix: config.prix || 149,
+          taille: config.taille || '52-18',
+          types_verres: config.types_verres || 'correcteurs',
+          forme_monture: config.forme_monture || 'rectangulaire',
+          epaisseur_monture: config.epaisseur_monture || 'moyen',
+          couleur_monture: config.couleur_monture,
+          couleur_branches: config.couleur_branches,
+          couleur_verres: config.couleur_verres,
+          materiauNom: materiauNom,
+          created: config.created
+        };
       });
       
       // Calculer le total
-      total = configurations.reduce((sum, config) => sum + (config.prix || 0), 0);
+      total = panierConfigurations.reduce((sum, config) => sum + (config.prix || 0), 0);
     }
   } catch (error) {
-    console.error('Erreur auth:', error);
+    console.error('Erreur récupération panier:', error);
   }
 }
+
+const configurations = panierConfigurations;
 
 // Formater la date
 function formatDate(dateString: string) {
@@ -146,6 +171,10 @@ function capitalize(str: string) {
                       <div>
                         <p class="text-xs text-gris">Épaisseur</p>
                         <p class="text-sm font-semibold text-noir">{capitalize(config.epaisseur_monture)}</p>
+                      </div>
+                      <div>
+                        <p class="text-xs text-gris">Matériau</p>
+                        <p class="text-sm font-semibold text-noir">{config.materiauNom}</p>
                       </div>
                     </div>
 
@@ -345,7 +374,7 @@ function capitalize(str: string) {
 
         try {
           // Mettre à jour la configuration (retirer du panier)
-          await pb.collection('configurations').update(configId, {
+          await pb.collection('configuration_lunettes').update(configId, {
             est_dans_panier: false
           });
 

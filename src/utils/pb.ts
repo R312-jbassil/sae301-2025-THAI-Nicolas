@@ -128,6 +128,26 @@ export interface Cart {
  */
 
 /**
+ * Sauvegarder l'authentification dans un cookie HTTP
+ */
+export function savePocketBaseCookie() {
+  if (typeof document !== "undefined" && pb.authStore.isValid) {
+    const cookieData = {
+      token: pb.authStore.token,
+      model: pb.authStore.model,
+    };
+
+    // Créer un cookie qui expire dans 7 jours
+    const expires = new Date();
+    expires.setDate(expires.getDate() + 7);
+
+    document.cookie = `pb_auth=${encodeURIComponent(
+      JSON.stringify(cookieData)
+    )}; path=/; expires=${expires.toUTCString()}; SameSite=Lax`;
+  }
+}
+
+/**
  * Connecter un utilisateur avec email/password
  */
 export async function loginWithEmail(email: string, password: string) {
@@ -147,6 +167,9 @@ export async function loginWithEmail(email: string, password: string) {
         needsVerification: true,
       };
     }
+
+    // Sauvegarder dans un cookie HTTP pour Astro SSR
+    savePocketBaseCookie();
 
     return { success: true, user: authData.record };
   } catch (error: any) {
@@ -229,6 +252,10 @@ export async function confirmVerification(token: string) {
 export async function loginWithOAuth(provider: "google" | "apple" | "github") {
   try {
     const authData = await pb.collection("users").authWithOAuth2({ provider });
+
+    // Sauvegarder dans un cookie HTTP pour Astro SSR
+    savePocketBaseCookie();
+
     return { success: true, user: authData.record };
   } catch (error: any) {
     console.error(`Erreur OAuth ${provider}:`, error);
@@ -241,6 +268,12 @@ export async function loginWithOAuth(provider: "google" | "apple" | "github") {
  */
 export function logout() {
   pb.authStore.clear();
+
+  // Supprimer le cookie pb_auth
+  if (typeof document !== "undefined") {
+    document.cookie =
+      "pb_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
+  }
 }
 
 /**
