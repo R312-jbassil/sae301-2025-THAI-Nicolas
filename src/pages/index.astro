@@ -3,8 +3,7 @@ import Layout from "../layouts/Layout.astro"
 import Header from "../components/layouts/Header.astro";
 import MainBouton from "../components/boutons/MainBouton.astro";
 import CardAccueil from "../components/ui/CardAccueil.astro";
-import LunettesSVG from "../assets/lunettes.svg";
-import ModelLunette3D from "../assets/models/glasses.glb";
+import Glasses3DViewer from "../components/3d/Glasses3DViewer.astro";
 ---
 
 <Layout title="TaVue - Lunettes personnalisées françaises" description="Personnalisez vos propres paires de lunettes avec notre configurateur unique en ligne.">
@@ -18,7 +17,7 @@ import ModelLunette3D from "../assets/models/glasses.glb";
 		<!-- Container principal -->
 		<div class="max-w-7xl mx-auto px-8 relative z-10">
 			<!-- Titre et sous-titre -->
-			<div class="text-center pt-10 pb-24">
+			<div class="text-center pt-10">
 				<h1 class="font-bold text-6xl text-noir uppercase tracking-wider leading-tight mb-6">
 					Vos lunettes de rêves
 				</h1>
@@ -27,17 +26,16 @@ import ModelLunette3D from "../assets/models/glasses.glb";
 				</p>
 			</div>
 
-			<!-- Section lunettes SVG -->
-			<div class="flex items-center justify-center mb-24">
-				<img 
-					src={LunettesSVG.src} 
-					alt="Lunettes personnalisables TaVue" 
-					class="w-auto h-64 object-contain"
-				/>
+			<!-- Section lunettes 3D -->
+			<div class="flex items-center justify-center relative z-20 -mb-16">
+				<div class="w-full max-w-4xl">
+					<Glasses3DViewer />
+				</div>
 			</div>
 
 			<!-- 3 Cards -->
-			<div class="flex items-stretch justify-center gap-8 mb-16">
+		<div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center scale-85 gap-8 z-30">
+			<div class="flex items-stretch justify-center gap-20 mb-8">
 				<div class="w-card">
 					<CardAccueil
 						icone="style"
@@ -62,8 +60,9 @@ import ModelLunette3D from "../assets/models/glasses.glb";
 			</div>
 
 			<!-- Bouton CTA -->
-			<a class="flex align-center justify-center mb-32" href="/configurateur">
+			<a class="flex align-center justify-center mb-16" href="/configurateur">
 				<MainBouton variant="primary" texte="Créer mes lunettes">
 			</a>
+		</div>
 	</main>
 </Layout>

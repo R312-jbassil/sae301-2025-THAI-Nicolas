@@ -1,0 +1,449 @@
+---
+// Composant 3D pour afficher le modèle de lunettes interactif
+---
+
+<div id="glasses-3d-container" class="w-full h-[800px] flex items-center justify-center relative group">
+	<canvas id="glasses-canvas" class="absolute w-[2000px] h-[800px]"></canvas>
+	
+	<!-- Indicateur d'interaction -->
+	<div class="hidden absolute bottom-4 left-1/2 -translate-x-1/2 bg-noir/70 text-white px-4 py-2 rounded-full text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+		🖱️ Cliquez et glissez pour faire tourner
+	</div>
+	
+	<!-- Debug info -->
+	<div id="debug-info" class="hidden absolute top-4 left-4 bg-white/90 p-2 rounded text-xs font-mono">
+		<div>Canvas: <span id="canvas-size">-</span></div>
+		<div>Container: <span id="container-size">-</span></div>
+		<div>Camera near/far: <span id="camera-planes">-</span></div>
+		<div>Controls dist: <span id="controls-dist">-</span></div>
+		<div>Model bounds: <span id="model-bounds">-</span></div>
+	</div>
+	
+	<!-- Panneau de contrôle pour ajuster la position (mode développement) -->
+	<div id="debug-controls" class="hidden absolute top-4 right-4 bg-white/90 p-4 rounded-lg shadow-lg text-sm space-y-2 z-50">
+		<div class="font-bold text-noir mb-2">🎛️ Contrôles 3D</div>
+		
+		<div>
+			<label class="text-gris">Position X:</label>
+			<input type="range" id="posX" min="-5" max="5" step="0.1" value="0" class="w-full">
+			<span id="posX-val" class="text-vert">0</span>
+		</div>
+		
+		<div>
+			<label class="text-gris">Position Y:</label>
+			<input type="range" id="posY" min="-5" max="5" step="0.1" value="0" class="w-full">
+			<span id="posY-val" class="text-vert">0</span>
+		</div>
+		
+		<div>
+			<label class="text-gris">Position Z:</label>
+			<input type="range" id="posZ" min="-5" max="5" step="0.1" value="0" class="w-full">
+			<span id="posZ-val" class="text-vert">0</span>
+		</div>
+		
+		<div>
+			<label class="text-gris">Rotation Y:</label>
+			<input type="range" id="rotY" min="-3.14" max="3.14" step="0.01" value="0" class="w-full">
+			<span id="rotY-val" class="text-vert">0</span>
+		</div>
+		
+		<div>
+			<label class="text-gris">Échelle:</label>
+			<input type="range" id="scale" min="1" max="30" step="0.5" value="15" class="w-full">
+			<span id="scale-val" class="text-vert">15</span>
+		</div>
+		
+		<div>
+			<label class="text-gris">Caméra Z:</label>
+			<input type="range" id="camZ" min="0.5" max="10" step="0.1" value="3" class="w-full">
+			<span id="camZ-val" class="text-vert">3</span>
+		</div>
+		
+		<button id="copyValues" class="w-full bg-vert text-white px-3 py-1 rounded mt-2 hover:bg-vert/80">
+			📋 Copier les valeurs
+		</button>
+	</div>
+</div>
+
+<script>
+	import * as THREE from 'three';
+	import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+	import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+	// Configuration de la scène 3D
+	function init3DScene() {
+		const container = document.getElementById('glasses-3d-container');
+		const canvas = document.getElementById('glasses-canvas') as HTMLCanvasElement;
+		
+		if (!container || !canvas) {
+			console.error('Container ou canvas 3D introuvable');
+			return;
+		}
+
+		// Dimensions FIXES pour avoir un canvas très large (pas limité par le conteneur)
+		const width = 2000;  // Canvas très large
+		const height = 1600; // Canvas très haut
+		
+		console.log('🔍 === DIAGNOSTIC 3D SCENE ===');
+		console.log('📏 Container dimensions:', { width, height });
+		console.log('📦 Container element:', container);
+		console.log('🎨 Canvas element:', canvas);
+
+		// Scène
+		const scene = new THREE.Scene();
+		scene.background = null; // Transparent pour s'intégrer au design
+
+		// Caméra - Configuration optimale pour éviter le clipping
+		const camera = new THREE.PerspectiveCamera(75, width / height, 0.01, 2000);
+		camera.position.set(0, 0, 10.1);
+		camera.lookAt(0, 0, 0);
+		
+		console.log('📷 Camera config:', {
+			fov: camera.fov,
+			aspect: camera.aspect,
+			near: camera.near,
+			far: camera.far,
+			position: camera.position
+		});
+
+		// Renderer avec viewport élargi
+		const renderer = new THREE.WebGLRenderer({
+			canvas: canvas,
+			antialias: true,
+			alpha: true, // Transparence activée
+			preserveDrawingBuffer: true
+		});
+		renderer.setSize(width, height);
+		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+		renderer.setScissorTest(false);
+		renderer.setViewport(0, 0, width, height);
+		
+		console.log('🎨 Renderer config:', {
+			size: { width, height },
+			pixelRatio: renderer.getPixelRatio(),
+			scissorTest: renderer.getScissorTest(),
+			viewport: renderer.getViewport(new THREE.Vector4())
+		});
+
+		// Contrôles interactifs (manipulation à la souris)
+		const controls = new OrbitControls(camera, canvas);
+		controls.enableDamping = true; // Animation fluide
+		controls.dampingFactor = 0.1; // Sensibilité réduite (0.05 → 0.1)
+		controls.rotateSpeed = 0.5; // Vitesse de rotation réduite
+		controls.enableZoom = false; // Zoom désactivé
+		controls.enablePan = false; // Pan désactivé
+		controls.target.set(0, -2.7, 0);
+		
+		// Limites de rotation (empêche de faire un tour complet)
+		controls.minAzimuthAngle = -Math.PI / 3; // -60° (limite gauche)
+		controls.maxAzimuthAngle = Math.PI / 3;  // +60° (limite droite)
+		controls.minPolarAngle = Math.PI / 2.5;  // Limite haut
+		controls.maxPolarAngle = Math.PI / 1.5;  // Limite bas
+		
+		console.log('🎮 OrbitControls config:', {
+			minDistance: controls.minDistance,
+			maxDistance: controls.maxDistance,
+			target: controls.target,
+			enableDamping: controls.enableDamping,
+			enableZoom: controls.enableZoom,
+			enablePan: controls.enablePan
+		});
+
+		// Lumières
+		const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+		scene.add(ambientLight);
+
+		const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+		directionalLight1.position.set(5, 5, 5);
+		scene.add(directionalLight1);
+
+		const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+		directionalLight2.position.set(-5, -5, -5);
+		scene.add(directionalLight2);
+
+		// Chargement du modèle
+		const loader = new GLTFLoader();
+		let glassesModel: THREE.Group | null = null;
+		let isLoading = true;
+
+		// Variables pour les contrôles - Valeurs finales optimisées
+		let modelPosX = 0.10, modelPosY = -2.70, modelPosZ = 0.10;
+		let modelRotY = -1.55;
+		let modelScale = 6.5;
+
+		// Fonction pour configurer les contrôles interactifs
+		function setupControls(model: THREE.Group, maxDim: number) {
+			const posXInput = document.getElementById('posX') as HTMLInputElement;
+			const posYInput = document.getElementById('posY') as HTMLInputElement;
+			const posZInput = document.getElementById('posZ') as HTMLInputElement;
+			const rotYInput = document.getElementById('rotY') as HTMLInputElement;
+			const scaleInput = document.getElementById('scale') as HTMLInputElement;
+			const camZInput = document.getElementById('camZ') as HTMLInputElement;
+			
+			const posXVal = document.getElementById('posX-val');
+			const posYVal = document.getElementById('posY-val');
+			const posZVal = document.getElementById('posZ-val');
+			const rotYVal = document.getElementById('rotY-val');
+			const scaleVal = document.getElementById('scale-val');
+			const camZVal = document.getElementById('camZ-val');
+			
+			const copyBtn = document.getElementById('copyValues');
+
+			// Position X
+			posXInput?.addEventListener('input', (e) => {
+				const val = parseFloat((e.target as HTMLInputElement).value);
+				model.position.x = val;
+				if (posXVal) posXVal.textContent = val.toFixed(2);
+			});
+
+			// Position Y
+			posYInput?.addEventListener('input', (e) => {
+				const val = parseFloat((e.target as HTMLInputElement).value);
+				model.position.y = val;
+				if (posYVal) posYVal.textContent = val.toFixed(2);
+			});
+
+			// Position Z
+			posZInput?.addEventListener('input', (e) => {
+				const val = parseFloat((e.target as HTMLInputElement).value);
+				model.position.z = val;
+				if (posZVal) posZVal.textContent = val.toFixed(2);
+			});
+
+			// Rotation Y
+			rotYInput?.addEventListener('input', (e) => {
+				const val = parseFloat((e.target as HTMLInputElement).value);
+				model.rotation.y = val;
+				if (rotYVal) rotYVal.textContent = val.toFixed(2);
+			});
+
+			// Échelle
+			scaleInput?.addEventListener('input', (e) => {
+				const val = parseFloat((e.target as HTMLInputElement).value);
+				const scale = val / maxDim;
+				model.scale.setScalar(scale);
+				if (scaleVal) scaleVal.textContent = val.toFixed(1);
+			});
+
+			// Caméra Z
+			camZInput?.addEventListener('input', (e) => {
+				const val = parseFloat((e.target as HTMLInputElement).value);
+				camera.position.z = val;
+				if (camZVal) camZVal.textContent = val.toFixed(1);
+			});
+
+			// Copier les valeurs
+			copyBtn?.addEventListener('click', () => {
+				const values = `
+Position: { x: ${model.position.x.toFixed(2)}, y: ${model.position.y.toFixed(2)}, z: ${model.position.z.toFixed(2)} }
+Rotation Y: ${model.rotation.y.toFixed(2)}
+Scale: ${scaleInput?.value || '15'}
+Camera Z: ${camera.position.z.toFixed(1)}
+				`.trim();
+				
+				navigator.clipboard.writeText(values);
+				if (copyBtn) {
+					const originalText = copyBtn.textContent;
+					copyBtn.textContent = '✅ Copié !';
+					setTimeout(() => { copyBtn.textContent = originalText; }, 2000);
+				}
+				
+				console.log('📋 Valeurs copiées:', values);
+			});
+		}
+
+		loader.load(
+			'/src/assets/models/glasses.glb',
+			(gltf) => {
+				glassesModel = gltf.scene;
+				
+				// Centrer et ajuster l'échelle du modèle
+				const box = new THREE.Box3().setFromObject(glassesModel);
+				const center = box.getCenter(new THREE.Vector3());
+				const size = box.getSize(new THREE.Vector3());
+				
+				// Centrer le modèle
+				glassesModel.position.sub(center);
+				
+				// Appliquer les valeurs finales optimisées
+				const maxDim = Math.max(size.x, size.y, size.z);
+				const scale = modelScale / maxDim;
+				glassesModel.scale.setScalar(scale);
+				
+				// Position finale
+				glassesModel.position.x = modelPosX;
+				glassesModel.position.y = modelPosY;
+				glassesModel.position.z = modelPosZ;
+				
+				// Rotation finale
+				glassesModel.rotation.y = modelRotY;
+				glassesModel.rotation.x = 0;
+				glassesModel.rotation.z = 0;
+				
+				scene.add(glassesModel);
+				isLoading = false;
+				
+				console.log('✅ Modèle 3D chargé avec succès');
+				console.log('📏 Taille du modèle:', size);
+				console.log('📐 Max dimension:', maxDim);
+				console.log('🎯 Échelle appliquée:', scale);
+				console.log('📍 Position finale:', glassesModel.position);
+				console.log('🔄 Rotation finale:', glassesModel.rotation);
+				console.log('📦 Bounding box:', {
+					min: box.min,
+					max: box.max,
+					center: center
+				});
+				
+				// CRITICAL: Vérifier si le modèle est dans le frustum de la caméra
+				const frustum = new THREE.Frustum();
+				const projScreenMatrix = new THREE.Matrix4();
+				camera.updateMatrixWorld();
+				projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+				frustum.setFromProjectionMatrix(projScreenMatrix);
+				
+				const isInFrustum = frustum.intersectsBox(box);
+				console.log('👁️ Modèle visible dans frustum?', isInFrustum);
+				
+				if (!isInFrustum) {
+					console.warn('⚠️ PROBLÈME: Le modèle est en dehors du frustum de la caméra!');
+				}
+				
+				console.log('🔍 === FIN DIAGNOSTIC ===');
+				
+				// Activer les contrôles après chargement
+				setupControls(glassesModel, maxDim);
+			},
+			(progress) => {
+				const percent = (progress.loaded / progress.total) * 100;
+				console.log(`📦 Chargement du modèle 3D: ${percent.toFixed(0)}%`);
+			},
+			(error) => {
+				console.error('❌ Erreur lors du chargement du modèle 3D:', error);
+				isLoading = false;
+				// Afficher un message d'erreur dans le DOM
+				if (container) {
+					container.innerHTML = `
+						<div class="text-center text-gris">
+							<p>Impossible de charger le modèle 3D</p>
+							<p class="text-sm mt-2">Vérifiez que le fichier glasses.glb existe</p>
+						</div>
+					`;
+				}
+			}
+		);
+
+		// Animation avec contrôles interactifs et debug
+		let animationFrameId: number;
+		let rotationDirection = 1; // 1 = droite, -1 = gauche
+		const baseRotation = -1.55; // Rotation de base
+		const rotationAmplitude = 0.4; // Amplitude de l'oscillation (±0.4 rad ≈ ±23°)
+		
+		function animate() {
+			animationFrameId = requestAnimationFrame(animate);
+
+			// Rotation automatique en va-et-vient (oscillation)
+			if (glassesModel && !isLoading) {
+				// Calculer la nouvelle rotation
+				const targetRotation = glassesModel.rotation.y + (0.002 * rotationDirection);
+				
+				// Vérifier les limites et inverser la direction si nécessaire
+				if (targetRotation > baseRotation + rotationAmplitude) {
+					rotationDirection = -1; // Inverser vers la gauche
+				} else if (targetRotation < baseRotation - rotationAmplitude) {
+					rotationDirection = 1; // Inverser vers la droite
+				}
+				
+				// Appliquer la rotation
+				glassesModel.rotation.y = targetRotation;
+			}
+
+			// Mise à jour des contrôles pour l'animation fluide
+			controls.update();
+
+			// DEBUG: Afficher les informations en temps réel
+			const canvasSizeEl = document.getElementById('canvas-size');
+			const containerSizeEl = document.getElementById('container-size');
+			const cameraPlanesEl = document.getElementById('camera-planes');
+			const controlsDistEl = document.getElementById('controls-dist');
+			const modelBoundsEl = document.getElementById('model-bounds');
+			
+			if (canvasSizeEl) canvasSizeEl.textContent = `${canvas.width}x${canvas.height}`;
+			if (containerSizeEl) containerSizeEl.textContent = `${container?.clientWidth}x${container?.clientHeight}`;
+			if (cameraPlanesEl) cameraPlanesEl.textContent = `near:${camera.near} far:${camera.far}`;
+			if (controlsDistEl) controlsDistEl.textContent = `min:${controls.minDistance} max:${controls.maxDistance} current:${camera.position.distanceTo(controls.target).toFixed(2)}`;
+			
+			if (glassesModel && modelBoundsEl) {
+				const box = new THREE.Box3().setFromObject(glassesModel);
+				const size = box.getSize(new THREE.Vector3());
+				modelBoundsEl.textContent = `${size.x.toFixed(2)}x${size.y.toFixed(2)}x${size.z.toFixed(2)}`;
+			}
+
+			renderer.render(scene, camera);
+		}
+
+		animate();
+
+		// Gestion du redimensionnement
+		function handleResize() {
+			if (!container) return;
+			
+			const newWidth = container.clientWidth;
+			const newHeight = container.clientHeight;
+
+			camera.aspect = newWidth / newHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(newWidth, newHeight);
+		}
+
+		window.addEventListener('resize', handleResize);
+
+		// Nettoyage lors de la destruction du composant
+		return () => {
+			window.removeEventListener('resize', handleResize);
+			cancelAnimationFrame(animationFrameId);
+			controls.dispose();
+			renderer.dispose();
+			
+			if (glassesModel) {
+				scene.remove(glassesModel);
+			}
+		};
+	}
+
+	// Initialisation après le chargement du DOM
+	if (typeof window !== 'undefined') {
+		document.addEventListener('DOMContentLoaded', () => {
+			console.log('🚀 Initialisation de la vue 3D...');
+			init3DScene();
+		});
+	}
+</script>
+
+<style>
+	#glasses-3d-container {
+		position: relative;
+		overflow: visible;
+		pointer-events: none; /* Ne bloque pas les clics en dehors */
+	}
+
+	#glasses-canvas {
+		position: absolute; /* CLEF: Position absolute pour déborder */
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%); /* Centrage parfait */
+		width: 2000px !important; /* Dimensions fixes pour éviter le clipping */
+		height: 1600px !important;
+		display: block;
+		z-index: 10; /* Au-dessus du conteneur */
+		pointer-events: auto; /* Le canvas lui-même reste interactif */
+	}
+	
+	/* Les éléments de debug restent interactifs */
+	#debug-info,
+	#debug-controls {
+		pointer-events: auto;
+		z-index: 20;
+	}
+</style>
