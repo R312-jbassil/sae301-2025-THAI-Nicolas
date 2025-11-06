@@ -18,20 +18,7 @@ if (authCookie?.value) {
     
     user = pb.authStore.model;
     if (user?.id) {
-      // Récupérer les stats du panier depuis la vue PocketBase
-      try {
-        const statsFilter = `user_id = "${user.id}"`;
-        const panierStats = await pb.collection("montant_panier_par_utilisateur").getFirstListItem(statsFilter);
-        
-        if (panierStats) {
-          total = panierStats.montant_total || 0;
-          nombreArticles = panierStats.nombre_articles || 0;
-        }
-      } catch (error) {
-        console.log('Aucune stat de panier trouvée:', error);
-      }
-
-      // Récupérer les configurations pour l'affichage
+      // Récupérer les configurations pour l'affichage d'abord
       const filter = `user_id = "${user.id}" && est_dans_panier = true`;
       
       const records = await pb.collection("configuration_lunettes").getFullList({
@@ -39,6 +26,42 @@ if (authCookie?.value) {
         expand: "materiau_id",
         sort: "-created",
       });
+
+      console.log(`📊 Nombre de configs trouvées: ${records.length}`);
+
+      // Récupérer les stats du panier depuis les vues PocketBase
+      try {
+        const statsFilter = `user_id = "${user.id}"`;
+        
+        // Récupérer le montant total
+        try {
+          const montantStats = await pb.collection("montant_panier_par_utilisateur").getFirstListItem(statsFilter);
+          total = montantStats?.montant_total || 0;
+          console.log(`💰 Montant total depuis vue: ${total}€`);
+        } catch (error) {
+          console.log('⚠️ Vue montant_panier non accessible, calcul manuel');
+          // Fallback: calculer manuellement
+          total = records.reduce((sum: number, record: any) => sum + (record.prix || 0), 0);
+        }
+        
+        // Récupérer le nombre d'articles
+        try {
+          const nombreStats = await pb.collection("nombre_lunettes_panier").getFirstListItem(statsFilter);
+          nombreArticles = nombreStats?.nombre_lunettes || 0;
+          console.log(`🔢 Nombre d'articles depuis vue: ${nombreArticles}`);
+        } catch (error) {
+          console.log('⚠️ Vue nombre_lunettes_panier non accessible, calcul manuel');
+          // Fallback: utiliser la longueur du tableau
+          nombreArticles = records.length;
+        }
+      } catch (error) {
+        console.error('❌ Erreur stats panier:', error);
+        // Fallback complet
+        total = records.reduce((sum: number, record: any) => sum + (record.prix || 0), 0);
+        nombreArticles = records.length;
+      }
+
+      console.log(`📦 Résultat final: ${nombreArticles} articles, ${total}€`);
 
       // Transformer les données pour l'affichage
       panierConfigurations = records.map((config: any) => {

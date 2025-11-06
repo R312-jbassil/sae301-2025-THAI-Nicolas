@@ -227,27 +227,40 @@ import BoutonCirculaire from "../boutons/BoutonCirculaire.astro";
       try {
         const user = getCurrentUser();
         if (user?.id) {
-          // Récupérer le nombre d'articles dans le panier
-          const filter = `user_id = "${user.id}" && est_dans_panier = true`;
-          const records = await pb.collection("configuration_lunettes").getList(1, 1, {
-            filter,
-          });
+          let count = 0;
           
-          const count = records.totalItems || 0;
+          // Essayer d'abord avec la vue PocketBase
+          try {
+            const filter = `user_id = "${user.id}"`;
+            const panierStats = await pb.collection("nombre_lunettes_panier").getFirstListItem(filter);
+            count = panierStats?.nombre_lunettes || 0;
+            console.log('🔔 Badge panier (depuis vue):', count);
+          } catch (viewError) {
+            // Fallback : compter directement dans configuration_lunettes
+            console.log('⚠️ Vue non accessible, comptage direct');
+            const filter = `user_id = "${user.id}" && est_dans_panier = true`;
+            const records = await pb.collection("configuration_lunettes").getList(1, 1, { filter });
+            count = records.totalItems || 0;
+            console.log('🔔 Badge panier (comptage direct):', count);
+          }
           
           if (count > 0) {
             cartBadge.textContent = count.toString();
             cartBadge.classList.remove('hidden');
+            cartBadge.classList.add('flex');
           } else {
             cartBadge.classList.add('hidden');
+            cartBadge.classList.remove('flex');
           }
         }
       } catch (error) {
-        console.error('Erreur lors de la récupération du panier:', error);
+        console.error('❌ Erreur badge panier:', error);
         cartBadge.classList.add('hidden');
+        cartBadge.classList.remove('flex');
       }
     } else {
       cartBadge.classList.add('hidden');
+      cartBadge.classList.remove('flex');
     }
   }
 
