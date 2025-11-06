@@ -2,10 +2,11 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/layouts/Header.astro';
 import LunettesSVG from '../assets/lunettes.svg';
-import { pb } from '../utils/pb';
+import { pb, getNombreLunettesSauvegardes, getLunettesParUtilisateur } from '../utils/pb';
 
 // Récupérer les configurations sauvegardées (pas dans le panier)
 let savedConfigurations: any[] = [];
+let nombreConfigurations = 0;
 
 // Récupérer le cookie d'authentification PocketBase
 const authCookie = Astro.cookies.get('pb_auth');
@@ -22,52 +23,60 @@ if (authCookie?.value) {
     // Restaurer l'authentification dans pb.authStore
     pb.authStore.save(cookieData.token, cookieData.model);
     
-    // Récupérer les configurations de l'utilisateur via la collection directe (pas la vue)
-    const user = pb.authStore.model;
-    if (user?.id) {
-      console.log('📦 Récupération des configurations pour user:', user.id);
-      const filter = `user_id = "${user.id}" && est_dans_panier = false`;
+    // Récupérer l'ID utilisateur
+    const userId = cookieData.model?.id;
+    
+    if (userId) {
+      console.log('📦 Récupération des configurations pour user:', userId);
       
-      console.log('🔍 Filter utilisé:', filter);
+      // Récupérer les lunettes via la VUE lunettes_par_utilisateur
+      const resultLunettes = await getLunettesParUtilisateur(userId, false); // false = hors panier
       
-      const records = await pb.collection("configuration_lunettes").getFullList({
-        filter,
-        expand: "materiau_id", // Expande la relation avec materiaux
-        sort: "-created",
-      });
+      if (resultLunettes.success) {
+        const records = resultLunettes.lunettes;
+        console.log('🎉 Configurations trouvées (via vue):', records.length);
+        
+        // Récupérer le nombre via la vue nombres_lunettes_sauvegardes
+        const resultNombre = await getNombreLunettesSauvegardes(userId);
+        if (resultNombre.success) {
+          nombreConfigurations = resultNombre.nombre;
+          console.log('📊 Nombre via vue:', nombreConfigurations);
+        } else {
+          // Fallback : utiliser le nombre de records
+          nombreConfigurations = records.length;
+          console.log('📊 Fallback - Nombre via records.length:', nombreConfigurations);
+        }
 
-      console.log('🎉 Configurations trouvées:', records.length);
+        // Transformer les données pour l'affichage
+        savedConfigurations = records.map((config: any) => {
+          // Formater la date
+          const date = new Date(config.created);
+          const dateFormatted = date.toLocaleDateString('fr-FR', { 
+            day: 'numeric', 
+            month: 'short', 
+            year: 'numeric' 
+          });
 
-      // Transformer les données PocketBase pour l'affichage
-      savedConfigurations = records.map((config: any) => {
-        // Formater la date
-        const date = new Date(config.created);
-        const dateFormatted = date.toLocaleDateString('fr-FR', { 
-          day: 'numeric', 
-          month: 'short', 
-          year: 'numeric' 
+          // Capitaliser la première lettre
+          const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
+          return {
+            id: config.id,
+            name: config.nom || 'SANS NOM',
+            date: dateFormatted,
+            size: config.taille || '52-18',
+            lensType: capitalize(config.types_verres || 'correcteurs'),
+            frameShape: capitalize(config.forme_monture || 'rectangulaire'),
+            material: 'Acétate de cellulose', // TODO: expand materiau_id dans la vue
+            price: config.prix || 149,
+            image: LunettesSVG.src,
+            // Données brutes pour modification
+            rawData: config
+          };
         });
-
-        // Capitaliser la première lettre
-        const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
-
-        // Récupérer le nom du matériau via expand
-        const materiauNom = config.expand?.materiau_id?.libelle || 'Acétate de cellulose';
-
-        return {
-          id: config.id,
-          name: config.nom || 'SANS NOM',
-          date: dateFormatted,
-          size: config.taille || '52-18',
-          lensType: capitalize(config.types_verres || 'correcteurs'),
-          frameShape: capitalize(config.forme_monture || 'rectangulaire'),
-          material: materiauNom, // Ajout du matériau
-          price: config.prix || 149,
-          image: LunettesSVG.src,
-          // Données brutes pour modification
-          rawData: config
-        };
-      });
+      } else {
+        console.error('❌ Erreur récupération lunettes:', resultLunettes.error);
+      }
     }
   } catch (error) {
     console.error('Erreur récupération configurations:', error);
@@ -120,7 +129,7 @@ const hasConfigurations = savedConfigurations.length > 0;
           <!-- Actions en haut -->
           <div class="flex items-center justify-between mb-8">
             <p class="text-gris text-sm">
-              <span class="font-semibold text-noir">{savedConfigurations.length}</span> configuration{savedConfigurations.length > 1 ? 's' : ''} sauvegardée{savedConfigurations.length > 1 ? 's' : ''}
+              <span class="font-semibold text-noir">{nombreConfigurations}</span> configuration{nombreConfigurations > 1 ? 's' : ''} sauvegardée{nombreConfigurations > 1 ? 's' : ''}
             </p>
             <a href="/configurateur">
               <button class="bg-vert cursor-pointer text-white rounded-full px-6 py-3 text-sm font-semibold hover:bg-[#4a7d5f] transition-all duration-300 flex items-center gap-2">

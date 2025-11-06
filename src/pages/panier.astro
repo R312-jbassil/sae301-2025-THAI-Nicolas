@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/layouts/Header.astro';
-import { pb } from '../utils/pb';
+import { pb, getLunettesParUtilisateur } from '../utils/pb';
 
 // Récupérer les configurations dans le panier (avec cookie)
 let user = null;
@@ -18,16 +18,15 @@ if (authCookie?.value) {
     
     user = pb.authStore.model;
     if (user?.id) {
-      // Récupérer les configurations pour l'affichage d'abord
-      const filter = `user_id = "${user.id}" && est_dans_panier = true`;
+      // Récupérer les lunettes du panier via la VUE lunettes_par_utilisateur
+      const resultLunettes = await getLunettesParUtilisateur(user.id, true); // true = dans le panier
       
-      const records = await pb.collection("configuration_lunettes").getFullList({
-        filter,
-        expand: "materiau_id",
-        sort: "-created",
-      });
-
-      console.log(`📊 Nombre de configs trouvées: ${records.length}`);
+      if (!resultLunettes.success) {
+        console.error('❌ Erreur récupération panier:', resultLunettes.error);
+      }
+      
+      const records = resultLunettes.lunettes;
+      console.log(`📊 Nombre de configs trouvées (via vue): ${records.length}`);
 
       // Récupérer les stats du panier depuis les vues PocketBase
       try {

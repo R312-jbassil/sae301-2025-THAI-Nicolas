@@ -204,7 +204,7 @@ import Header from "../components/layouts/Header.astro";
 </Layout>
 
 <script>
-  import { pb, logout, getCurrentUser, isAuthenticated } from '../utils/pb';
+  import { pb, logout, getCurrentUser, isAuthenticated, getNombreLunettesSauvegardes } from '../utils/pb';
 
   // Redirection si non connecté
   if (!isAuthenticated()) {
@@ -224,13 +224,17 @@ import Header from "../components/layouts/Header.astro";
       }
     }
 
-    // Charger le nombre de créations
+    // Charger le nombre de créations via la vue PocketBase
     const statsCreations = document.getElementById('stats-creations');
     if (statsCreations) {
       try {
-        const filter = `user_id = "${user.id}" && est_dans_panier = false`;
-        const configs = await pb.collection("configuration_lunettes").getList(1, 1, { filter });
-        statsCreations.textContent = configs.totalItems.toString();
+        const result = await getNombreLunettesSauvegardes();
+        if (result.success) {
+          statsCreations.textContent = result.nombre.toString();
+          console.log('📊 Nombre de créations (vue):', result.nombre);
+        } else {
+          statsCreations.textContent = '0';
+        }
       } catch (error) {
         console.error('Erreur chargement créations:', error);
         statsCreations.textContent = '0';

@@ -118,7 +118,46 @@ export interface Cart {
   abandonné: boolean;
   email_sent_j1?: boolean;
   email_sent_j3?: boolean;
-  email_sent_j7?: boolean;
+}
+
+// Vue: nombres_lunettes_sauvegardes (nombre de configurations par utilisateur hors panier)
+export interface NombreLunettesSauvegardes {
+  id: string;
+  user_id: string;
+  nombre_configurations: number;
+}
+
+// Vue: montant_panier_par_utilisateur (montant total et nombre d'articles au panier)
+export interface MontantPanierParUtilisateur {
+  id: string;
+  user_id: string;
+  montant_total: number;
+  nombre_articles: number;
+}
+
+// Vue: nombre_lunettes_panier (nombre de lunettes dans le panier par utilisateur)
+export interface NombreLunettesPanier {
+  id: string;
+  user_id: string;
+  nombre_lunettes: number;
+}
+
+// Vue: lunettes_par_utilisateur (toutes les lunettes d'un utilisateur avec détails)
+export interface LunettesParUtilisateur {
+  id: string;
+  nom: string;
+  description?: string;
+  prix: number;
+  taille: string;
+  couleur_monture: string;
+  couleur_branches: string;
+  couleur_verres: string;
+  forme_monture: string;
+  epaisseur_monture: string;
+  types_verres: string;
+  materiau_id?: string;
+  est_dans_panier: boolean;
+  user_id: string;
   created: string;
   updated: string;
 }
@@ -467,6 +506,83 @@ export async function getMateriaux() {
   } catch (error: any) {
     console.error("Erreur récupération matériaux:", error);
     return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Récupérer le nombre de configurations sauvegardées (hors panier) pour l'utilisateur connecté
+ * Utilise la vue PocketBase nombres_lunettes_sauvegardes
+ * @param userId - ID de l'utilisateur (optionnel, utilise getCurrentUser() si non fourni)
+ */
+export async function getNombreLunettesSauvegardes(userId?: string) {
+  try {
+    // Si userId n'est pas fourni, essayer de récupérer l'utilisateur courant
+    let targetUserId = userId;
+    if (!targetUserId) {
+      const user = getCurrentUser();
+      if (!user) {
+        return { success: true, nombre: 0 };
+      }
+      targetUserId = user.id;
+    }
+
+    const result = await pb
+      .collection("nombres_lunettes_sauvegardes")
+      .getFirstListItem<NombreLunettesSauvegardes>(
+        `user_id = "${targetUserId}"`
+      );
+
+    return { success: true, nombre: result.nombre_configurations };
+  } catch (error: any) {
+    // Si l'utilisateur n'a aucune configuration, retourner 0
+    if (error.status === 404) {
+      return { success: true, nombre: 0 };
+    }
+    console.error("Erreur récupération nombre lunettes:", error);
+    return { success: false, error: error.message, nombre: 0 };
+  }
+}
+
+/**
+ * Récupérer les lunettes de l'utilisateur via la vue lunettes_par_utilisateur
+ * @param userId - ID de l'utilisateur (optionnel, utilise getCurrentUser() si non fourni)
+ * @param dansLePanier - true = lunettes au panier, false = lunettes en galerie, undefined = toutes
+ */
+export async function getLunettesParUtilisateur(
+  userId?: string,
+  dansLePanier?: boolean
+) {
+  try {
+    let targetUserId = userId;
+    if (!targetUserId) {
+      const user = getCurrentUser();
+      if (!user) {
+        return {
+          success: false,
+          error: "Utilisateur non connecté",
+          lunettes: [],
+        };
+      }
+      targetUserId = user.id;
+    }
+
+    // Construire le filtre
+    let filter = `user_id = "${targetUserId}"`;
+    if (dansLePanier !== undefined) {
+      filter += ` && est_dans_panier = ${dansLePanier}`;
+    }
+
+    const records = await pb
+      .collection("lunettes_par_utilisateur")
+      .getFullList<LunettesParUtilisateur>({
+        filter,
+        sort: "-created",
+      });
+
+    return { success: true, lunettes: records };
+  } catch (error: any) {
+    console.error("Erreur récupération lunettes par utilisateur:", error);
+    return { success: false, error: error.message, lunettes: [] };
   }
 }
 
