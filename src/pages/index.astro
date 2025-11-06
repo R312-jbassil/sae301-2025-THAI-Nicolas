@@ -12,45 +12,45 @@ import Glasses3DViewer from "../components/3d/Glasses3DViewer.astro";
 	<!-- Hero Section -->
 	<main class="relative overflow-hidden min-h-screen bg-white">
 		<!-- Grand cercle décoratif en arrière-plan -->
-		<div class="absolute left-1/2 top-100 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[797px] rounded-full bg-vert-light pointer-events-none z-0"></div>
+		<div class="absolute left-1/2 top-100 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] sm:w-[850px] sm:h-[797px] rounded-full bg-vert-light pointer-events-none z-0"></div>
 
 		<!-- Container principal -->
-		<div class="max-w-7xl mx-auto px-8 relative z-10">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 			<!-- Titre et sous-titre -->
-			<div class="text-center pt-10">
-				<h1 class="font-bold text-6xl text-noir uppercase tracking-wider leading-tight mb-6">
+			<div class="text-center pt-6 sm:pt-10">
+				<h1 class="font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-noir uppercase tracking-wide sm:tracking-wider leading-tight mb-4 sm:mb-6 px-4">
 					Vos lunettes de rêves
 				</h1>
-				<p class="font-normal text-xl text-gris leading-relaxed max-w-3xl mx-auto">
+				<p class="font-normal text-base sm:text-lg lg:text-xl text-gris leading-relaxed max-w-3xl mx-auto px-4">
 					TaVue conçoit la première collection de lunettes françaises entièrement personnalisables.
 				</p>
 			</div>
 
 			<!-- Section lunettes 3D -->
-			<div class="flex items-center justify-center relative z-20 -mb-16">
-				<div class="w-full max-w-4xl">
+			<div class="flex items-center justify-center relative z-20 -mb-8 sm:-mb-16">
+				<div class="w-full max-w-2xl sm:max-w-3xl lg:max-w-4xl px-4">
 					<Glasses3DViewer />
 				</div>
 			</div>
 
 			<!-- 3 Cards -->
-		<div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center scale-85 gap-8 z-30">
-			<div class="flex items-stretch justify-center gap-20 mb-8">
-				<div class="w-card">
+		<div class="relative lg:absolute lg:bottom-8 lg:left-1/2 lg:-translate-x-1/2 flex flex-col items-center scale-75 sm:scale-85 lg:scale-85 gap-6 sm:gap-8 z-30 mt-8 lg:mt-0 pb-8 lg:pb-0">
+			<div class="flex flex-col md:flex-row items-stretch justify-center gap-6 lg:gap-20 mb-4 sm:mb-8">
+				<div class="w-full md:w-card">
 					<CardAccueil
 						icone="style"
 						titre="Style unique"
 						description="Personnalisez chaque détail : monture, couleur, matière et finitions"
 					/>
 				</div>
-				<div class="w-card">
+				<div class="w-full md:w-card">
 					<CardAccueil
 						icone="vision"
 						titre="Vision parfaite"
 						description="Verres sur mesure avec correction pour une vision optimale"
 					/>
 				</div>
-				<div class="w-card">
+				<div class="w-full md:w-card">
 					<CardAccueil
 						icone="etoile"
 						titre="Qualité premium"
@@ -60,7 +60,7 @@ import Glasses3DViewer from "../components/3d/Glasses3DViewer.astro";
 			</div>
 
 			<!-- Bouton CTA -->
-			<a class="flex align-center justify-center mb-16 cursor-pointer" href="/configurateur">
+			<a class="flex align-center justify-center mb-8 sm:mb-16 cursor-pointer" href="/configurateur">
 				<MainBouton variant="primary" texte="Créer mes lunettes">
 			</a>
 		</div>

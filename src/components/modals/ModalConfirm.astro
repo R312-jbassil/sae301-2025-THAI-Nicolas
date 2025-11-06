@@ -15,28 +15,28 @@ const { id, title = "Confirmation", message } = Astro.props;
   
   <!-- Modal centré -->
   <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
-    <div class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 transform transition-all">
+    <div class="modal-content bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-md p-6 sm:p-8 transform transition-all">
       
       <!-- Titre (optionnel) -->
       {title && (
-        <h3 class="text-xl font-bold text-noir mb-4">{title}</h3>
+        <h3 class="text-lg sm:text-xl font-bold text-noir mb-3 sm:mb-4">{title}</h3>
       )}
       
       <!-- Message -->
-      <p class="text-base text-gris leading-relaxed mb-8">{message}</p>
+      <p class="text-sm sm:text-base text-gris leading-relaxed mb-6 sm:mb-8">{message}</p>
       
       <!-- Boutons -->
-      <div class="flex gap-3">
+      <div class="flex flex-col sm:flex-row gap-3">
         <!-- Bouton Annuler (outline) -->
         <button 
-          class="modal-cancel flex-1 border-2 border-gris text-gris rounded-full px-6 py-3 font-semibold text-base hover:bg-gray-50 transition-all duration-200 cursor-pointer"
+          class="modal-cancel flex-1 border-2 border-gris text-gris rounded-full px-4 sm:px-6 py-2.5 sm:py-3 font-semibold text-sm sm:text-base hover:bg-gray-50 transition-all duration-200 cursor-pointer"
         >
           Annuler
         </button>
         
         <!-- Bouton OK (vert) -->
         <button 
-          class="modal-confirm-btn flex-1 bg-vert text-white rounded-full px-6 py-3 font-semibold text-base hover:bg-[#4a7d5f] transition-all duration-200 cursor-pointer"
+          class="modal-confirm-btn flex-1 bg-vert text-white rounded-full px-4 sm:px-6 py-2.5 sm:py-3 font-semibold text-sm sm:text-base hover:bg-[#4a7d5f] transition-all duration-200 cursor-pointer"
         >
           OK
         </button>

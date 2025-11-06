@@ -92,33 +92,33 @@ const hasConfigurations = savedConfigurations.length > 0;
   
   <!-- Contenu principal -->
   <div class="min-h-screen bg-neutral-100">
-    <main class="max-w-7xl mx-auto px-8 py-12">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       <!-- Titre de page -->
-      <div class="mb-10">
-        <h1 class="text-4xl font-bold text-noir mb-3">Ma Galerie</h1>
-        <p class="text-gris text-lg">Retrouvez toutes vos configurations sauvegardées</p>
+      <div class="mb-8 sm:mb-10">
+        <h1 class="text-3xl sm:text-4xl font-bold text-noir mb-2 sm:mb-3">Ma Galerie</h1>
+        <p class="text-gris text-base sm:text-lg">Retrouvez toutes vos configurations sauvegardées</p>
       </div>
 
       {!hasConfigurations ? (
         <!-- État vide : Aucune configuration -->
-        <div class="bg-white rounded-3xl border-2 border-vert-light p-16 text-center">
+        <div class="bg-white rounded-2xl sm:rounded-3xl border-2 border-vert-light p-8 sm:p-12 lg:p-16 text-center">
           <div class="max-w-md mx-auto">
             <!-- Icône -->
-            <div class="w-24 h-24 bg-vert-light rounded-full mx-auto mb-6 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-vert" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="w-20 h-20 sm:w-24 sm:h-24 bg-vert-light rounded-full mx-auto mb-4 sm:mb-6 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 sm:w-12 sm:h-12 text-vert" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
             </div>
 
-            <h2 class="text-2xl font-bold text-noir mb-3">Aucune configuration sauvegardée</h2>
-            <p class="text-gris mb-8 leading-relaxed">
+            <h2 class="text-xl sm:text-2xl font-bold text-noir mb-2 sm:mb-3">Aucune configuration sauvegardée</h2>
+            <p class="text-gris text-sm sm:text-base mb-6 sm:mb-8 leading-relaxed">
               Vous n'avez pas encore créé de configuration personnalisée. 
               Commencez dès maintenant à concevoir la paire de lunettes parfaite pour vous.
             </p>
 
             <a href="/configurateur" class="inline-block">
-              <button class="bg-vert text-white rounded-full px-8 py-4 text-sm font-bold hover:bg-[#4a7d5f] transition-all duration-300">
+              <button class="bg-vert text-white rounded-full px-6 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm font-bold hover:bg-[#4a7d5f] transition-all duration-300 cursor-pointer">
                 CRÉER MA PREMIÈRE PAIRE
               </button>
             </a>
@@ -128,22 +128,23 @@ const hasConfigurations = savedConfigurations.length > 0;
         <!-- État avec configurations -->
         <div>
           <!-- Actions en haut -->
-          <div class="flex items-center justify-between mb-8">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
             <p class="text-gris text-sm">
               <span class="font-semibold text-noir">{nombreConfigurations}</span> configuration{nombreConfigurations > 1 ? 's' : ''} sauvegardée{nombreConfigurations > 1 ? 's' : ''}
             </p>
-            <a href="/configurateur">
-              <button class="bg-vert cursor-pointer text-white rounded-full px-6 py-3 text-sm font-semibold hover:bg-[#4a7d5f] transition-all duration-300 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <a href="/configurateur" class="w-full sm:w-auto">
+              <button class="w-full sm:w-auto bg-vert cursor-pointer text-white rounded-full px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold hover:bg-[#4a7d5f] transition-all duration-300 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                NOUVELLE CONFIGURATION
+                <span class="hidden sm:inline">NOUVELLE CONFIGURATION</span>
+                <span class="sm:hidden">NOUVELLE</span>
               </button>
             </a>
           </div>
 
           <!-- Grille de configurations -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {savedConfigurations.map((config) => (
               <div 
                 class="bg-white rounded-2xl border-2 border-gray-200 hover:border-vert transition-all duration-300 overflow-hidden group relative"
