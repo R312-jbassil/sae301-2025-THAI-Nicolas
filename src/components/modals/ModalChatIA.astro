@@ -195,7 +195,7 @@ const { id } = Astro.props;
         }
       }
       
-      console.log('💬 Conversation chargée:', currentConversation.id, 'avec', conversationHistory.length, 'messages');
+      if (import.meta.env.DEV) console.log('💬 Conversation chargée:', currentConversation.id, 'avec', conversationHistory.length, 'messages');
     } else {
       console.error('❌ Erreur chargement conversation:', result.error);
     }
@@ -297,7 +297,7 @@ const { id } = Astro.props;
 
       try {
         // Appeler l'API avec timeout
-        console.log('Envoi du message:', message);
+        if (import.meta.env.DEV) console.log('Envoi du message:', message);
         
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 secondes timeout
@@ -316,9 +316,11 @@ const { id } = Astro.props;
         
         clearTimeout(timeoutId);
 
-        console.log('Réponse reçue, status:', response.status);
+        if (import.meta.env.DEV) {
+          console.log('Réponse reçue, status:', response.status);
+        }
         const data = await response.json();
-        console.log('Données JSON:', data);
+        if (import.meta.env.DEV) console.log('Données JSON:', data);
 
         // Retirer le loader
         removeLoader();
@@ -508,7 +510,7 @@ const { id } = Astro.props;
               }
             }
             
-            console.log('✅ Conversation réinitialisée');
+            if (import.meta.env.DEV) console.log('✅ Conversation réinitialisée');
             
             // Afficher un message de confirmation
             addMessageToUI('Conversation réinitialisée ! Comment puis-je vous aider ?', false, false);

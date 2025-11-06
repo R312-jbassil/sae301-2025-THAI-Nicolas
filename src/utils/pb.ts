@@ -1,170 +1,49 @@
 /**
- * Configuration PocketBase pour TaVue
- * SDK Client pour l'authentification et les opérations CRUD
- * Mode: développement (localhost) / production (déploiement VPS)
+ * Fonctions utilitaires pour PocketBase
+ *
+ * ✅ ARCHITECTURE REFACTORISÉE
+ *
+ * Ce fichier contient UNIQUEMENT les fonctions métier (auth, CRUD, etc.)
+ * Les types et la configuration sont dans des modules séparés :
+ *
+ * 📁 src/lib/
+ *    ├── pocketbase.ts      → Instance PocketBase singleton
+ *    └── openrouter.ts      → Configuration OpenRouter AI
+ *
+ * 📁 src/types/
+ *    ├── models.ts          → Interfaces PocketBase (User, ConfigurationLunette, etc.)
+ *    └── api.ts             → Types API (ChatMessage, ApiResponse, etc.)
+ *
+ * 🔄 Ce fichier réexporte tout pour la compatibilité avec le code existant.
+ *    Les imports depuis "utils/pb" continuent de fonctionner !
  */
 
-import PocketBase from "pocketbase";
+// ========================================
+// RÉ-EXPORTS DES NOUVEAUX MODULES
+// ========================================
+// Ces réexports permettent de garder la compatibilité avec le code existant
+export type * from "../types/models";
+export type * from "../types/api";
 
-// Configuration de l'URL selon l'environnement
-let path = "";
-if (import.meta.env.MODE === "development") {
-  path = "http://localhost:8090"; // localhost = machine de dev
-} else {
-  path = "https://tavue.nicolas-thai.fr:443"; // URL du site en production
-}
+// Importer et réexporter l'instance PocketBase depuis lib/
+import { pb } from "../lib/pocketbase";
+export { pb };
 
-// Instance singleton PocketBase
-export const pb = new PocketBase(path);
+// Importer les types depuis types/ pour les utiliser dans les fonctions
+import type {
+  User,
+  ConfigurationLunette,
+  Lunette,
+  NombreLunettesSauvegardes,
+  LunettesParUtilisateur,
+} from "../types/models";
 
-// Activer le stockage automatique des tokens d'authentification
-pb.autoCancellation(false);
-
-/**
- * Types TypeScript pour les collections PocketBase
- */
-
-// Collection: users (utilisateurs authentifiés)
-export interface User {
-  id: string;
-  email: string;
-  username?: string;
-  nom?: string; // ✅ Correspond au schéma PocketBase
-  prenom?: string; // ✅ Correspond au schéma PocketBase
-  avatar?: string;
-  verified: boolean;
-  created: string;
-  updated: string;
-}
-
-// Collection: configuration_lunettes (configurations de lunettes)
-export interface ConfigurationLunette {
-  id: string;
-  nom: string;
-  description?: string;
-  prix: number;
-  taille: string; // Format: "52-18"
-  couleur_monture: string; // Hex: "#1A1A1A"
-  couleur_branches: string; // Hex: "#1A1A1A"
-  couleur_verres: string; // Hex: "#4A5A54"
-  forme_monture: "rectangulaire" | "ronde" | "papillon";
-  epaisseur_monture: "fin" | "moyen" | "épais";
-  types_verres: "correcteurs" | "solaires" | "photochromiques";
-  user_id: string; // Relation vers users
-  materiau_id?: string; // Relation vers materiaux (optionnel)
-  est_dans_panier: boolean;
-  created: string;
-  updated: string;
-}
-
-// Ancienne interface pour compatibilité (à supprimer plus tard)
-export interface Lunette {
-  id: string;
-  nom: string;
-  user_id: string;
-  materiau_monture: string;
-  materiau_branches: string;
-  couleur_monture: string;
-  couleur_branches: string;
-  couleur_verres: string;
-  type_verres: string;
-  forme: string;
-  taille: string;
-  largeur_pont: number;
-  taille_verres: number;
-  prix: number;
-  svg_id?: string;
-  created: string;
-  updated: string;
-}
-
-// Collection: materiaux (matériaux disponibles)
-export interface Materiau {
-  id: string;
-  libelle: string; // Nom du matériau
-  prix_supplementaire: number; // Prix supplémentaire
-  created: string;
-  updated: string;
-}
-
-// Collection: svg_ia (SVG générés par IA)
-export interface SvgIA {
-  id: string;
-  lunette_id: string;
-  svg_code: string;
-  parametres: string; // JSON stringifié des paramètres de génération
-  genere_par_ia: boolean;
-  created: string;
-  updated: string;
-}
-
-// Collection: commandes (commandes passées)
-export interface Commande {
-  id: string;
-  user_id: string; // Relation vers users
-  configuration_lunettes: string[]; // Relations multiples vers configuration_lunettes
-  date_commande: string;
-  prix_total: number;
-  created: string;
-  updated: string;
-}
-
-// Collection: carts (paniers pour récupération abandonnés)
-export interface Cart {
-  id: string;
-  user_id?: string;
-  session_id?: string;
-  items: string; // JSON stringifié des items du panier
-  total: number;
-  abandonné: boolean;
-  email_sent_j1?: boolean;
-  email_sent_j3?: boolean;
-}
-
-// Vue: nombres_lunettes_sauvegardes (nombre de configurations par utilisateur hors panier)
-export interface NombreLunettesSauvegardes {
-  id: string;
-  user_id: string;
-  nombre_configurations: number;
-}
-
-// Vue: montant_panier_par_utilisateur (montant total et nombre d'articles au panier)
-export interface MontantPanierParUtilisateur {
-  id: string;
-  user_id: string;
-  montant_total: number;
-  nombre_articles: number;
-}
-
-// Vue: nombre_lunettes_panier (nombre de lunettes dans le panier par utilisateur)
-export interface NombreLunettesPanier {
-  id: string;
-  user_id: string;
-  nombre_lunettes: number;
-}
-
-// Vue: lunettes_par_utilisateur (toutes les lunettes d'un utilisateur avec détails)
-export interface LunettesParUtilisateur {
-  id: string;
-  nom: string;
-  description?: string;
-  prix: number;
-  taille: string;
-  couleur_monture: string;
-  couleur_branches: string;
-  couleur_verres: string;
-  forme_monture: string;
-  epaisseur_monture: string;
-  types_verres: string;
-  materiau_id?: string;
-  est_dans_panier: boolean;
-  user_id: string;
-  created: string;
-  updated: string;
-}
+import type { ChatMessage, ChatIA } from "../types/api";
 
 /**
- * Helpers d'authentification
+ * ========================================
+ * FONCTIONS D'AUTHENTIFICATION
+ * ========================================
  */
 
 /**
@@ -349,46 +228,29 @@ export async function saveConfiguration(data: Partial<ConfigurationLunette>) {
       ...data, // Données passées en dernier pour écraser les valeurs par défaut
     };
 
-    console.log(
-      "💾 Sauvegarde config avec est_dans_panier:",
-      configData.est_dans_panier
-    );
+    if (import.meta.env.DEV) {
+      console.log(
+        "💾 Sauvegarde config avec est_dans_panier:",
+        configData.est_dans_panier
+      );
+    }
 
     const record = await pb
       .collection("configuration_lunettes")
       .create(configData);
 
-    console.log(
-      "✅ Config créée:",
-      record.id,
-      "est_dans_panier:",
-      record.est_dans_panier
-    );
+    if (import.meta.env.DEV) {
+      console.log(
+        "✅ Config créée:",
+        record.id,
+        "est_dans_panier:",
+        record.est_dans_panier
+      );
+    }
 
     return { success: true, configuration: record };
   } catch (error: any) {
     console.error("Erreur sauvegarde configuration:", error);
-    return { success: false, error: error.message };
-  }
-}
-
-/**
- * Sauvegarder un modèle de lunettes (ancienne fonction - à migrer)
- */
-export async function saveLunette(data: Partial<Lunette>) {
-  try {
-    const user = getCurrentUser();
-    if (!user) throw new Error("Utilisateur non connecté");
-
-    const lunetteData = {
-      ...data,
-      user_id: user.id,
-    };
-
-    const record = await pb.collection("lunette").create(lunetteData);
-    return { success: true, lunette: record };
-  } catch (error: any) {
-    console.error("Erreur sauvegarde lunette:", error);
     return { success: false, error: error.message };
   }
 }
@@ -414,26 +276,6 @@ export async function getUserConfigurations(dansePanier: boolean = false) {
     return { success: true, configurations: records };
   } catch (error: any) {
     console.error("Erreur récupération configurations:", error);
-    return { success: false, error: error.message };
-  }
-}
-
-/**
- * Récupérer les lunettes de l'utilisateur connecté (ancienne fonction - à migrer)
- */
-export async function getUserLunettes() {
-  try {
-    const user = getCurrentUser();
-    if (!user) throw new Error("Utilisateur non connecté");
-
-    const records = await pb.collection("lunette").getFullList({
-      filter: `user_id = "${user.id}"`,
-      sort: "-created",
-    });
-
-    return { success: true, lunettes: records };
-  } catch (error: any) {
-    console.error("Erreur récupération lunettes:", error);
     return { success: false, error: error.message };
   }
 }
@@ -477,19 +319,6 @@ export async function removeFromCart(configId: string) {
     return { success: true };
   } catch (error: any) {
     console.error("Erreur retrait du panier:", error);
-    return { success: false, error: error.message };
-  }
-}
-
-/**
- * Supprimer une lunette (ancienne fonction - à migrer)
- */
-export async function deleteLunette(id: string) {
-  try {
-    await pb.collection("lunette").delete(id);
-    return { success: true };
-  } catch (error: any) {
-    console.error("Erreur suppression lunette:", error);
     return { success: false, error: error.message };
   }
 }
@@ -588,31 +417,6 @@ export async function getLunettesParUtilisateur(
 }
 
 /**
- * Sauvegarder un SVG généré
- */
-export async function saveSvg(
-  lunetteId: string,
-  svgCode: string,
-  parametres: object,
-  genereParIA: boolean = false
-) {
-  try {
-    const svgData = {
-      lunette_id: lunetteId,
-      svg_code: svgCode,
-      parametres: JSON.stringify(parametres),
-      genere_par_ia: genereParIA,
-    };
-
-    const record = await pb.collection("svg_ia").create(svgData);
-    return { success: true, svg: record };
-  } catch (error: any) {
-    console.error("Erreur sauvegarde SVG:", error);
-    return { success: false, error: error.message };
-  }
-}
-
-/**
  * Créer une commande à partir du panier
  */
 export async function createCommande() {
@@ -667,76 +471,6 @@ export async function createCommande() {
  */
 
 /**
- * Sauvegarder ou mettre à jour le panier
- */
-export async function saveCart(items: any[], total: number) {
-  try {
-    const user = getCurrentUser();
-    const userId = user?.id;
-
-    // Générer un session_id si pas d'utilisateur connecté
-    const sessionId = userId ? null : getOrCreateSessionId();
-
-    const cartData = {
-      user_id: userId,
-      session_id: sessionId,
-      items: JSON.stringify(items),
-      total,
-      abandonné: false,
-    };
-
-    // Vérifier si un panier existe déjà
-    const filter = userId
-      ? `user_id = "${userId}" && abandonné = false`
-      : `session_id = "${sessionId}" && abandonné = false`;
-
-    const existingCarts = await pb.collection("carts").getFullList({ filter });
-
-    let record;
-    if (existingCarts.length > 0) {
-      // Mettre à jour le panier existant
-      record = await pb
-        .collection("carts")
-        .update(existingCarts[0].id, cartData);
-    } else {
-      // Créer un nouveau panier
-      record = await pb.collection("carts").create(cartData);
-    }
-
-    return { success: true, cart: record };
-  } catch (error: any) {
-    console.error("Erreur sauvegarde panier:", error);
-    return { success: false, error: error.message };
-  }
-}
-
-/**
- * Récupérer le panier actuel
- */
-export async function getCart() {
-  try {
-    const user = getCurrentUser();
-    const userId = user?.id;
-    const sessionId = getOrCreateSessionId();
-
-    const filter = userId
-      ? `user_id = "${userId}" && abandonné = false`
-      : `session_id = "${sessionId}" && abandonné = false`;
-
-    const carts = await pb.collection("carts").getFullList({ filter });
-
-    if (carts.length > 0) {
-      return { success: true, cart: carts[0] };
-    }
-
-    return { success: true, cart: null };
-  } catch (error: any) {
-    console.error("Erreur récupération panier:", error);
-    return { success: false, error: error.message };
-  }
-}
-
-/**
  * Helper pour générer/récupérer un session_id unique
  */
 function getOrCreateSessionId(): string {
@@ -766,22 +500,6 @@ export function onAuthChange(callback: (user: User | null) => void) {
  * CHAT IA - Gestion de l'historique
  * ========================================
  */
-
-export interface ChatMessage {
-  role: "user" | "assistant" | "system";
-  content: string;
-  timestamp: string;
-}
-
-export interface ChatIA {
-  id: string;
-  user_id: string;
-  nom: string; // Titre de la conversation
-  messages: ChatMessage[]; // Historique JSON
-  configuration_resultat?: string; // ID de la config finale (optionnel)
-  created: string;
-  updated: string;
-}
 
 /**
  * Récupérer la conversation active de l'utilisateur
@@ -902,48 +620,6 @@ export async function resetChatConversation(userId?: string): Promise<{
     return { success: true, newConversation: newConv };
   } catch (error) {
     console.error("Erreur resetChatConversation:", error);
-    return { success: false, error: String(error) };
-  }
-}
-
-/**
- * Récupérer toutes les conversations d'un utilisateur (historique)
- */
-export async function getAllChatConversations(userId?: string): Promise<{
-  success: boolean;
-  conversations?: ChatIA[];
-  error?: string;
-}> {
-  try {
-    const currentUserId = userId || getCurrentUser()?.id;
-    if (!currentUserId) {
-      return { success: false, error: "Utilisateur non connecté" };
-    }
-
-    const conversations = await pb.collection("chat_ia").getFullList<ChatIA>({
-      filter: `user_id = "${currentUserId}"`,
-      sort: "-updated",
-    });
-
-    return { success: true, conversations };
-  } catch (error) {
-    console.error("Erreur getAllChatConversations:", error);
-    return { success: false, error: String(error) };
-  }
-}
-
-/**
- * Supprimer une conversation
- */
-export async function deleteChatConversation(conversationId: string): Promise<{
-  success: boolean;
-  error?: string;
-}> {
-  try {
-    await pb.collection("chat_ia").delete(conversationId);
-    return { success: true };
-  } catch (error) {
-    console.error("Erreur deleteChatConversation:", error);
     return { success: false, error: String(error) };
   }
 }

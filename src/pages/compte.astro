@@ -234,7 +234,7 @@ import Footer from "../components/layouts/Footer.astro";
         const result = await getNombreLunettesSauvegardes();
         if (result.success) {
           statsCreations.textContent = result.nombre.toString();
-          console.log('📊 Nombre de créations (vue):', result.nombre);
+          if (import.meta.env.DEV) console.log('📊 Nombre de créations (vue):', result.nombre);
         } else {
           statsCreations.textContent = '0';
         }

@@ -274,14 +274,14 @@ import BoutonCirculaire from "../boutons/BoutonCirculaire.astro";
             const filter = `user_id = "${user.id}"`;
             const panierStats = await pb.collection("nombre_lunettes_panier").getFirstListItem(filter);
             count = panierStats?.nombre_lunettes || 0;
-            console.log('🔔 Badge panier (depuis vue):', count);
+            if (import.meta.env.DEV) console.log('🔔 Badge panier (depuis vue):', count);
           } catch (viewError) {
             // Fallback : compter directement dans configuration_lunettes
-            console.log('⚠️ Vue non accessible, comptage direct');
+            if (import.meta.env.DEV) console.log('⚠️ Vue non accessible, comptage direct');
             const filter = `user_id = "${user.id}" && est_dans_panier = true`;
             const records = await pb.collection("configuration_lunettes").getList(1, 1, { filter });
             count = records.totalItems || 0;
-            console.log('🔔 Badge panier (comptage direct):', count);
+            if (import.meta.env.DEV) console.log('🔔 Badge panier (comptage direct):', count);
           }
           
           if (count > 0) {

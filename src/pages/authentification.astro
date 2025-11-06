@@ -208,7 +208,7 @@ import Logo from "../assets/icones/logo.svg";
 <script>
   import { loginWithEmail, registerUser, loginWithOAuth } from '../utils/pb';
   
-  console.log('Script loaded, functions:', { loginWithEmail, registerUser, loginWithOAuth });
+  if (import.meta.env.DEV) console.log('Script loaded, functions:', { loginWithEmail, registerUser, loginWithOAuth });
 
   // Animation du slider overlay
   const overlayPanel = document.getElementById('overlay-panel');
@@ -296,14 +296,14 @@ import Logo from "../assets/icones/logo.svg";
   loginFormElement?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    console.log('Login form submitted');
+    if (import.meta.env.DEV) console.log('Login form submitted');
     
     // Récupérer les valeurs
     const formData = new FormData(loginFormElement);
     const email = formData.get('login-email') as string;
     const password = formData.get('login-password') as string;
 
-    console.log('Email:', email, 'Password:', password ? '***' : 'empty');
+    if (import.meta.env.DEV) console.log('Email:', email, 'Password:', password ? '***' : 'empty');
 
     // Désactiver le bouton pendant le traitement
     if (loginSubmit) {
@@ -315,9 +315,9 @@ import Logo from "../assets/icones/logo.svg";
     loginError?.classList.add('hidden');
 
     try {
-      console.log('Calling loginWithEmail...');
+      if (import.meta.env.DEV) console.log('Calling loginWithEmail...');
       const result = await loginWithEmail(email, password);
-      console.log('Login result:', result);
+      if (import.meta.env.DEV) console.log('Login result:', result);
       
       if (result.success) {
         // Redirection vers la page d'accueil ou galerie
@@ -376,11 +376,11 @@ import Logo from "../assets/icones/logo.svg";
   const registerSuccess = document.getElementById('register-success');
   const registerSubmit = document.getElementById('register-submit') as HTMLButtonElement;
 
-  console.log('Register form:', registerFormElement);
+  if (import.meta.env.DEV) console.log('Register form:', registerFormElement);
 
   registerFormElement?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    console.log('Form submitted!');
+    if (import.meta.env.DEV) console.log('Form submitted!');
     
     // Récupérer les valeurs
     const formData = new FormData(registerFormElement);
@@ -388,7 +388,7 @@ import Logo from "../assets/icones/logo.svg";
     const email = formData.get('register-email') as string;
     const password = formData.get('register-password') as string;
     
-    console.log('Form data:', { name, email, password: password ? '***' : 'empty' });
+    if (import.meta.env.DEV) console.log('Form data:', { name, email, password: password ? '***' : 'empty' });
 
     // Masquer les messages précédents
     registerError?.classList.add('hidden');
@@ -470,7 +470,7 @@ import Logo from "../assets/icones/logo.svg";
       const iconVisible = document.getElementById(`icon-visible-${inputId}`);
       const iconHidden = document.getElementById(`icon-hidden-${inputId}`);
       
-      console.log('Toggle clicked!', { inputId, input, iconVisible, iconHidden });
+      if (import.meta.env.DEV) console.log('Toggle clicked!', { inputId, input, iconVisible, iconHidden });
       
       if (input && iconVisible && iconHidden) {
         if (input.type === 'password') {
@@ -490,11 +490,11 @@ import Logo from "../assets/icones/logo.svg";
   // Fonction générique pour gérer l'OAuth
   async function handleOAuthLogin(provider: 'google' | 'apple' | 'github') {
     try {
-      console.log(`Starting OAuth login with ${provider}...`);
+      if (import.meta.env.DEV) console.log(`Starting OAuth login with ${provider}...`);
       const result = await loginWithOAuth(provider);
       
       if (result.success) {
-        console.log('OAuth login successful!', result.user);
+        if (import.meta.env.DEV) console.log('OAuth login successful!', result.user);
         // Redirection vers la galerie
         window.location.href = '/galerie';
       } else {
@@ -517,22 +517,24 @@ import Logo from "../assets/icones/logo.svg";
   const appleRegisterBtn = document.getElementById('apple-register-btn');
   const githubRegisterBtn = document.getElementById('github-register-btn');
 
-  console.log('OAuth buttons:', {
-    googleLoginBtn,
-    googleRegisterBtn,
-    appleLoginBtn,
-    appleRegisterBtn,
-    githubLoginBtn,
-    githubRegisterBtn
-  });
+  if (import.meta.env.DEV) {
+    console.log('OAuth buttons:', {
+      googleLoginBtn,
+      googleRegisterBtn,
+      appleLoginBtn,
+      appleRegisterBtn,
+      githubLoginBtn,
+      githubRegisterBtn
+    });
+  }
 
   // Google
   googleLoginBtn?.addEventListener('click', (e) => {
-    console.log('Google login button clicked!', e);
+    if (import.meta.env.DEV) console.log('Google login button clicked!', e);
     handleOAuthLogin('google');
   });
   googleRegisterBtn?.addEventListener('click', (e) => {
-    console.log('Google register button clicked!', e);
+    if (import.meta.env.DEV) console.log('Google register button clicked!', e);
     handleOAuthLogin('google');
   });
 

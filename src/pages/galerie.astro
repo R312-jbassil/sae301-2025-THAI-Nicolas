@@ -13,14 +13,14 @@ let nombreConfigurations = 0;
 // Récupérer le cookie d'authentification PocketBase
 const authCookie = Astro.cookies.get('pb_auth');
 
-console.log('🔍 Cookie pb_auth présent?', !!authCookie?.value);
+if (import.meta.env.DEV) console.log('🔍 Cookie pb_auth présent?', !!authCookie?.value);
 
 if (authCookie?.value) {
   try {
     // Parser le cookie pour extraire le token et le model
     const cookieData = JSON.parse(authCookie.value);
     
-    console.log('✅ Cookie parsé, user ID:', cookieData.model?.id);
+    if (import.meta.env.DEV) console.log('✅ Cookie parsé, user ID:', cookieData.model?.id);
     
     // Restaurer l'authentification dans pb.authStore
     pb.authStore.save(cookieData.token, cookieData.model);
@@ -29,24 +29,24 @@ if (authCookie?.value) {
     const userId = cookieData.model?.id;
     
     if (userId) {
-      console.log('📦 Récupération des configurations pour user:', userId);
+      if (import.meta.env.DEV) console.log('📦 Récupération des configurations pour user:', userId);
       
       // Récupérer les lunettes via la VUE lunettes_par_utilisateur
       const resultLunettes = await getLunettesParUtilisateur(userId, false); // false = hors panier
       
       if (resultLunettes.success) {
         const records = resultLunettes.lunettes;
-        console.log('🎉 Configurations trouvées (via vue):', records.length);
+        if (import.meta.env.DEV) console.log('🎉 Configurations trouvées (via vue):', records.length);
         
         // Récupérer le nombre via la vue nombres_lunettes_sauvegardes
         const resultNombre = await getNombreLunettesSauvegardes(userId);
         if (resultNombre.success) {
           nombreConfigurations = resultNombre.nombre;
-          console.log('📊 Nombre via vue:', nombreConfigurations);
+          if (import.meta.env.DEV) console.log('📊 Nombre via vue:', nombreConfigurations);
         } else {
           // Fallback : utiliser le nombre de records
           nombreConfigurations = records.length;
-          console.log('📊 Fallback - Nombre via records.length:', nombreConfigurations);
+          if (import.meta.env.DEV) console.log('📊 Fallback - Nombre via records.length:', nombreConfigurations);
         }
 
         // Transformer les données pour l'affichage

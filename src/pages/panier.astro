@@ -27,7 +27,7 @@ if (authCookie?.value) {
       }
       
       const records = resultLunettes.lunettes;
-      console.log(`📊 Nombre de configs trouvées (via vue): ${records.length}`);
+      if (import.meta.env.DEV) console.log(`📊 Nombre de configs trouvées (via vue): ${records.length}`);
 
       // Récupérer les stats du panier depuis les vues PocketBase
       try {
@@ -37,9 +37,9 @@ if (authCookie?.value) {
         try {
           const montantStats = await pb.collection("montant_panier_par_utilisateur").getFirstListItem(statsFilter);
           total = montantStats?.montant_total || 0;
-          console.log(`💰 Montant total depuis vue: ${total}€`);
+          if (import.meta.env.DEV) console.log(`💰 Montant total depuis vue: ${total}€`);
         } catch (error) {
-          console.log('⚠️ Vue montant_panier non accessible, calcul manuel');
+          if (import.meta.env.DEV) console.log('⚠️ Vue montant_panier non accessible, calcul manuel');
           // Fallback: calculer manuellement
           total = records.reduce((sum: number, record: any) => sum + (record.prix || 0), 0);
         }
@@ -48,9 +48,9 @@ if (authCookie?.value) {
         try {
           const nombreStats = await pb.collection("nombre_lunettes_panier").getFirstListItem(statsFilter);
           nombreArticles = nombreStats?.nombre_lunettes || 0;
-          console.log(`🔢 Nombre d'articles depuis vue: ${nombreArticles}`);
+          if (import.meta.env.DEV) console.log(`🔢 Nombre d'articles depuis vue: ${nombreArticles}`);
         } catch (error) {
-          console.log('⚠️ Vue nombre_lunettes_panier non accessible, calcul manuel');
+          if (import.meta.env.DEV) console.log('⚠️ Vue nombre_lunettes_panier non accessible, calcul manuel');
           // Fallback: utiliser la longueur du tableau
           nombreArticles = records.length;
         }
@@ -61,7 +61,7 @@ if (authCookie?.value) {
         nombreArticles = records.length;
       }
 
-      console.log(`📦 Résultat final: ${nombreArticles} articles, ${total}€`);
+      if (import.meta.env.DEV) console.log(`📦 Résultat final: ${nombreArticles} articles, ${total}€`);
 
       // Transformer les données pour l'affichage
       panierConfigurations = records.map((config: any) => {

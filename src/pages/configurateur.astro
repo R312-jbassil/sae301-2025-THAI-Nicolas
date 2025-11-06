@@ -9,7 +9,7 @@ import ModalAuthRequired from '../components/modals/ModalAuthRequired.astro';
 import PanneauConfiguration from '../components/configurateur/PanneauConfiguration.astro';
 import Logo from '../assets/icones/logo.svg';
 import IconIa from '../assets/icones/ia.svg';
-import LunettesSVG from '../assets/lunettes.svg';
+import LunettesSVG from '../assets/icones/lunettes.svg';
 import IconPanier from '../assets/icones/panier.svg';
 ---
 
@@ -338,19 +338,19 @@ import IconPanier from '../assets/icones/panier.svg';
       
       const accordionId = accordionContent.getAttribute('data-accordion-content');
       
-      console.log('Option sélectionnée:', optionValue, 'dans', accordionId);
+      if (import.meta.env.DEV) console.log('Option sélectionnée:', optionValue, 'dans', accordionId);
       
       // Mettre à jour la configuration actuelle (en minuscules pour PocketBase)
       if (accordionId === 'type-verres') {
         currentConfig.typeVerres = optionValue.toLowerCase();
-        console.log('typeVerres mis à jour:', currentConfig.typeVerres);
+        if (import.meta.env.DEV) console.log('typeVerres mis à jour:', currentConfig.typeVerres);
         updatePriceDisplay();
       } else if (accordionId === 'forme-monture') {
         currentConfig.formeMonture = optionValue.toLowerCase();
-        console.log('formeMonture mis à jour:', currentConfig.formeMonture);
+        if (import.meta.env.DEV) console.log('formeMonture mis à jour:', currentConfig.formeMonture);
       } else if (accordionId === 'epaisseur') {
         currentConfig.epaisseur = optionValue.toLowerCase();
-        console.log('epaisseur mis à jour:', currentConfig.epaisseur);
+        if (import.meta.env.DEV) console.log('epaisseur mis à jour:', currentConfig.epaisseur);
       } else if (accordionId === 'materiau') {
         // Récupérer les données du matériau
         const materiauId = selectButton.getAttribute('data-materiau-id');
@@ -360,7 +360,7 @@ import IconPanier from '../assets/icones/panier.svg';
         currentConfig.materiauNom = optionValue;
         currentConfig.materiauPrix = materiauPrix;
         
-        console.log('matériau mis à jour:', currentConfig.materiauNom, '+', materiauPrix, '€');
+        if (import.meta.env.DEV) console.log('matériau mis à jour:', currentConfig.materiauNom, '+', materiauPrix, '€');
         updatePriceDisplay();
       }
     });
@@ -750,9 +750,11 @@ import IconPanier from '../assets/icones/panier.svg';
 
     // Fonction qui effectue réellement la sauvegarde (appelée par les boutons du modal)
     async function saveConfigurationAction(addToCart: boolean) {
-      console.log('========================================');
-      console.log('🚀 SAUVEGARDE:', addToCart ? 'PANIER' : 'GALERIE');
-      console.log('Authentifié:', pb.authStore.isValid);
+      if (import.meta.env.DEV) {
+        console.log('========================================');
+        console.log('🚀 SAUVEGARDE:', addToCart ? 'PANIER' : 'GALERIE');
+        console.log('Authentifié:', pb.authStore.isValid);
+      }
       
       // Vérifier l'authentification
       if (!pb.authStore.isValid) {
@@ -794,7 +796,7 @@ import IconPanier from '../assets/icones/panier.svg';
 
       try {
         const result = await saveConfiguration(configData);
-        console.log('📥 Résultat:', result.success ? '✅ OK' : '❌ ERREUR');
+        if (import.meta.env.DEV) console.log('📥 Résultat:', result.success ? '✅ OK' : '❌ ERREUR');
 
         if (result.success) {
           // Fermer le modal
@@ -808,7 +810,7 @@ import IconPanier from '../assets/icones/panier.svg';
           const message = addToCart ? '✓ Ajouté au panier !' : '✓ Configuration sauvegardée !';
           showNotification(message, 'success');
           
-          console.log(`🔄 Redirection vers ${addToCart ? '/panier' : '/galerie'}`);
+          if (import.meta.env.DEV) console.log(`🔄 Redirection vers ${addToCart ? '/panier' : '/galerie'}`);
           
           setTimeout(() => {
             window.location.href = addToCart ? '/panier' : '/galerie';
@@ -822,18 +824,20 @@ import IconPanier from '../assets/icones/panier.svg';
         showNotification('Erreur lors de la sauvegarde', 'error');
       }
       
-      console.log('========================================');
+      if (import.meta.env.DEV) console.log('========================================');
     }
 
     // Fonction pour sauvegarder la configuration (ancienne version - gardée pour compatibilité)
     async function handleSaveConfiguration() {
-      console.log('Début de la sauvegarde...');
-      console.log('Auth valide?', pb.authStore.isValid);
-      console.log('User:', pb.authStore.model);
+      if (import.meta.env.DEV) {
+        console.log('Début de la sauvegarde...');
+        console.log('Auth valide?', pb.authStore.isValid);
+        console.log('User:', pb.authStore.model);
+      }
       
       // Vérifier l'authentification - Afficher le modal d'authentification requise
       if (!pb.authStore.isValid) {
-        console.log('Non connecté, affichage du modal d\'authentification');
+        if (import.meta.env.DEV) console.log('Non connecté, affichage du modal d\'authentification');
         
         // Stocker la configuration dans localStorage pour la récupérer après connexion
         localStorage.setItem('pendingConfiguration', JSON.stringify({
@@ -872,7 +876,7 @@ import IconPanier from '../assets/icones/panier.svg';
         types_verres: config.typeVerres,
       };
 
-      console.log('Données à sauvegarder:', configData);
+      if (import.meta.env.DEV) console.log('Données à sauvegarder:', configData);
 
       try {
         const saveButton = document.getElementById('open-cart-modal');
@@ -882,7 +886,7 @@ import IconPanier from '../assets/icones/panier.svg';
         }
 
         const result = await saveConfiguration(configData);
-        console.log('Résultat sauvegarde:', result);
+        if (import.meta.env.DEV) console.log('Résultat sauvegarde:', result);
 
         if (result.success) {
           showNotification('Configuration sauvegardée avec succès !', 'success');
@@ -918,7 +922,7 @@ import IconPanier from '../assets/icones/panier.svg';
           
           // Vérifier l'authentification d'abord
           if (!pb.authStore.isValid) {
-            console.log('Non connecté, affichage du modal d\'authentification');
+            if (import.meta.env.DEV) console.log('Non connecté, affichage du modal d\'authentification');
             localStorage.setItem('pendingConfiguration', JSON.stringify({
               config: (window as any).currentConfig,
               colors: (window as any).currentColors,
@@ -1001,7 +1005,7 @@ import IconPanier from '../assets/icones/panier.svg';
       const saveOnlyBtn = document.getElementById('save-only-btn');
       const saveAndCartBtn = document.getElementById('save-and-cart-btn');
       
-      console.log('Attachement des listeners aux boutons du modal');
+      if (import.meta.env.DEV) console.log('Attachement des listeners aux boutons du modal');
       
       if (saveOnlyBtn) {
         // Cloner le bouton pour supprimer tous les anciens listeners
@@ -1011,7 +1015,7 @@ import IconPanier from '../assets/icones/panier.svg';
         newSaveOnlyBtn.addEventListener('click', async (e) => {
           e.preventDefault();
           e.stopPropagation();
-          console.log('🔹 CLIC: Sauvegarder uniquement');
+          if (import.meta.env.DEV) console.log('🔹 CLIC: Sauvegarder uniquement');
           
           // Désactiver le bouton pendant le traitement
           newSaveOnlyBtn.style.pointerEvents = 'none';
@@ -1033,7 +1037,7 @@ import IconPanier from '../assets/icones/panier.svg';
         newSaveAndCartBtn.addEventListener('click', async (e) => {
           e.preventDefault();
           e.stopPropagation();
-          console.log('🛒 CLIC: Ajouter au panier');
+          if (import.meta.env.DEV) console.log('🛒 CLIC: Ajouter au panier');
           
           // Désactiver le bouton pendant le traitement
           newSaveAndCartBtn.style.pointerEvents = 'none';
@@ -1056,7 +1060,7 @@ import IconPanier from '../assets/icones/panier.svg';
         import('../data/modeles').then(({ getModeleById }) => {
           const modele = getModeleById(modeleId);
           if (modele) {
-            console.log('📦 Chargement du modèle:', modele.nom);
+            if (import.meta.env.DEV) console.log('📦 Chargement du modèle:', modele.nom);
             
             // Mettre à jour le nom
             const nameInput = document.getElementById('config-name-input') as HTMLInputElement;

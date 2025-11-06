@@ -102,7 +102,7 @@ const { id, title = "Confirmation", message } = Astro.props;
             return;
           }
           
-          console.log('🔓 Ouverture du modal:', modalId);
+          if (import.meta.env.DEV) console.log('🔓 Ouverture du modal:', modalId);
           
           // Afficher le modal
           modal.classList.remove('hidden');
@@ -125,7 +125,7 @@ const { id, title = "Confirmation", message } = Astro.props;
             if (overlay) overlay.removeEventListener('click', handleOverlay);
             document.removeEventListener('keydown', handleEscape);
             
-            console.log('🔒 Modal fermé, résultat:', result);
+            if (import.meta.env.DEV) console.log('🔒 Modal fermé, résultat:', result);
             resolve(result);
           }
           
@@ -160,7 +160,7 @@ const { id, title = "Confirmation", message } = Astro.props;
         });
       };
       
-      console.log('✅ Modal fonction enregistrée:', functionName);
+      if (import.meta.env.DEV) console.log('✅ Modal fonction enregistrée:', functionName);
     });
   });
 </script>

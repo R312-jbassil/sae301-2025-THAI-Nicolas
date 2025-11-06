@@ -84,10 +84,12 @@
 		const width = 2000;  // Canvas très large
 		const height = 1600; // Canvas très haut
 		
-		console.log('🔍 === DIAGNOSTIC 3D SCENE ===');
-		console.log('📏 Container dimensions:', { width, height });
-		console.log('📦 Container element:', container);
-		console.log('🎨 Canvas element:', canvas);
+		if (import.meta.env.DEV) {
+			console.log('🔍 === DIAGNOSTIC 3D SCENE ===');
+			console.log('📏 Container dimensions:', { width, height });
+			console.log('📦 Container element:', container);
+			console.log('🎨 Canvas element:', canvas);
+		}
 
 		// Scène
 		const scene = new THREE.Scene();
@@ -98,13 +100,15 @@
 		camera.position.set(0, 0, 10.1);
 		camera.lookAt(0, 0, 0);
 		
-		console.log('📷 Camera config:', {
-			fov: camera.fov,
-			aspect: camera.aspect,
-			near: camera.near,
-			far: camera.far,
-			position: camera.position
-		});
+		if (import.meta.env.DEV) {
+			console.log('📷 Camera config:', {
+				fov: camera.fov,
+				aspect: camera.aspect,
+				near: camera.near,
+				far: camera.far,
+				position: camera.position
+			});
+		}
 
 		// Renderer avec viewport élargi
 		const renderer = new THREE.WebGLRenderer({
@@ -118,12 +122,14 @@
 		renderer.setScissorTest(false);
 		renderer.setViewport(0, 0, width, height);
 		
-		console.log('🎨 Renderer config:', {
-			size: { width, height },
-			pixelRatio: renderer.getPixelRatio(),
-			scissorTest: renderer.getScissorTest(),
-			viewport: renderer.getViewport(new THREE.Vector4())
-		});
+		if (import.meta.env.DEV) {
+			console.log('🎨 Renderer config:', {
+				size: { width, height },
+				pixelRatio: renderer.getPixelRatio(),
+				scissorTest: renderer.getScissorTest(),
+				viewport: renderer.getViewport(new THREE.Vector4())
+			});
+		}
 
 		// Contrôles interactifs (manipulation à la souris)
 		const controls = new OrbitControls(camera, canvas);
@@ -140,14 +146,16 @@
 		controls.minPolarAngle = Math.PI / 2.5;  // Limite haut
 		controls.maxPolarAngle = Math.PI / 1.5;  // Limite bas
 		
-		console.log('🎮 OrbitControls config:', {
-			minDistance: controls.minDistance,
-			maxDistance: controls.maxDistance,
-			target: controls.target,
-			enableDamping: controls.enableDamping,
-			enableZoom: controls.enableZoom,
-			enablePan: controls.enablePan
-		});
+		if (import.meta.env.DEV) {
+			console.log('🎮 OrbitControls config:', {
+				minDistance: controls.minDistance,
+				maxDistance: controls.maxDistance,
+				target: controls.target,
+				enableDamping: controls.enableDamping,
+				enableZoom: controls.enableZoom,
+				enablePan: controls.enablePan
+			});
+		}
 
 		// Lumières
 		const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -248,7 +256,7 @@ Camera Z: ${camera.position.z.toFixed(1)}
 					setTimeout(() => { copyBtn.textContent = originalText; }, 2000);
 				}
 				
-				console.log('📋 Valeurs copiées:', values);
+				if (import.meta.env.DEV) console.log('📋 Valeurs copiées:', values);
 			});
 		}
 
@@ -283,40 +291,42 @@ Camera Z: ${camera.position.z.toFixed(1)}
 				scene.add(glassesModel);
 				isLoading = false;
 				
-				console.log('✅ Modèle 3D chargé avec succès');
-				console.log('📏 Taille du modèle:', size);
-				console.log('📐 Max dimension:', maxDim);
-				console.log('🎯 Échelle appliquée:', scale);
-				console.log('📍 Position finale:', glassesModel.position);
-				console.log('🔄 Rotation finale:', glassesModel.rotation);
-				console.log('📦 Bounding box:', {
-					min: box.min,
-					max: box.max,
-					center: center
-				});
-				
-				// CRITICAL: Vérifier si le modèle est dans le frustum de la caméra
-				const frustum = new THREE.Frustum();
-				const projScreenMatrix = new THREE.Matrix4();
-				camera.updateMatrixWorld();
-				projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
-				frustum.setFromProjectionMatrix(projScreenMatrix);
-				
-				const isInFrustum = frustum.intersectsBox(box);
-				console.log('👁️ Modèle visible dans frustum?', isInFrustum);
-				
-				if (!isInFrustum) {
-					console.warn('⚠️ PROBLÈME: Le modèle est en dehors du frustum de la caméra!');
+				if (import.meta.env.DEV) {
+					console.log('✅ Modèle 3D chargé avec succès');
+					console.log('📏 Taille du modèle:', size);
+					console.log('📐 Max dimension:', maxDim);
+					console.log('🎯 Échelle appliquée:', scale);
+					console.log('📍 Position finale:', glassesModel.position);
+					console.log('🔄 Rotation finale:', glassesModel.rotation);
+					console.log('📦 Bounding box:', {
+						min: box.min,
+						max: box.max,
+						center: center
+					});
+					
+					// CRITICAL: Vérifier si le modèle est dans le frustum de la caméra
+					const frustum = new THREE.Frustum();
+					const projScreenMatrix = new THREE.Matrix4();
+					camera.updateMatrixWorld();
+					projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+					frustum.setFromProjectionMatrix(projScreenMatrix);
+					
+					const isInFrustum = frustum.intersectsBox(box);
+					console.log('👁️ Modèle visible dans frustum?', isInFrustum);
+					
+					if (!isInFrustum) {
+						console.warn('⚠️ PROBLÈME: Le modèle est en dehors du frustum de la caméra!');
+					}
+					
+					console.log('🔍 === FIN DIAGNOSTIC ===');
 				}
-				
-				console.log('🔍 === FIN DIAGNOSTIC ===');
 				
 				// Activer les contrôles après chargement
 				setupControls(glassesModel, maxDim);
 			},
 			(progress) => {
 				const percent = (progress.loaded / progress.total) * 100;
-				console.log(`📦 Chargement du modèle 3D: ${percent.toFixed(0)}%`);
+				if (import.meta.env.DEV) console.log(`📦 Chargement du modèle 3D: ${percent.toFixed(0)}%`);
 			},
 			(error) => {
 				console.error('❌ Erreur lors du chargement du modèle 3D:', error);
@@ -415,7 +425,7 @@ Camera Z: ${camera.position.z.toFixed(1)}
 	// Initialisation après le chargement du DOM
 	if (typeof window !== 'undefined') {
 		document.addEventListener('DOMContentLoaded', () => {
-			console.log('🚀 Initialisation de la vue 3D...');
+			if (import.meta.env.DEV) console.log('🚀 Initialisation de la vue 3D...');
 			init3DScene();
 		});
 	}

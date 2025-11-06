@@ -1,29 +1,29 @@
 import type { APIRoute } from "astro";
+import { openrouterConfig, isOpenRouterConfigured } from "../../lib/openrouter";
+import type { ChatMessage } from "../../types/api";
 
 export const POST: APIRoute = async ({ request }) => {
-  console.log("=== API Chat appelée ===");
+  if (import.meta.env.DEV) console.log("=== API Chat appelée ===");
 
   try {
     const { message, conversationHistory } = await request.json();
-    console.log("Message reçu:", message);
+    if (import.meta.env.DEV) console.log("Message reçu:", message);
 
-    // Récupérer les variables d'environnement
-    const OR_TOKEN = import.meta.env.OR_TOKEN;
-    const OR_URL = import.meta.env.OR_URL;
-    const NOM_MODEL = import.meta.env.NOM_MODEL;
-
-    console.log("Variables env:", {
-      hasToken: !!OR_TOKEN,
-      url: OR_URL,
-      model: NOM_MODEL,
-    });
-
-    if (!OR_TOKEN || !OR_URL || !NOM_MODEL) {
-      console.error("Configuration manquante!");
+    // Vérifier la configuration OpenRouter
+    if (!isOpenRouterConfigured()) {
+      console.error("Configuration OpenRouter manquante!");
       return new Response(
         JSON.stringify({ error: "Configuration API manquante" }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
+    }
+
+    if (import.meta.env.DEV) {
+      console.log("Variables env:", {
+        hasToken: !!openrouterConfig.token,
+        url: openrouterConfig.url,
+        model: openrouterConfig.model,
+      });
     }
 
     // Construire le prompt système pour l'assistant lunettes
@@ -81,23 +81,25 @@ Si la demande n'est pas claire, demande des précisions en utilisant : {"action"
       { role: "user", content: message },
     ];
 
-    console.log("Appel à OpenRouter avec le modèle:", NOM_MODEL);
-    console.log("Nombre de messages dans l'historique:", messages.length);
+    if (import.meta.env.DEV) {
+      console.log("Appel à OpenRouter avec le modèle:", openrouterConfig.model);
+      console.log("Nombre de messages dans l'historique:", messages.length);
+    }
 
     // Appeler l'API OpenRouter avec timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 secondes timeout
 
-    const response = await fetch(`${OR_URL}/chat/completions`, {
+    const response = await fetch(openrouterConfig.url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${OR_TOKEN}`,
+        Authorization: `Bearer ${openrouterConfig.token}`,
         "Content-Type": "application/json",
         "HTTP-Referer": "https://tavue.nicolas-thai.fr",
         "X-Title": "TaVue Assistant",
       },
       body: JSON.stringify({
-        model: NOM_MODEL,
+        model: openrouterConfig.model,
         messages: messages,
         temperature: 0.3, // Baisser pour plus de cohérence
         max_tokens: 500,
@@ -107,7 +109,8 @@ Si la demande n'est pas claire, demande des précisions en utilisant : {"action"
 
     clearTimeout(timeoutId);
 
-    console.log("Réponse OpenRouter status:", response.status);
+    if (import.meta.env.DEV)
+      console.log("Réponse OpenRouter status:", response.status);
 
     if (!response.ok) {
       const errorData = await response.text();
@@ -121,12 +124,16 @@ Si la demande n'est pas claire, demande des précisions en utilisant : {"action"
     }
 
     const data = await response.json();
-    console.log("Réponse complète OpenRouter:", JSON.stringify(data, null, 2));
+    if (import.meta.env.DEV)
+      console.log(
+        "Réponse complète OpenRouter:",
+        JSON.stringify(data, null, 2)
+      );
 
     const aiMessage =
       data.choices[0]?.message?.content ||
       "Désolé, je n'ai pas pu générer une réponse.";
-    console.log("Message IA extrait:", aiMessage);
+    if (import.meta.env.DEV) console.log("Message IA extrait:", aiMessage);
 
     return new Response(JSON.stringify({ message: aiMessage }), {
       status: 200,
