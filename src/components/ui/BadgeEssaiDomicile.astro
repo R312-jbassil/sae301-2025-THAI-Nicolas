@@ -1,0 +1,48 @@
+---
+interface Props {
+  class?: string;
+  variant?: "large" | "small";
+}
+
+const { class: className, variant = "large" } = Astro.props;
+---
+
+{variant === "large" ? (
+  <!-- Version large pour la page d'accueil -->
+  <div class={`bg-gradient-to-r from-vert to-[#4a7d5f] rounded-2xl p-6 shadow-xl ${className || ''}`}>
+    <div class="flex items-start gap-4">
+      <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-vert" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+      </div>
+      <div class="flex-1">
+        <h3 class="text-white font-bold text-lg mb-1">Essai à domicile GRATUIT</h3>
+        <p class="text-white/90 text-sm leading-relaxed">
+          Recevez <strong>5 montures</strong> gratuitement chez vous pour <strong>5 jours d'essai</strong>. Trouvez celle qui vous va le mieux avant de commander !
+        </p>
+      </div>
+    </div>
+    <div class="mt-4 pt-4 border-t border-white/20 flex items-center gap-2 text-white/90 text-xs">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      <span>Sans engagement • Livraison et retour gratuits</span>
+    </div>
+  </div>
+) : (
+  <!-- Version compacte pour le configurateur et autres pages -->
+  <div class={`bg-gradient-to-r from-vert to-[#4a7d5f] rounded-xl p-4 shadow-lg ${className || ''}`}>
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-vert" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+      </div>
+      <div class="flex-1">
+        <h4 class="text-white font-bold text-sm">Essai à domicile GRATUIT</h4>
+        <p class="text-white/90 text-xs">5 montures • 5 jours • Sans engagement</p>
+      </div>
+    </div>
+  </div>
+)}

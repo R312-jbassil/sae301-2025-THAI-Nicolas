@@ -141,6 +141,38 @@ const { id } = Astro.props;
     const sendBtn = document.getElementById('chat-send-btn') as HTMLButtonElement;
     const messagesContainer = document.getElementById('chat-messages') as HTMLElement;
 
+    // Vérifier l'authentification avant de charger la conversation
+    const { pb } = await import('../../utils/pb');
+    
+    if (!pb.authStore.isValid) {
+      // Si non connecté, afficher un message dans le chat
+      if (messagesContainer) {
+        const authMessage = document.createElement('div');
+        authMessage.className = 'flex gap-2 animate-slide-up';
+        authMessage.innerHTML = `
+          <div class="w-8 h-8 bg-vert rounded-full flex items-center justify-center shrink-0 mt-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <div class="bg-white rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%] shadow-sm">
+            <p class="text-sm text-noir leading-relaxed mb-3">
+              Pour utiliser l'assistant IA et sauvegarder vos conversations, vous devez créer un compte.
+            </p>
+            <a href="/authentification" class="inline-block bg-vert text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-[#4a7d5f] transition-all">
+              Créer mon compte
+            </a>
+          </div>
+        `;
+        messagesContainer.appendChild(authMessage);
+      }
+      
+      // Désactiver l'input et le bouton
+      if (chatInput) chatInput.disabled = true;
+      if (sendBtn) sendBtn.disabled = true;
+      return;
+    }
+
     // Charger la conversation existante au chargement
     const result = await getChatConversation();
     if (result.success && result.conversation) {

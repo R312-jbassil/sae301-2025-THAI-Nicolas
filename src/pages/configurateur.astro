@@ -1175,13 +1175,19 @@ import IconPanier from '../assets/icones/panier.svg';
           
           // Vérifier l'authentification d'abord
           if (!pb.authStore.isValid) {
-            console.log('Non connecté, redirection vers authentification');
+            console.log('Non connecté, affichage du modal d\'authentification');
             localStorage.setItem('pendingConfiguration', JSON.stringify({
               config: (window as any).currentConfig,
               colors: (window as any).currentColors,
               prix: (window as any).calculerPrixTotal()
             }));
-            window.location.href = '/authentification?redirect=/configurateur&action=save';
+            
+            // Ouvrir le modal d'authentification
+            const authModal = document.getElementById('auth-required-modal');
+            if (authModal) {
+              authModal.classList.remove('hidden');
+              document.body.style.overflow = 'hidden';
+            }
             return;
           }
           
