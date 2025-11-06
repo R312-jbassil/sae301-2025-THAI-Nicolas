@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/layouts/Header.astro';
+import Footer from '../components/layouts/Footer.astro';
 import { pb, getLunettesParUtilisateur } from '../utils/pb';
 
 // Récupérer les configurations dans le panier (avec cookie)
@@ -298,6 +299,8 @@ function capitalize(str: string) {
   <div id="notification" class="fixed top-8 right-8 bg-vert text-white px-6 py-4 rounded-xl shadow-lg transform translate-x-96 transition-transform duration-300 z-50">
     <p class="font-semibold" id="notification-message"></p>
   </div>
+
+  <Footer />
 </Layout>
 
 <script>
