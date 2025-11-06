@@ -11,6 +11,23 @@ import Logo from '../assets/icones/logo.svg';
 import IconIa from '../assets/icones/ia.svg';
 import LunettesSVG from '../assets/icones/lunettes.svg';
 import IconPanier from '../assets/icones/panier.svg';
+import { pb } from '../lib/pocketbase';
+
+// Charger une configuration depuis la galerie si demandé
+const url = new URL(Astro.request.url);
+const loadConfigId = url.searchParams.get('load');
+const couleurMonture = url.searchParams.get('couleurMonture');
+const couleurBranches = url.searchParams.get('couleurBranches');
+const couleurVerres = url.searchParams.get('couleurVerres');
+
+let configurationChargee = null;
+if (loadConfigId) {
+  try {
+    configurationChargee = await pb.collection('configuration_lunettes').getOne(loadConfigId);
+  } catch (error) {
+    if (import.meta.env.DEV) console.error('Erreur chargement configuration:', error);
+  }
+}
 ---
 
 <Layout title="Configurateur - TaVue" description="Configurez vos lunettes personnalisées">
@@ -114,6 +131,26 @@ import IconPanier from '../assets/icones/panier.svg';
       !
     </span>
   </button>
+
+  <!-- Script pour injecter les données de configuration chargée -->
+  {configurationChargee && (
+    <script define:vars={{ config: {
+      nom: configurationChargee.nom,
+      types_verres: configurationChargee.types_verres,
+      forme_monture: configurationChargee.forme_monture,
+      epaisseur_monture: configurationChargee.epaisseur_monture,
+      taille: configurationChargee.taille,
+      materiau_id: configurationChargee.materiau_id,
+      couleur_monture: configurationChargee.couleur_monture,
+      couleur_branches: configurationChargee.couleur_branches,
+      couleur_verres: configurationChargee.couleur_verres,
+      couleurMonture: couleurMonture,
+      couleurBranches: couleurBranches,
+      couleurVerres: couleurVerres
+    }}}>
+      window.__CONFIG_CHARGEE__ = config;
+    </script>
+  )}
 
   <!-- Script pour gérer la fermeture des modals -->
   <script>
@@ -1055,7 +1092,48 @@ import IconPanier from '../assets/icones/panier.svg';
       const urlParams = new URLSearchParams(window.location.search);
       const modeleId = urlParams.get('modele');
       
-      if (modeleId) {
+      // Charger une configuration sauvegardée depuis la galerie (données préchargées côté serveur)
+      const configurationChargee = (window as any).__CONFIG_CHARGEE__;
+      if (configurationChargee) {
+        if (import.meta.env.DEV) console.log('📦 Chargement config depuis galerie:', configurationChargee);
+        
+        // Mettre à jour le nom
+        const nameInput = document.getElementById('config-name-input') as HTMLInputElement;
+        if (nameInput) {
+          nameInput.value = configurationChargee.nom || 'ÉLÉGANCE';
+        }
+        
+        // Mettre à jour la configuration
+        (window as any).currentConfig.typeVerres = configurationChargee.types_verres || 'correcteurs';
+        (window as any).currentConfig.formeMonture = configurationChargee.forme_monture || 'rectangulaire';
+        (window as any).currentConfig.epaisseur = configurationChargee.epaisseur_monture || 'moyen';
+        (window as any).currentConfig.taille = configurationChargee.taille || '52-18';
+        (window as any).currentConfig.materiauId = configurationChargee.materiau_id;
+        
+        // IMPORTANT: Restaurer les couleurs depuis l'URL ou la config
+        (window as any).currentConfig.couleurMonture = configurationChargee.couleurMonture || configurationChargee.couleur_monture || '#1A1A1A';
+        (window as any).currentConfig.couleurBranches = configurationChargee.couleurBranches || configurationChargee.couleur_branches || '#1A1A1A';
+        (window as any).currentConfig.couleurVerres = configurationChargee.couleurVerres || configurationChargee.couleur_verres || '#4A5A54';
+        
+        // Mettre à jour les couleurs
+        (window as any).currentColors.monture = (window as any).currentConfig.couleurMonture;
+        (window as any).currentColors.branches = (window as any).currentConfig.couleurBranches;
+        (window as any).currentColors.verres = (window as any).currentConfig.couleurVerres;
+        
+        // Appliquer les changements visuels
+        if ((window as any).applySVGColors) {
+          (window as any).applySVGColors();
+        }
+        if ((window as any).updatePriceDisplay) {
+          (window as any).updatePriceDisplay();
+        }
+        
+        // Nettoyer l'URL
+        window.history.replaceState({}, document.title, '/configurateur');
+      }
+      
+      // Charger un modèle prédéfini depuis les données statiques
+      else if (modeleId) {
         // Charger les données du modèle (depuis l'import dynamique)
         import('../data/modeles').then(({ getModeleById }) => {
           const modele = getModeleById(modeleId);
@@ -1069,18 +1147,18 @@ import IconPanier from '../assets/icones/panier.svg';
             }
             
             // Mettre à jour la configuration
-            currentConfig.typeVerres = modele.typeVerres;
-            currentConfig.formeMonture = modele.formeMonture;
-            currentConfig.epaisseur = modele.epaisseur;
-            currentConfig.taille = modele.taille;
-            currentConfig.couleurMonture = modele.couleurMonture;
-            currentConfig.couleurBranches = modele.couleurBranches;
-            currentConfig.couleurVerres = modele.couleurVerres;
+            (window as any).currentConfig.typeVerres = modele.typeVerres;
+            (window as any).currentConfig.formeMonture = modele.formeMonture;
+            (window as any).currentConfig.epaisseur = modele.epaisseur;
+            (window as any).currentConfig.taille = modele.taille;
+            (window as any).currentConfig.couleurMonture = modele.couleurMonture;
+            (window as any).currentConfig.couleurBranches = modele.couleurBranches;
+            (window as any).currentConfig.couleurVerres = modele.couleurVerres;
             
             // Mettre à jour les couleurs
-            currentColors.monture = modele.couleurMonture;
-            currentColors.branches = modele.couleurBranches;
-            currentColors.verres = modele.couleurVerres;
+            (window as any).currentColors.monture = modele.couleurMonture;
+            (window as any).currentColors.branches = modele.couleurBranches;
+            (window as any).currentColors.verres = modele.couleurVerres;
             
             // Appliquer les changements visuels
             if ((window as any).applySVGColors) {

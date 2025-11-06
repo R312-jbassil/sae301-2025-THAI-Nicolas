@@ -223,7 +223,10 @@ function capitalize(str: string) {
                         Retirer du panier
                       </button>
                       <span class="text-gris">•</span>
-                      <a href="/configurateur" class="text-sm text-gris hover:text-vert transition-colors cursor-pointer">
+                      <a 
+                        href={`/configurateur?load=${config.id}&couleurMonture=${encodeURIComponent(config.couleur_monture || '#1A1A1A')}&couleurBranches=${encodeURIComponent(config.couleur_branches || '#1A1A1A')}&couleurVerres=${encodeURIComponent(config.couleur_verres || '#4A5A54')}`}
+                        class="text-sm text-gris hover:text-vert transition-colors cursor-pointer"
+                      >
                         Modifier
                       </a>
                     </div>

@@ -75,7 +75,7 @@ const { config } = Astro.props;
     <!-- Actions -->
     <div class="flex gap-2 relative z-10">
       <a 
-        href={`/configurateur?load=${config.id}`}
+        href={`/configurateur?load=${config.id}&couleurMonture=${encodeURIComponent(config.rawData.couleur_monture || '#1A1A1A')}&couleurBranches=${encodeURIComponent(config.rawData.couleur_branches || '#1A1A1A')}&couleurVerres=${encodeURIComponent(config.rawData.couleur_verres || '#4A5A54')}`}
         class="flex-1 bg-white border-2 border-vert text-vert rounded-full px-4 py-2.5 text-sm font-semibold hover:bg-vert-light transition-all duration-300 flex items-center justify-center gap-2"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
