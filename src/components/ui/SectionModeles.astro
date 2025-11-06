@@ -1,0 +1,59 @@
+---
+import CardModele from './CardModele.astro';
+
+interface Props {
+  id?: string;
+  titre: string;
+  description: string;
+  modeles: any[];
+  badge?: 'bestseller' | 'nouveau' | null;
+  icone?: 'star' | 'clock' | null;
+  showCount?: boolean;
+}
+
+const { 
+  id, 
+  titre, 
+  description, 
+  modeles, 
+  badge = null, 
+  icone = null,
+  showCount = true 
+} = Astro.props;
+
+// Icône SVG étoile (bestsellers)
+const iconeStar = `
+  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+  </svg>
+`;
+
+// Icône SVG horloge (nouveautés)
+const iconeClock = `
+  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+`;
+---
+
+<section id={id} class="mb-20">
+  <div class={`flex items-center justify-between mb-10 ${!showCount ? 'justify-start' : ''}`}>
+    <div>
+      <h2 class="text-4xl font-bold text-noir mb-3">{titre}</h2>
+      <p class="text-gris text-lg">{description}</p>
+    </div>
+    {showCount && (
+      <div class="flex items-center gap-2 text-vert">
+        {icone === 'star' && <Fragment set:html={iconeStar} />}
+        {icone === 'clock' && <Fragment set:html={iconeClock} />}
+        <span class="font-semibold">{modeles.length} modèles</span>
+      </div>
+    )}
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    {modeles.map((modele) => (
+      <CardModele modele={modele} badge={badge} />
+    ))}
+  </div>
+</section>

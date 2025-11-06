@@ -1,0 +1,80 @@
+---
+/**
+ * Composant pour afficher et colorier le SVG des lunettes
+ * Remplace le code dupliqué dans configurateur, galerie, modeles, etc.
+ */
+
+interface Props {
+  couleurs: {
+    monture: string;
+    branches: string;
+    verres: string;
+  };
+  viewBox?: string;
+  className?: string;
+  containerId?: string;
+}
+
+const { 
+  couleurs, 
+  viewBox = '0 0 595.28 841.89',
+  className = 'w-full h-auto',
+  containerId = `lunettes-svg-${Math.random().toString(36).substr(2, 9)}`
+} = Astro.props;
+---
+
+<div 
+  id={containerId} 
+  class="lunettes-svg-container"
+  data-couleurs={JSON.stringify(couleurs)}
+  data-viewbox={viewBox}
+>
+  <!-- Le SVG sera injecté ici par JavaScript -->
+</div>
+
+<script>
+  import { getSVGContent, applySVGColors, type LunettesColors } from '../../utils/svgColorizer';
+
+  /**
+   * Initialise et colorie tous les SVG de lunettes sur la page
+   */
+  function initLunettesSVG() {
+    const containers = document.querySelectorAll('.lunettes-svg-container');
+    
+    containers.forEach((container) => {
+      try {
+        // Récupérer les données
+        const couleursStr = container.getAttribute('data-couleurs');
+        const viewBox = container.getAttribute('data-viewbox') || '0 0 595.28 841.89';
+        
+        if (!couleursStr) {
+          console.warn('Pas de couleurs définies pour le SVG');
+          return;
+        }
+        
+        const couleurs: LunettesColors = JSON.parse(couleursStr);
+        
+        // Injecter le SVG
+        container.innerHTML = getSVGContent(viewBox);
+        
+        // Récupérer l'élément SVG et appliquer les couleurs
+        const svg = container.querySelector('svg');
+        if (svg) {
+          applySVGColors(svg as SVGElement, couleurs);
+        }
+      } catch (error) {
+        console.error('Erreur lors de l\'initialisation du SVG:', error);
+      }
+    });
+  }
+
+  // Initialiser au chargement
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLunettesSVG);
+  } else {
+    initLunettesSVG();
+  }
+
+  // Exposer la fonction globalement pour réinitialisation dynamique
+  (window as any).initLunettesSVG = initLunettesSVG;
+</script>

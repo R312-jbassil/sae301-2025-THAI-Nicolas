@@ -1,0 +1,32 @@
+---
+import Chevron from '../../assets/icones/chevron.svg';
+
+interface Props {
+  titre: string;
+  accordionId: string;
+  isOpen?: boolean;
+}
+
+const { titre, accordionId, isOpen = false } = Astro.props;
+---
+
+<div class="mb-8 accordion-section">
+  <button 
+    class="flex items-center justify-between w-full mb-6 accordion-trigger cursor-pointer" 
+    data-accordion={accordionId}
+  >
+    <h3 class="text-xl font-semibold text-noir">{titre}</h3>
+    <img 
+      src={Chevron.src} 
+      alt="Déplier" 
+      class={`w-4.5 h-2.5 accordion-chevron transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+    />
+  </button>
+
+  <div 
+    class={`accordion-content overflow-hidden transition-all duration-300 ${isOpen ? '' : 'max-h-0'}`}
+    data-accordion-content={accordionId}
+  >
+    <slot />
+  </div>
+</div>

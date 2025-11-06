@@ -1,0 +1,205 @@
+---
+import BoutonCirculaire from '../boutons/BoutonCirculaire.astro';
+import BoutonConfigurateur from '../boutons/BoutonConfigurateur.astro';
+import MainBouton from '../boutons/MainBouton.astro';
+import SelectConfigurateur from './SelectConfigurateur.astro';
+import AccordeonOption from './AccordeonOption.astro';
+import SelecteurCouleurPalette from './SelecteurCouleurPalette.astro';
+import Chevron from '../../assets/icones/chevron.svg';
+
+interface Props {
+  configName?: string;
+  prixBase?: number;
+}
+
+const { configName = "ÉLÉGANCE", prixBase = 149 } = Astro.props;
+
+// Palettes de couleurs pour chaque section
+const couleursVerres = ['#4A5A54', '#8b5a3c', '#7fa5c1', '#c8a882', '#d4a5a5'];
+const couleursMonture = ['#1A1A1A', '#8b5a3c', '#c8a882', '#5A7D6F'];
+const couleursBranches = ['#1A1A1A', '#5A7D6F', '#c8a882', '#9ca3af', '#8b5a3c', '#d4a5a5'];
+---
+
+<!-- Partie droite - Configuration -->
+<div class="w-1/3 bg-white shadow-lg flex flex-col h-screen overflow-hidden">
+  <!-- Configuration (scrollable) -->
+  <div class="flex-1 overflow-y-auto px-12 py-12">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex-1">
+        <input 
+          type="text" 
+          id="config-name-input"
+          value={configName}
+          class="text-4xl font-bold text-noir tracking-widest bg-transparent border-2 border-transparent hover:border-gray-200 focus:border-vert rounded-lg px-3 py-1 -ml-3 outline-none transition-all duration-200 w-full max-w-md uppercase"
+          placeholder="NOM DE LA CONFIGURATION"
+          maxlength="30"
+        />
+      </div>
+      <div id="open-info-modal" class="cursor-pointer">
+        <BoutonCirculaire icone="infos" taille="small" />
+      </div>
+    </div>
+
+    <!-- Taille -->
+    <div class="border-b border-gray-200 pb-8 mb-8">
+      <div class="flex items-center justify-between">
+        <p class="text-xl font-semibold text-noir">TAILLE</p>
+        <div class="flex items-center gap-5">
+          <button class="hover:text-vert transition-colors cursor-pointer" id="size-decrease">
+            <img src={Chevron.src} alt="Précédent" class="w-full h-2.5 -rotate-90" />
+          </button>
+          <span class="text-lg font-medium text-noir" id="size-display">52-18</span>
+          <button class="hover:text-vert transition-colors cursor-pointer" id="size-increase">
+            <img src={Chevron.src} alt="Suivant" class="w-full h-2.5 rotate-90" />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglets -->
+    <div class="flex gap-3 mb-8" id="category-tabs">
+      <BoutonConfigurateur texte="VERRES" isActive={true} />
+      <BoutonConfigurateur texte="MONTURE" isActive={false} />
+      <BoutonConfigurateur texte="BRANCHES" isActive={false} />
+      <BoutonConfigurateur texte="ETUI" isActive={false} />
+    </div>
+
+    <!-- Contenu pour VERRES -->
+    <div id="content-verres" class="category-content">
+      <!-- Type de verres -->
+      <AccordeonOption titre="TYPE DE VERRES" accordionId="type-verres" isOpen={true}>
+        <div class="space-y-4">
+          <SelectConfigurateur 
+            titre="Correcteurs"
+            isSelected={true}
+          />
+          <SelectConfigurateur 
+            titre="Solaires"
+            isSelected={false}
+          />
+          <SelectConfigurateur 
+            titre="Photochromiques"
+            prix={80}
+            isSelected={false}
+          />
+          <SelectConfigurateur 
+            titre="Polarisés"
+            prix={40}
+            isSelected={false}
+          />
+        </div>
+      </AccordeonOption>
+
+      <!-- Couleur des verres -->
+      <AccordeonOption titre="COULEUR DES VERRES" accordionId="couleur-verres" isOpen={true}>
+        <SelecteurCouleurPalette 
+          couleurs={couleursVerres}
+          colorPickerClass="color-picker-verres"
+          defaultPickerValue="#4A5A54"
+        />
+      </AccordeonOption>
+    </div>
+
+    <!-- Contenu pour MONTURE -->
+    <div id="content-monture" class="category-content hidden">
+      <!-- Forme de monture -->
+      <AccordeonOption titre="FORME DE MONTURE" accordionId="forme-monture" isOpen={true}>
+        <div class="space-y-4">
+          <SelectConfigurateur 
+            titre="Rectangulaire"
+            isSelected={true}
+          />
+          <SelectConfigurateur 
+            titre="Ronde"
+            isSelected={false}
+          />
+          <SelectConfigurateur 
+            titre="Papillon"
+            isSelected={false}
+          />
+          <SelectConfigurateur 
+            titre="Carrée"
+            isSelected={false}
+          />
+        </div>
+      </AccordeonOption>
+
+      <!-- Couleur de monture -->
+      <AccordeonOption titre="COULEUR DE MONTURE" accordionId="couleur-monture" isOpen={true}>
+        <SelecteurCouleurPalette 
+          couleurs={couleursMonture}
+          colorPickerClass="color-picker-monture"
+          defaultPickerValue="#1A1A1A"
+        />
+      </AccordeonOption>
+
+      <!-- Épaisseur -->
+      <AccordeonOption titre="ÉPAISSEUR" accordionId="epaisseur" isOpen={true}>
+        <div class="space-y-4">
+          <SelectConfigurateur 
+            titre="Fin"
+            isSelected={false}
+          />
+          <SelectConfigurateur 
+            titre="Moyen"
+            isSelected={true}
+          />
+          <SelectConfigurateur 
+            titre="Épais"
+            isSelected={false}
+          />
+        </div>
+      </AccordeonOption>
+
+      <!-- Matériau -->
+      <AccordeonOption titre="MATÉRIAU" accordionId="materiau" isOpen={true}>
+        <div class="space-y-4" id="materiaux-list">
+          <!-- Les matériaux seront chargés dynamiquement depuis PocketBase -->
+          <div class="text-center py-4 text-gris">
+            <p>Chargement des matériaux...</p>
+          </div>
+        </div>
+      </AccordeonOption>
+    </div>
+
+    <!-- Contenu pour BRANCHES -->
+    <div id="content-branches" class="category-content hidden">
+      <!-- Couleur des branches -->
+      <AccordeonOption titre="COULEUR DES BRANCHES" accordionId="couleur-branches" isOpen={true}>
+        <SelecteurCouleurPalette 
+          couleurs={couleursBranches}
+          colorPickerClass="color-picker-branches"
+          defaultPickerValue="#1A1A1A"
+        />
+      </AccordeonOption>
+    </div>
+
+    <!-- Contenu pour ETUI -->
+    <div id="content-etui" class="category-content hidden">
+      <p class="text-gray-500 text-center py-8">Contenu étui à venir...</p>
+    </div>
+  </div>
+
+  <!-- Footer fixe -->
+  <div class="border-t border-gray-200 px-12 py-10 bg-white flex-shrink-0">
+    <!-- Prix et compte -->
+    <div class="flex items-center justify-between mb-6">
+      <button class="flex items-center gap-3 text-noir hover:text-vert transition-colors cursor-pointer">
+        <img src={Chevron.src} alt="Suivant" class="w-4 h-2.5 rotate-90" />
+        <span class="text-lg font-medium tracking-wide">CRÉER UN COMPTE</span>
+      </button>
+      <p class="text-3xl font-bold text-noir" id="prix-total">{prixBase}€</p>
+    </div>
+
+    <!-- Bouton sauvegarde avec CTA émotionnel -->
+    <div id="open-cart-modal" class="w-full cursor-pointer">
+      <MainBouton 
+        variant="primary"
+        texte="SAUVEGARDER MON MODÈLE UNIQUE"
+        icone="panier"
+        class="w-full"
+      />
+    </div>
+  </div>
+</div>

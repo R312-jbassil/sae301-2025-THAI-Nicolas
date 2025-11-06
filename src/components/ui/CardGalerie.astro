@@ -1,0 +1,115 @@
+---
+/**
+ * Card pour afficher une configuration sauvegardée dans la galerie
+ * Inclut l'image SVG colorée, les détails, et les boutons d'action
+ */
+import LunettesSVGRenderer from '../3d/LunettesSVGRenderer.astro';
+
+interface Props {
+  config: {
+    id: string;
+    name: string;
+    date: string;
+    size: string;
+    lensType: string;
+    frameShape: string;
+    material: string;
+    price: number;
+    rawData: {
+      couleur_monture: string;
+      couleur_branches: string;
+      couleur_verres: string;
+    };
+  };
+}
+
+const { config } = Astro.props;
+---
+
+<div 
+  class="bg-white rounded-2xl border-2 border-gray-200 hover:border-vert transition-all duration-300 overflow-hidden group relative"
+>
+  <!-- Image -->
+  <div class="bg-vert-light p-12 flex items-center justify-center h-80 relative">
+    <div class="absolute inset-0 top-70 m-auto flex items-center justify-center p-4 group-hover:scale-110 transition-transform duration-500" style="max-height: 70%; width: auto;">
+      <LunettesSVGRenderer 
+        couleurs={{
+          monture: config.rawData.couleur_monture,
+          branches: config.rawData.couleur_branches,
+          verres: config.rawData.couleur_verres
+        }}
+      />
+    </div>
+  </div>
+
+  <!-- Contenu -->
+  <div class="p-6">
+    <div class="flex items-start justify-between mb-4">
+      <div>
+        <h3 class="text-xl font-bold text-noir mb-1">{config.name}</h3>
+        <p class="text-sm text-gris">{config.date}</p>
+      </div>
+      <p class="text-2xl font-bold text-vert">{config.price}€</p>
+    </div>
+
+    <!-- Détails -->
+    <div class="space-y-2 mb-5">
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-gris">Taille</span>
+        <span class="font-medium text-noir">{config.size}</span>
+      </div>
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-gris">Type de verres</span>
+        <span class="font-medium text-noir">{config.lensType}</span>
+      </div>
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-gris">Forme</span>
+        <span class="font-medium text-noir">{config.frameShape}</span>
+      </div>
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-gris">Matériau</span>
+        <span class="font-medium text-noir">{config.material}</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-2 relative z-10">
+      <a 
+        href={`/configurateur?load=${config.id}`}
+        class="flex-1 bg-white border-2 border-vert text-vert rounded-full px-4 py-2.5 text-sm font-semibold hover:bg-vert-light transition-all duration-300 flex items-center justify-center gap-2"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+        Modifier
+      </a>
+      <button 
+        class="add-to-cart-btn flex-1 bg-vert text-white rounded-full px-4 py-2.5 text-sm font-semibold hover:bg-[#4a7d5f] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
+        data-config-id={config.id}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+        </svg>
+        Ajouter au panier
+      </button>
+    </div>
+  </div>
+
+  <!-- Bouton supprimer -->
+  <button 
+    class="delete-config-btn absolute top-4 right-4 w-8 h-8 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center hover:bg-red-50 cursor-pointer z-20"
+    data-config-id={config.id}
+    data-config-name={config.name}
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    </svg>
+  </button>
+</div>
+
+<style>
+  /* Animation au survol des cartes */
+  .group:hover {
+    transform: translateY(-4px);
+  }
+</style>

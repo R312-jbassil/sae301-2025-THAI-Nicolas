@@ -1,0 +1,112 @@
+---
+/**
+ * Card pour afficher un modèle de lunettes
+ * Utilisé dans la page modeles.astro pour tous les modèles
+ */
+import BadgesSociaux from '../ui/BadgesSociaux.astro';
+import LunettesSVGRenderer from '../3d/LunettesSVGRenderer.astro';
+
+interface Props {
+  modele: {
+    id: string;
+    nom: string;
+    description: string;
+    prix: number;
+    formeMonture: string;
+    typeVerres: string;
+    taille: string;
+    couleurMonture: string;
+    couleurBranches: string;
+    couleurVerres: string;
+    nombrePersonnalisations?: number;
+    stock?: 'normal' | 'limité' | 'dernieres-pieces';
+  };
+  badge?: 'bestseller' | 'nouveau' | null;
+}
+
+const { modele, badge = null } = Astro.props;
+---
+
+<a 
+  href={`/modeles/${modele.id}`} 
+  class="group"
+>
+  <div class="bg-white rounded-2xl border-2 border-gray-200 hover:border-vert transition-all duration-300 overflow-hidden hover:shadow-xl transform hover:-translate-y-2">
+    <!-- Image avec badges -->
+    <div class="relative">
+      <!-- Badge Bestseller / Nouveau -->
+      {badge === 'bestseller' && (
+        <div class="absolute top-4 right-4 bg-vert text-white px-4 py-2 rounded-full text-xs font-bold z-10">
+          BESTSELLER
+        </div>
+      )}
+      {badge === 'nouveau' && (
+        <div class="absolute top-4 right-4 bg-noir text-white px-4 py-2 rounded-full text-xs font-bold z-10">
+          NOUVEAU
+        </div>
+      )}
+      
+      <!-- Badges sociaux (preuve sociale + rareté) -->
+      <div class="absolute bottom-4 left-4 right-4 z-10">
+        <BadgesSociaux 
+          nombrePersonnalisations={modele.nombrePersonnalisations}
+          stock={modele.stock}
+        />
+      </div>
+      
+      <!-- Image avec SVG -->
+      <div class="bg-vert-light p-12 flex items-center justify-center h-80 relative">
+        <div class="absolute inset-0 top-70 m-auto flex items-center justify-center p-4 group-hover:scale-110 transition-transform duration-500" style="max-height: 70%; width: auto;">
+          <LunettesSVGRenderer 
+            couleurs={{
+              monture: modele.couleurMonture,
+              branches: modele.couleurBranches,
+              verres: modele.couleurVerres
+            }}
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenu -->
+    <div class="p-6">
+      <div class="flex items-start justify-between mb-3">
+        <h3 class="text-2xl font-bold text-noir">{modele.nom}</h3>
+        <p class="text-2xl font-bold text-vert">{modele.prix}€</p>
+      </div>
+
+      <p class="text-gris mb-4 line-clamp-2">{modele.description}</p>
+
+      <!-- Détails rapides -->
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <span class="px-3 py-1 bg-gray-100 text-gris text-xs rounded-full font-medium">
+          {modele.formeMonture}
+        </span>
+        <span class="px-3 py-1 bg-gray-100 text-gris text-xs rounded-full font-medium">
+          {modele.typeVerres}
+        </span>
+        <span class="px-3 py-1 bg-gray-100 text-gris text-xs rounded-full font-medium">
+          {modele.taille}
+        </span>
+      </div>
+
+      <!-- Bouton -->
+      <button class="w-full bg-vert text-white rounded-full px-6 py-3 font-semibold hover:bg-[#4a7d5f] transition-all duration-300 flex items-center justify-center gap-2">
+        <span>Personnaliser</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</a>
+
+<style>
+  /* Limiter le texte à 2 lignes */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
