@@ -304,14 +304,27 @@ export async function saveConfiguration(data: Partial<ConfigurationLunette>) {
     if (!user) throw new Error("Utilisateur non connecté");
 
     const configData = {
-      ...data,
       user_id: user.id,
       est_dans_panier: false, // Par défaut, pas dans le panier
+      ...data, // Données passées en dernier pour écraser les valeurs par défaut
     };
+
+    console.log(
+      "💾 Sauvegarde config avec est_dans_panier:",
+      configData.est_dans_panier
+    );
 
     const record = await pb
       .collection("configuration_lunettes")
       .create(configData);
+
+    console.log(
+      "✅ Config créée:",
+      record.id,
+      "est_dans_panier:",
+      record.est_dans_panier
+    );
+
     return { success: true, configuration: record };
   } catch (error: any) {
     console.error("Erreur sauvegarde configuration:", error);

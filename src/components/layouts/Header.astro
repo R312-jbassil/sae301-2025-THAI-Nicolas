@@ -45,11 +45,32 @@ import BoutonCirculaire from "../boutons/BoutonCirculaire.astro";
       </nav>
 
       <!-- Zone compte à droite - affichage dynamique -->
-      <div class="shrink-0 relative">
-        <!-- Bouton non connecté -->
-        <a href="/authentification" id="account-btn-guest" class="block">
-          <BoutonCirculaire icone="compte" taille="big" ariaLabel="Mon compte" />
+      <div class="shrink-0 flex items-center gap-4">
+        <!-- Bouton Panier -->
+        <a href="/panier" class="relative group">
+          <div class="w-[58px] h-[58px] rounded-full bg-vert-light flex items-center justify-center hover:bg-vert transition-all duration-200 group-hover:scale-110">
+            <img 
+              src="/src/assets/icones/panier.webp" 
+              alt="Panier" 
+              class="w-6 h-6 object-contain transition-all duration-200"
+              style="filter: brightness(0.4) contrast(1.5);"
+            />
+          </div>
+          <!-- Badge nombre d'articles (caché par défaut) -->
+          <span 
+            id="cart-badge" 
+            class="hidden absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full text-white text-xs font-bold flex items-center justify-center"
+          >
+            0
+          </span>
         </a>
+
+        <!-- Zone compte -->
+        <div class="relative">
+          <!-- Bouton non connecté -->
+          <a href="/authentification" id="account-btn-guest" class="block">
+            <BoutonCirculaire icone="compte" taille="big" ariaLabel="Mon compte" />
+          </a>
 
         <!-- Menu utilisateur connecté (caché par défaut) -->
         <div id="account-menu" class="hidden">
@@ -111,6 +132,7 @@ import BoutonCirculaire from "../boutons/BoutonCirculaire.astro";
               </button>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
@@ -195,4 +217,48 @@ import BoutonCirculaire from "../boutons/BoutonCirculaire.astro";
   pb.authStore.onChange(() => {
     updateHeaderUI();
   });
+
+  // Fonction pour mettre à jour le badge du panier
+  async function updateCartBadge() {
+    const cartBadge = document.getElementById('cart-badge');
+    if (!cartBadge) return;
+
+    if (isAuthenticated()) {
+      try {
+        const user = getCurrentUser();
+        if (user?.id) {
+          // Récupérer le nombre d'articles dans le panier
+          const filter = `user_id = "${user.id}" && est_dans_panier = true`;
+          const records = await pb.collection("configuration_lunettes").getList(1, 1, {
+            filter,
+          });
+          
+          const count = records.totalItems || 0;
+          
+          if (count > 0) {
+            cartBadge.textContent = count.toString();
+            cartBadge.classList.remove('hidden');
+          } else {
+            cartBadge.classList.add('hidden');
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération du panier:', error);
+        cartBadge.classList.add('hidden');
+      }
+    } else {
+      cartBadge.classList.add('hidden');
+    }
+  }
+
+  // Mettre à jour le badge au chargement
+  updateCartBadge();
+
+  // Écouter les changements d'authentification pour mettre à jour le badge
+  pb.authStore.onChange(() => {
+    updateCartBadge();
+  });
+
+  // Rafraîchir le badge toutes les 5 secondes (optionnel)
+  setInterval(updateCartBadge, 5000);
 </script>

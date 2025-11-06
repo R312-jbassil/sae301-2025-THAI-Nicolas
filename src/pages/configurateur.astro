@@ -1014,6 +1014,26 @@ import IconPanier from '../assets/icones/panier.svg';
 
     // Fonction qui effectue réellement la sauvegarde (appelée par les boutons du modal)
     async function saveConfigurationAction(addToCart: boolean) {
+      console.log('========================================');
+      console.log('🚀 SAUVEGARDE:', addToCart ? 'PANIER' : 'GALERIE');
+      console.log('Authentifié:', pb.authStore.isValid);
+      
+      // Vérifier l'authentification
+      if (!pb.authStore.isValid) {
+        console.error('❌ Non authentifié');
+        showNotification('Vous devez être connecté', 'error');
+        
+        localStorage.setItem('pendingConfiguration', JSON.stringify({
+          config: (window as any).currentConfig,
+          colors: (window as any).currentColors,
+          prix: (window as any).calculerPrixTotal(),
+          addToCart: addToCart
+        }));
+        
+        window.location.href = '/authentification?redirect=/configurateur&action=save';
+        return;
+      }
+
       const config = (window as any).currentConfig;
       const prix = (window as any).calculerPrixTotal();
       const nameInput = document.getElementById('config-name-input') as HTMLInputElement;
@@ -1030,15 +1050,15 @@ import IconPanier from '../assets/icones/panier.svg';
         forme_monture: config.formeMonture,
         epaisseur_monture: config.epaisseur,
         types_verres: config.typeVerres,
-        materiau_id: config.materiauId, // Ajouter l'ID du matériau
-        est_dans_panier: addToCart, // Ajouter ce champ
+        materiau_id: config.materiauId,
+        est_dans_panier: addToCart,
       };
 
-      console.log('Sauvegarde avec panier?', addToCart, configData);
+      console.log('📦 Données:', { nom: configData.nom, prix, est_dans_panier: addToCart });
 
       try {
         const result = await saveConfiguration(configData);
-        console.log('Résultat sauvegarde:', result);
+        console.log('📥 Résultat:', result.success ? '✅ OK' : '❌ ERREUR');
 
         if (result.success) {
           // Fermer le modal
@@ -1046,22 +1066,27 @@ import IconPanier from '../assets/icones/panier.svg';
           if (modal) {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
           }
           
-          showNotification(
-            addToCart ? 'Configuration ajoutée au panier !' : 'Configuration sauvegardée !',
-            'success'
-          );
+          const message = addToCart ? '✓ Ajouté au panier !' : '✓ Configuration sauvegardée !';
+          showNotification(message, 'success');
+          
+          console.log(`🔄 Redirection vers ${addToCart ? '/panier' : '/galerie'}`);
+          
           setTimeout(() => {
             window.location.href = addToCart ? '/panier' : '/galerie';
           }, 1500);
         } else {
-          showNotification('Erreur: ' + result.error, 'error');
+          console.error('Erreur:', result.error);
+          showNotification(result.error || 'Erreur lors de la sauvegarde', 'error');
         }
       } catch (error) {
-        console.error('Erreur catch:', error);
+        console.error('❌ Exception:', error);
         showNotification('Erreur lors de la sauvegarde', 'error');
       }
+      
+      console.log('========================================');
     }
 
     // Fonction pour sauvegarder la configuration (ancienne version - gardée pour compatibilité)
@@ -1221,19 +1246,53 @@ import IconPanier from '../assets/icones/panier.svg';
         });
       }
 
-      // Gestionnaires pour les boutons du modal
+      // Gestionnaires pour les boutons du modal - Éviter les doublons
       const saveOnlyBtn = document.getElementById('save-only-btn');
       const saveAndCartBtn = document.getElementById('save-and-cart-btn');
       
+      console.log('Attachement des listeners aux boutons du modal');
+      
       if (saveOnlyBtn) {
-        saveOnlyBtn.addEventListener('click', async () => {
-          await saveConfigurationAction(false); // false = ne pas ajouter au panier
+        // Cloner le bouton pour supprimer tous les anciens listeners
+        const newSaveOnlyBtn = saveOnlyBtn.cloneNode(true) as HTMLElement;
+        saveOnlyBtn.parentNode?.replaceChild(newSaveOnlyBtn, saveOnlyBtn);
+        
+        newSaveOnlyBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🔹 CLIC: Sauvegarder uniquement');
+          
+          // Désactiver le bouton pendant le traitement
+          newSaveOnlyBtn.style.pointerEvents = 'none';
+          newSaveOnlyBtn.style.opacity = '0.6';
+          
+          await saveConfigurationAction(false);
+          
+          // Réactiver le bouton
+          newSaveOnlyBtn.style.pointerEvents = 'auto';
+          newSaveOnlyBtn.style.opacity = '1';
         });
       }
       
       if (saveAndCartBtn) {
-        saveAndCartBtn.addEventListener('click', async () => {
-          await saveConfigurationAction(true); // true = ajouter au panier
+        // Cloner le bouton pour supprimer tous les anciens listeners
+        const newSaveAndCartBtn = saveAndCartBtn.cloneNode(true) as HTMLElement;
+        saveAndCartBtn.parentNode?.replaceChild(newSaveAndCartBtn, saveAndCartBtn);
+        
+        newSaveAndCartBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🛒 CLIC: Ajouter au panier');
+          
+          // Désactiver le bouton pendant le traitement
+          newSaveAndCartBtn.style.pointerEvents = 'none';
+          newSaveAndCartBtn.style.opacity = '0.6';
+          
+          await saveConfigurationAction(true);
+          
+          // Réactiver le bouton
+          newSaveAndCartBtn.style.pointerEvents = 'auto';
+          newSaveAndCartBtn.style.opacity = '1';
         });
       }
 

@@ -7,6 +7,7 @@ import { pb } from '../utils/pb';
 let user = null;
 let panierConfigurations: any[] = [];
 let total = 0;
+let nombreArticles = 0;
 
 const authCookie = Astro.cookies.get('pb_auth');
 
@@ -17,6 +18,20 @@ if (authCookie?.value) {
     
     user = pb.authStore.model;
     if (user?.id) {
+      // Récupérer les stats du panier depuis la vue PocketBase
+      try {
+        const statsFilter = `user_id = "${user.id}"`;
+        const panierStats = await pb.collection("montant_panier_par_utilisateur").getFirstListItem(statsFilter);
+        
+        if (panierStats) {
+          total = panierStats.montant_total || 0;
+          nombreArticles = panierStats.nombre_articles || 0;
+        }
+      } catch (error) {
+        console.log('Aucune stat de panier trouvée:', error);
+      }
+
+      // Récupérer les configurations pour l'affichage
       const filter = `user_id = "${user.id}" && est_dans_panier = true`;
       
       const records = await pb.collection("configuration_lunettes").getFullList({
@@ -45,9 +60,6 @@ if (authCookie?.value) {
           created: config.created
         };
       });
-      
-      // Calculer le total
-      total = panierConfigurations.reduce((sum, config) => sum + (config.prix || 0), 0);
     }
   } catch (error) {
     console.error('Erreur récupération panier:', error);
@@ -82,7 +94,8 @@ function capitalize(str: string) {
       <div class="mb-12">
         <h1 class="text-5xl font-bold text-noir mb-4">Mon Panier</h1>
         <p class="text-xl text-gris">
-          {configurations.length} {configurations.length > 1 ? 'articles' : 'article'}
+          {nombreArticles} {nombreArticles > 1 ? 'articles' : 'article'}
+          {nombreArticles > 0 && <span class="text-vert font-semibold ml-2">• {total}€</span>}
         </p>
       </div>
 
