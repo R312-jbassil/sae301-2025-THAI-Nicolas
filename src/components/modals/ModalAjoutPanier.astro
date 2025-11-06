@@ -8,69 +8,62 @@ interface Props {
 const { id } = Astro.props;
 ---
 
-<div id={id} class="modal-cart fixed inset-0 z-50 hidden items-center justify-center px-4" style="background-color: rgba(240, 247, 244, 0.7); backdrop-filter: blur(4px);">
-  <div class="modal-cart-content bg-white rounded-3xl shadow-2xl max-w-4xl w-full relative animate-slide-up border-2 border-vert">
+<div id={id} class="modal-cart fixed inset-0 z-50 hidden items-center justify-center px-4" style="background-color: rgba(0, 0, 0, 0.3);">
+  <div class="modal-cart-content bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl w-full relative animate-slide-up">
     <!-- Bouton fermer -->
-    <button class="modal-close absolute top-6 right-6 w-10 h-10 rounded-full bg-vert-light hover:bg-vert transition-all duration-300 flex items-center justify-center group z-10" data-modal={id}>
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-vert group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+    <button class="modal-close absolute top-4 right-4 w-8 h-8 rounded-full hover:bg-gray-100 transition-all duration-200 flex items-center justify-center z-10" data-modal={id}>
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gris" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
 
     <!-- Contenu -->
-    <div class="pt-16 pb-8 px-10">
+    <div class="p-6 sm:p-8">
       <!-- Titre -->
-      <div class="text-center mb-6">
-        <h2 class="text-2xl font-bold text-vert mb-2">Enregistrer votre configuration ?</h2>
-        <p class="text-gris text-base">Choisissez comment sauvegarder votre personnalisation</p>
+      <div class="mb-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-noir mb-1">Configuration personnalisée</h2>
+        <p class="text-sm text-gris" id="cart-config-name">ÉLÉGANCE</p>
       </div>
 
       <!-- Contenu principal : Prévisualisation + Configuration -->
-      <div class="flex gap-6 mb-6">
+      <div class="flex flex-col sm:flex-row gap-6 mb-6">
         <!-- Prévisualisation des lunettes -->
-        <div class="w-1/2">
-          <div class="bg-vert-light rounded-2xl p-6 h-full flex flex-col">
-            <h3 class="text-lg font-bold text-noir mb-4">Aperçu</h3>
-            <div class="flex-1 flex items-center justify-center bg-white rounded-xl p-6" id="modal-preview-container">
-              <!-- Le SVG coloré sera injecté ici par JavaScript -->
-            </div>
+        <div class="w-full sm:w-2/5">
+          <div class="bg-gray-50 rounded-lg p-4 pt-8 flex items-center justify-center" style="height: 180px;" id="modal-preview-container">
+            <!-- Le SVG coloré sera injecté ici par JavaScript -->
           </div>
         </div>
 
         <!-- Résumé de la configuration -->
-        <div class="w-1/2">
-          <div class="bg-linear-to-br from-vert-light to-white rounded-2xl p-6 h-full border-2 border-vert">
-            <div class="flex items-start justify-between mb-5">
-              <div>
-                <h3 class="text-2xl font-bold text-noir mb-1">ÉLÉGANCE</h3>
-                <p class="text-sm text-gris">Configuration personnalisée</p>
-              </div>
-              <div class="text-right">
-                <p class="text-xs text-gris mb-1">Prix total</p>
-                <p class="text-3xl font-bold text-vert" id="cart-prix">149€</p>
-              </div>
+        <div class="w-full sm:w-3/5">
+          <div class="space-y-3">
+            <!-- Prix -->
+            <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+              <span class="text-sm text-gris">Prix total</span>
+              <span class="text-2xl font-bold text-vert" id="cart-prix">149€</span>
             </div>
             
-            <div class="space-y-2.5">
-              <div class="bg-white rounded-lg p-3 border border-vert-light">
-                <p class="text-gris text-xs mb-0.5">Taille</p>
-                <p class="font-semibold text-noir text-sm" id="cart-size">52-18</p>
+            <!-- Détails -->
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <p class="text-gris text-xs mb-1">Taille</p>
+                <p class="font-medium text-noir" id="cart-size">52-18</p>
               </div>
-              <div class="bg-white rounded-lg p-3 border border-vert-light">
-                <p class="text-gris text-xs mb-0.5">Type de verres</p>
-                <p class="font-semibold text-noir text-sm" id="cart-type-verres">Classique</p>
+              <div>
+                <p class="text-gris text-xs mb-1">Type de verres</p>
+                <p class="font-medium text-noir" id="cart-type-verres">Classique</p>
               </div>
-              <div class="bg-white rounded-lg p-3 border border-vert-light">
-                <p class="text-gris text-xs mb-0.5">Forme</p>
-                <p class="font-semibold text-noir text-sm" id="cart-forme">Rectangulaire</p>
+              <div>
+                <p class="text-gris text-xs mb-1">Forme</p>
+                <p class="font-medium text-noir" id="cart-forme">Rectangulaire</p>
               </div>
-              <div class="bg-white rounded-lg p-3 border border-vert-light">
-                <p class="text-gris text-xs mb-0.5">Épaisseur</p>
-                <p class="font-semibold text-noir text-sm" id="cart-epaisseur">Moyenne</p>
+              <div>
+                <p class="text-gris text-xs mb-1">Épaisseur</p>
+                <p class="font-medium text-noir" id="cart-epaisseur">Moyenne</p>
               </div>
-              <div class="bg-white rounded-lg p-3 border border-vert-light">
-                <p class="text-gris text-xs mb-0.5">Matériau</p>
-                <p class="font-semibold text-noir text-sm" id="cart-materiau">Acétate de cellulose</p>
+              <div class="col-span-2">
+                <p class="text-gris text-xs mb-1">Matériau</p>
+                <p class="font-medium text-noir" id="cart-materiau">Acétate de cellulose</p>
               </div>
             </div>
           </div>
@@ -78,24 +71,24 @@ const { id } = Astro.props;
       </div>
 
       <!-- Boutons d'action -->
-      <div class="flex gap-3">
+      <div class="flex flex-col sm:flex-row gap-3">
         <button 
           id="save-only-btn"
-          class="flex-1 bg-white border-2 border-vert text-vert rounded-full px-6 py-4 font-bold text-sm hover:bg-vert-light transition-all duration-300 flex items-center justify-center gap-2"
+          class="flex-1 bg-white border-2 border-gris text-gris rounded-full px-4 sm:px-6 py-3 font-semibold text-sm hover:bg-gray-50 transition-all duration-200 flex items-center justify-center gap-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
           </svg>
-          SAUVEGARDER UNIQUEMENT
+          Sauvegarder uniquement
         </button>
         <button 
           id="save-and-cart-btn"
-          class="flex-1 bg-vert text-white rounded-full px-6 py-4 font-bold text-sm hover:bg-[#4a7d5f] transition-all duration-300 flex items-center justify-center gap-2"
+          class="flex-1 bg-vert text-white rounded-full px-4 sm:px-6 py-3 font-semibold text-sm hover:bg-[#4a7d5f] transition-all duration-200 flex items-center justify-center gap-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
           </svg>
-          AJOUTER AU PANIER
+          Ajouter au panier
         </button>
       </div>
     </div>
@@ -171,7 +164,7 @@ const { id } = Astro.props;
     
     // SVG complet des lunettes (même que dans le configurateur)
     const svgContent = `
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 595.28 841.89" class="w-full h-auto">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="50 110 500 180" class="w-full h-auto">
         <defs>
           <style>
             .cls-1 { fill: #706f6f; mix-blend-mode: multiply; }

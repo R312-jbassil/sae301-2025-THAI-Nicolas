@@ -1198,6 +1198,7 @@ import IconPanier from '../assets/icones/panier.svg';
           const configName = nameInput?.value.trim() || 'ÉLÉGANCE';
           
           // Remplir le modal avec les données
+          document.getElementById('cart-config-name')!.textContent = configName;
           document.getElementById('cart-prix')!.textContent = prix.toString() + ' €';
           document.getElementById('cart-size')!.textContent = config.taille;
           document.getElementById('cart-type-verres')!.textContent = config.typeVerres;
