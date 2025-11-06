@@ -210,6 +210,36 @@ import Logo from "../assets/icones/logo.svg";
   
   if (import.meta.env.DEV) console.log('Script loaded, functions:', { loginWithEmail, registerUser, loginWithOAuth });
 
+  // Fonction pour afficher une notification toast
+  function showNotification(message: string, type: 'success' | 'error' | 'info' = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-8 right-8 px-6 py-4 rounded-xl shadow-2xl transform transition-all duration-500 z-50 flex items-center gap-3 ${
+      type === 'success' ? 'bg-green-500 text-white' :
+      type === 'error' ? 'bg-red-500 text-white' :
+      'bg-blue-500 text-white'
+    }`;
+    
+    const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+    notification.innerHTML = `
+      <span class="text-2xl font-bold">${icon}</span>
+      <span class="font-semibold text-lg">${message}</span>
+    `;
+    
+    notification.style.transform = 'translateX(400px)';
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    setTimeout(() => {
+      notification.style.transform = 'translateX(400px)';
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 300);
+    }, 4000);
+  }
+
   // Animation du slider overlay
   const overlayPanel = document.getElementById('overlay-panel');
   const overlayContent = document.getElementById('overlay-content');
@@ -320,18 +350,35 @@ import Logo from "../assets/icones/logo.svg";
       if (import.meta.env.DEV) console.log('Login result:', result);
       
       if (result.success) {
-        // Redirection vers la page d'accueil ou galerie
-        window.location.href = '/galerie';
+        showNotification('Connexion réussie ! Redirection...', 'success');
+        
+        // Redirection vers l'accueil après un court délai
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1500);
       } else {
-        // Afficher l'erreur
+        // Traduire et afficher l'erreur
+        let errorMessage = result.error || 'Email ou mot de passe incorrect';
+        
+        // Traduction des erreurs courantes
+        if (errorMessage.includes('Failed to authenticate')) {
+          errorMessage = 'Email ou mot de passe incorrect';
+        } else if (errorMessage.includes('verify your email')) {
+          errorMessage = 'Veuillez vérifier votre email avant de vous connecter';
+        } else if (errorMessage.includes('account is not verified')) {
+          errorMessage = 'Votre compte n\'est pas encore vérifié. Consultez vos emails.';
+        } else if (errorMessage.includes('too many requests')) {
+          errorMessage = 'Trop de tentatives. Veuillez réessayer dans quelques minutes.';
+        }
+        
         if (loginError) {
-          loginError.textContent = result.error || 'Identifiants incorrects';
+          loginError.textContent = errorMessage;
           loginError.classList.remove('hidden');
           
           // Si l'utilisateur doit vérifier son email, afficher un message spécial avec option de renvoyer
           if ((result as any).needsVerification) {
             loginError.innerHTML = `
-              ${result.error}
+              ${errorMessage}
               <button 
                 id="resend-verification" 
                 class="underline ml-2 hover:text-red-800 font-semibold"
@@ -347,9 +394,10 @@ import Logo from "../assets/icones/logo.svg";
                 const { resendVerificationEmail } = await import('../utils/pb');
                 const resendResult = await resendVerificationEmail(email);
                 if (resendResult.success) {
-                  loginError.textContent = 'Email de vérification renvoyé avec succès !';
-                  loginError.classList.remove('bg-red-50', 'border-red-500', 'text-red-700');
-                  loginError.classList.add('bg-green-50', 'border-green-500', 'text-green-700');
+                  showNotification('Email de vérification renvoyé avec succès !', 'success');
+                  loginError.classList.add('hidden');
+                } else {
+                  showNotification('Erreur lors de l\'envoi de l\'email', 'error');
                 }
               });
             }, 100);
@@ -357,6 +405,7 @@ import Logo from "../assets/icones/logo.svg";
         }
       }
     } catch (error) {
+      showNotification('Une erreur est survenue. Veuillez réessayer.', 'error');
       if (loginError) {
         loginError.textContent = 'Une erreur est survenue. Veuillez réessayer.';
         loginError.classList.remove('hidden');
@@ -413,36 +462,47 @@ import Logo from "../assets/icones/logo.svg";
       const result = await registerUser(email, password, password, name);
       
       if (result.success) {
-        // Afficher le message de succès avec instruction de vérification
+        showNotification('Compte créé avec succès ! Vérifiez vos emails.', 'success');
+        
+        // Afficher le message de succès
         if (registerSuccess) {
-          registerSuccess.textContent = result.message || 'Compte créé avec succès ! Vérifiez votre email.';
+          registerSuccess.textContent = 'Compte créé ! Un email de vérification vous a été envoyé.';
           registerSuccess.classList.remove('hidden');
         }
         
-        // Redirection vers la page de connexion après 3 secondes pour permettre la lecture
+        // Basculer vers le formulaire de connexion après 3 secondes
         setTimeout(() => {
-          // Basculer vers le formulaire de connexion
           backToLogin();
         }, 3000);
       } else {
-        // Afficher l'erreur
+        // Traduire et afficher l'erreur
+        let errorMessage = result.error || 'Une erreur est survenue';
+        
+        // Traduction des erreurs courantes
+        if (errorMessage.includes('already exists') || errorMessage.includes('déjà utilisé')) {
+          errorMessage = 'Cet email est déjà utilisé';
+        } else if (errorMessage.includes('password') && errorMessage.includes('length')) {
+          errorMessage = 'Le mot de passe doit contenir au moins 8 caractères';
+        } else if (errorMessage.includes('password') && errorMessage.includes('weak')) {
+          errorMessage = 'Le mot de passe est trop faible. Utilisez des lettres, chiffres et caractères spéciaux.';
+        } else if (errorMessage.includes('email') && errorMessage.includes('invalid')) {
+          errorMessage = 'L\'adresse email n\'est pas valide';
+        } else if (errorMessage.includes('Failed to create')) {
+          errorMessage = 'Impossible de créer le compte. Vérifiez vos informations.';
+        }
+        
+        showNotification(errorMessage, 'error');
+        
         if (registerError) {
-          let errorMessage = result.error || 'Une erreur est survenue';
-          
-          // Traduire les erreurs courantes
-          if (errorMessage.includes('already exists')) {
-            errorMessage = 'Cet email est déjà utilisé';
-          } else if (errorMessage.includes('password')) {
-            errorMessage = 'Le mot de passe ne respecte pas les critères';
-          }
-          
           registerError.textContent = errorMessage;
           registerError.classList.remove('hidden');
         }
       }
     } catch (error) {
+      const errorMsg = 'Une erreur est survenue. Veuillez réessayer.';
+      showNotification(errorMsg, 'error');
       if (registerError) {
-        registerError.textContent = 'Une erreur est survenue. Veuillez réessayer.';
+        registerError.textContent = errorMsg;
         registerError.classList.remove('hidden');
       }
     } finally {
@@ -495,15 +555,21 @@ import Logo from "../assets/icones/logo.svg";
       
       if (result.success) {
         if (import.meta.env.DEV) console.log('OAuth login successful!', result.user);
-        // Redirection vers la galerie
-        window.location.href = '/galerie';
+        showNotification('Connexion réussie ! Redirection...', 'success');
+        
+        // Redirection vers l'accueil
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1500);
       } else {
+        const errorMsg = `Erreur de connexion avec ${provider === 'google' ? 'Google' : provider === 'apple' ? 'Apple' : 'GitHub'}`;
+        showNotification(errorMsg, 'error');
         console.error('OAuth login failed:', result.error);
-        alert(`Erreur de connexion avec ${provider}: ${result.error}`);
       }
     } catch (error) {
+      const errorMsg = `Une erreur est survenue lors de la connexion`;
+      showNotification(errorMsg, 'error');
       console.error(`Erreur OAuth ${provider}:`, error);
-      alert(`Une erreur est survenue lors de la connexion avec ${provider}`);
     }
   }
 
@@ -540,17 +606,17 @@ import Logo from "../assets/icones/logo.svg";
 
   // Apple (désactivé si non configuré)
   appleLoginBtn?.addEventListener('click', () => {
-    alert('L\'authentification Apple n\'est pas encore configurée. Suivez le guide CONFIG_GOOGLE_OAUTH.md pour configurer Apple OAuth.');
+    showNotification('L\'authentification Apple n\'est pas encore configurée', 'info');
   });
   appleRegisterBtn?.addEventListener('click', () => {
-    alert('L\'authentification Apple n\'est pas encore configurée. Suivez le guide CONFIG_GOOGLE_OAUTH.md pour configurer Apple OAuth.');
+    showNotification('L\'authentification Apple n\'est pas encore configurée', 'info');
   });
 
   // GitHub (désactivé si non configuré)
   githubLoginBtn?.addEventListener('click', () => {
-    alert('L\'authentification GitHub n\'est pas encore configurée. Suivez le guide CONFIG_GOOGLE_OAUTH.md pour configurer GitHub OAuth.');
+    showNotification('L\'authentification GitHub n\'est pas encore configurée', 'info');
   });
   githubRegisterBtn?.addEventListener('click', () => {
-    alert('L\'authentification GitHub n\'est pas encore configurée. Suivez le guide CONFIG_GOOGLE_OAUTH.md pour configurer GitHub OAuth.');
+    showNotification('L\'authentification GitHub n\'est pas encore configurée', 'info');
   });
 </script>
