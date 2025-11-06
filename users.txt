@@ -1,11 +1,7 @@
 __Users__
-LOGIN
-PWD :
+LOGIN : thainicolas06@gmail.com
+PWD : azertyuiop
 
 __Users__
-LOGIN
-PWD :
-
-__Users__
-LOGIN
-PWD :
+LOGIN : nicolas.thai@edu.univ-fcomte.fr
+PWD : azertyuiop

@@ -2,7 +2,7 @@ URL_APP_WEB : https://tavue.nicolas-thai.fr/
 URL_BACKOFFICE : https://tavue.nicolas-thai.fr/_/
 LIEN_DEPOT_GITHUB : https://github.com/R312-jbassil/sae301-2025-THAI-Nicolas.git
 
-IDENTIFIANTS CONNEXION BACKOFFICE POCKETBASE
+IDENTIFIANTS CONNEXION BACKOFFICE POCKETBASE VPS
 
 Email : nicolas.thai@edu.univ-fcomte.fr
 Mdp : Chipie60230*
