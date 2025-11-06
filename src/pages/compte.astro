@@ -33,8 +33,15 @@ import Header from "../components/layouts/Header.astro";
                     class="w-full h-full object-cover"
                   />
                 </div>
+                <input 
+                  type="file" 
+                  id="avatar-upload" 
+                  accept="image/*" 
+                  class="hidden"
+                />
                 <button 
-                  class="absolute bottom-0 right-0 w-10 h-10 bg-vert rounded-full flex items-center justify-center text-white hover:bg-[#4a7d5f] transition-colors duration-200 shadow-lg"
+                  id="change-avatar-btn"
+                  class="absolute bottom-0 right-0 w-10 h-10 bg-vert rounded-full flex items-center justify-center text-white hover:bg-[#4a7d5f] transition-colors duration-200 shadow-lg cursor-pointer"
                   aria-label="Changer l'avatar"
                 >
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,7 +74,7 @@ import Header from "../components/layouts/Header.astro";
             <!-- Bouton déconnexion -->
             <button 
               id="logout-btn-profile"
-              class="w-full mt-8 border-2 border-red-500 text-red-500 rounded-full px-6 py-3 font-semibold text-base hover:bg-red-500 hover:text-white transition-all duration-200"
+              class="w-full mt-8 border-2 border-red-500 text-red-500 rounded-full px-6 py-3 font-semibold text-base hover:bg-red-500 hover:text-white transition-all duration-200 cursor-pointer"
             >
               Se déconnecter
             </button>
@@ -83,7 +90,7 @@ import Header from "../components/layouts/Header.astro";
               <h3 class="text-2xl font-bold text-noir">Informations personnelles</h3>
               <button 
                 id="edit-info-btn"
-                class="text-vert hover:text-[#4a7d5f] font-semibold text-base transition-colors duration-200"
+                class="text-vert hover:text-[#4a7d5f] font-semibold text-base transition-colors duration-200 cursor-pointer"
               >
                 Modifier
               </button>
@@ -115,13 +122,13 @@ import Header from "../components/layouts/Header.astro";
             <div id="save-buttons" class="hidden mt-6 flex gap-4">
               <button 
                 id="save-info-btn"
-                class="flex-1 bg-vert text-white rounded-full px-6 py-3 font-semibold text-base hover:bg-[#4a7d5f] transition-all duration-200"
+                class="flex-1 bg-vert text-white rounded-full px-6 py-3 font-semibold text-base hover:bg-[#4a7d5f] transition-all duration-200 cursor-pointer"
               >
                 Enregistrer
               </button>
               <button 
                 id="cancel-info-btn"
-                class="flex-1 border-2 border-gris text-gris rounded-full px-6 py-3 font-semibold text-base hover:bg-gray-50 transition-all duration-200"
+                class="flex-1 border-2 border-gris text-gris rounded-full px-6 py-3 font-semibold text-base hover:bg-gray-50 transition-all duration-200 cursor-pointer"
               >
                 Annuler
               </button>
@@ -139,7 +146,7 @@ import Header from "../components/layouts/Header.astro";
                   <p class="text-gris text-sm mt-1">Dernière modification il y a 3 mois</p>
                 </div>
                 <button 
-                  class="text-vert hover:text-[#4a7d5f] font-semibold text-base transition-colors duration-200"
+                  class="text-vert hover:text-[#4a7d5f] font-semibold text-base transition-colors duration-200 cursor-pointer"
                 >
                   Changer
                 </button>
@@ -152,7 +159,7 @@ import Header from "../components/layouts/Header.astro";
                 </div>
                 <button 
                   id="verify-email-btn"
-                  class="text-vert hover:text-[#4a7d5f] font-semibold text-base transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="text-vert hover:text-[#4a7d5f] font-semibold text-base transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   Renvoyer
                 </button>
@@ -214,6 +221,19 @@ import Header from "../components/layouts/Header.astro";
         profileAvatar.src = pb.files.getUrl(user, user.avatar, { thumb: '200x200' });
       } else {
         profileAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email)}&background=589772&color=ffffff&size=200`;
+      }
+    }
+
+    // Charger le nombre de créations
+    const statsCreations = document.getElementById('stats-creations');
+    if (statsCreations) {
+      try {
+        const filter = `user_id = "${user.id}" && est_dans_panier = false`;
+        const configs = await pb.collection("configuration_lunettes").getList(1, 1, { filter });
+        statsCreations.textContent = configs.totalItems.toString();
+      } catch (error) {
+        console.error('Erreur chargement créations:', error);
+        statsCreations.textContent = '0';
       }
     }
 
@@ -339,6 +359,71 @@ import Header from "../components/layouts/Header.astro";
     } finally {
       saveInfoBtn.textContent = 'Enregistrer';
       saveInfoBtn.classList.remove('opacity-50', 'pointer-events-none');
+    }
+  });
+
+  // Upload avatar
+  const changeAvatarBtn = document.getElementById('change-avatar-btn');
+  const avatarUpload = document.getElementById('avatar-upload') as HTMLInputElement;
+  
+  changeAvatarBtn?.addEventListener('click', () => {
+    avatarUpload?.click();
+  });
+
+  avatarUpload?.addEventListener('change', async (e) => {
+    if (!user) return;
+    
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    // Vérifier que c'est bien une image
+    if (!file.type.startsWith('image/')) {
+      alert('Veuillez sélectionner une image valide');
+      return;
+    }
+
+    // Vérifier la taille (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('L\'image est trop volumineuse (max 5MB)');
+      return;
+    }
+
+    try {
+      changeAvatarBtn.textContent = '...';
+      changeAvatarBtn.classList.add('opacity-50', 'pointer-events-none');
+
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      // Uploader l'avatar
+      await pb.collection('users').update(user.id, formData);
+
+      // Rafraîchir l'avatar
+      const updatedUser = await pb.collection('users').getOne(user.id);
+      const profileAvatar = document.getElementById('profile-avatar') as HTMLImageElement;
+      if (profileAvatar && updatedUser.avatar) {
+        profileAvatar.src = pb.files.getUrl(updatedUser, updatedUser.avatar, { thumb: '200x200' });
+      }
+
+      // Mettre à jour aussi dans le header
+      const headerAvatar = document.getElementById('user-avatar') as HTMLImageElement;
+      if (headerAvatar && updatedUser.avatar) {
+        headerAvatar.src = pb.files.getUrl(updatedUser, updatedUser.avatar, { thumb: '100x100' });
+      }
+
+      alert('Photo de profil mise à jour avec succès !');
+    } catch (error) {
+      console.error('Erreur upload avatar:', error);
+      alert('Erreur lors de l\'upload de l\'image. Veuillez réessayer.');
+    } finally {
+      changeAvatarBtn.textContent = '';
+      changeAvatarBtn.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      `;
+      changeAvatarBtn.classList.remove('opacity-50', 'pointer-events-none');
     }
   });
 

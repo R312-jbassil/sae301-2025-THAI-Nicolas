@@ -131,10 +131,10 @@ function capitalize(str: string) {
           <h2 class="text-3xl font-bold text-noir mb-4">Votre panier est vide</h2>
           <p class="text-gris mb-8">Connectez-vous pour voir vos articles ou commencez à personnaliser vos lunettes.</p>
           <div class="flex gap-4 justify-center">
-            <a href="/authentification" class="bg-vert text-white px-8 py-4 rounded-full font-semibold hover:bg-[#4a7d5f] transition-all duration-300">
+            <a href="/authentification" class="bg-vert text-white px-8 py-4 rounded-full font-semibold hover:bg-[#4a7d5f] transition-all duration-300 cursor-pointer">
               Se connecter
             </a>
-            <a href="/configurateur" class="bg-white border-2 border-vert text-vert px-8 py-4 rounded-full font-semibold hover:bg-vert-light transition-all duration-300">
+            <a href="/configurateur" class="bg-white border-2 border-vert text-vert px-8 py-4 rounded-full font-semibold hover:bg-vert-light transition-all duration-300 cursor-pointer">
               Créer mes lunettes
             </a>
           </div>
@@ -148,10 +148,10 @@ function capitalize(str: string) {
           <h2 class="text-3xl font-bold text-noir mb-4">Votre panier est vide</h2>
           <p class="text-gris mb-8">Vous n'avez pas encore ajouté de lunettes à votre panier.</p>
           <div class="flex gap-4 justify-center">
-            <a href="/configurateur" class="bg-vert text-white px-8 py-4 rounded-full font-semibold hover:bg-[#4a7d5f] transition-all duration-300">
+            <a href="/configurateur" class="bg-vert text-white px-8 py-4 rounded-full font-semibold hover:bg-[#4a7d5f] transition-all duration-300 cursor-pointer">
               Créer mes lunettes
             </a>
-            <a href="/modeles" class="bg-white border-2 border-vert text-vert px-8 py-4 rounded-full font-semibold hover:bg-vert-light transition-all duration-300">
+            <a href="/modeles" class="bg-white border-2 border-vert text-vert px-8 py-4 rounded-full font-semibold hover:bg-vert-light transition-all duration-300 cursor-pointer">
               Voir les modèles
             </a>
           </div>
@@ -217,13 +217,13 @@ function capitalize(str: string) {
                     <!-- Actions -->
                     <div class="flex gap-3">
                       <button 
-                        class="text-sm text-gris hover:text-vert transition-colors remove-from-cart"
+                        class="text-sm text-gris hover:text-vert transition-colors remove-from-cart cursor-pointer"
                         data-id={config.id}
                       >
                         Retirer du panier
                       </button>
                       <span class="text-gris">•</span>
-                      <a href="/configurateur" class="text-sm text-gris hover:text-vert transition-colors">
+                      <a href="/configurateur" class="text-sm text-gris hover:text-vert transition-colors cursor-pointer">
                         Modifier
                       </a>
                     </div>
@@ -257,11 +257,11 @@ function capitalize(str: string) {
               </div>
 
               <!-- Bouton commander -->
-              <button class="w-full bg-vert text-white rounded-full px-8 py-4 font-bold text-lg hover:bg-[#4a7d5f] transition-all duration-300 mb-4">
+              <button class="w-full bg-vert text-white rounded-full px-8 py-4 font-bold text-lg hover:bg-[#4a7d5f] transition-all duration-300 mb-4 cursor-pointer">
                 Commander
               </button>
 
-              <a href="/configurateur" class="block text-center text-sm text-gris hover:text-vert transition-colors">
+              <a href="/configurateur" class="block text-center text-sm text-gris hover:text-vert transition-colors cursor-pointer">
                 Continuer mes achats
               </a>
 

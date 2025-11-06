@@ -123,7 +123,7 @@ const hasConfigurations = savedConfigurations.length > 0;
               <span class="font-semibold text-noir">{savedConfigurations.length}</span> configuration{savedConfigurations.length > 1 ? 's' : ''} sauvegardée{savedConfigurations.length > 1 ? 's' : ''}
             </p>
             <a href="/configurateur">
-              <button class="bg-vert text-white rounded-full px-6 py-3 text-sm font-semibold hover:bg-[#4a7d5f] transition-all duration-300 flex items-center gap-2">
+              <button class="bg-vert cursor-pointer text-white rounded-full px-6 py-3 text-sm font-semibold hover:bg-[#4a7d5f] transition-all duration-300 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -181,17 +181,17 @@ const hasConfigurations = savedConfigurations.length > 0;
                   </div>
 
                   <!-- Actions -->
-                  <div class="flex gap-2">
-                    <a href={`/configurateur?id=${config.id}`} class="flex-1">
-                      <button class="w-full bg-white border-2 border-vert text-vert rounded-full px-4 py-3 text-sm font-semibold hover:bg-vert-light transition-all duration-300">
+                  <div class="flex gap-2 relative z-10">
+                    <a href={`/configurateur?id=${config.id}`} class="flex-1 cursor-pointer">
+                      <button class="w-full bg-white border-2 border-vert text-vert rounded-full px-4 py-3 text-sm font-semibold hover:bg-vert-light transition-all duration-300 cursor-pointer">
                         Modifier
                       </button>
                     </a>
                     <button 
-                      class="flex-1 bg-vert text-white rounded-full px-4 py-3 text-sm font-semibold hover:bg-[#4a7d5f] transition-all duration-300 flex items-center justify-center gap-2 add-to-cart-btn"
+                      class="flex-1 bg-vert text-white rounded-full px-4 py-3 text-sm font-semibold hover:bg-[#4a7d5f] transition-all duration-300 flex items-center justify-center gap-2 add-to-cart-btn cursor-pointer"
                       data-config-id={config.id}
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                       </svg>
                       Panier
@@ -201,11 +201,11 @@ const hasConfigurations = savedConfigurations.length > 0;
 
                 <!-- Bouton supprimer -->
                 <button 
-                  class="delete-config-btn absolute top-4 right-4 w-8 h-8 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center hover:bg-red-50"
+                  class="delete-config-btn absolute top-4 right-4 w-8 h-8 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center hover:bg-red-50 cursor-pointer z-20"
                   data-config-id={config.id}
                   data-config-name={config.name}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </button>

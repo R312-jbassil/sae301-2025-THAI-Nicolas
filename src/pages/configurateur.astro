@@ -21,7 +21,7 @@ import IconPanier from '../assets/icones/panier.svg';
       <!-- Header avec logo et boutons -->
       <div class="flex items-start justify-between w-full mb-16">
         <!-- Logo -->
-        <a href="/" class="transition-transform duration-300 hover:scale-110 active:scale-95">
+        <a href="/" class="transition-transform duration-300 hover:scale-110 active:scale-95 cursor-pointer">
           <img src={Logo.src} alt="TaVue" class="w-28 h-auto" />
         </a>
 
@@ -30,7 +30,7 @@ import IconPanier from '../assets/icones/panier.svg';
       <!-- Lunettes principale avec navigation -->
       <div class="flex-1 flex items-center justify-center w-full relative">
         <!-- Flèche gauche -->
-        <button class="absolute left-10 top-70 hover:opacity-80 transition-opacity chevron-vert">
+        <button class="absolute left-10 top-70 hover:opacity-80 transition-opacity chevron-vert cursor-pointer">
           <img src={Chevron.src} alt="Précédent" class="w-full h-5 -rotate-90" />
         </button>
 
@@ -84,20 +84,20 @@ import IconPanier from '../assets/icones/panier.svg';
         </div>
 
         <!-- Flèche droite -->
-        <button class="absolute right-10 top-70 hover:opacity-80 transition-opacity chevron-vert">
+        <button class="absolute right-10 top-70 hover:opacity-80 transition-opacity chevron-vert cursor-pointer">
           <img src={Chevron.src} alt="Suivant" class="w-full h-5 rotate-90" />
         </button>
       </div>
 
       <!-- Miniatures -->
       <div class="flex gap-4">
-        <button class="bg-white border-2 border-vert rounded-xl w-32 h-32 p-4 hover:shadow-lg transition-shadow">
+        <button class="bg-white border-2 border-vert rounded-xl w-32 h-32 p-4 hover:shadow-lg transition-shadow cursor-pointer">
           <img src={LunettesSVG.src} alt="Vue 1" class="w-full h-full object-contain" />
         </button>
-        <button class="bg-white border-2 border-border rounded-xl w-32 h-32 p-4 hover:border-vert hover:shadow-lg transition-all">
+        <button class="bg-white border-2 border-border rounded-xl w-32 h-32 p-4 hover:border-vert hover:shadow-lg transition-all cursor-pointer">
           <img src={LunettesSVG.src} alt="Vue 2" class="w-full h-full object-contain transform rotate-180" />
         </button>
-        <button class="bg-white border-2 border-border rounded-xl w-32 h-32 p-4 hover:border-vert hover:shadow-lg transition-all">
+        <button class="bg-white border-2 border-border rounded-xl w-32 h-32 p-4 hover:border-vert hover:shadow-lg transition-all cursor-pointer">
           <img src={LunettesSVG.src} alt="Vue 3" class="w-full h-full object-contain" />
         </button>
       </div>
@@ -152,7 +152,7 @@ import IconPanier from '../assets/icones/panier.svg';
         <div id="content-verres" class="category-content">
           <!-- Type de verres -->
           <div class="mb-8 accordion-section">
-            <button class="flex items-center justify-between w-full mb-6 accordion-trigger" data-accordion="type-verres">
+            <button class="flex items-center justify-between w-full mb-6 accordion-trigger cursor-pointer" data-accordion="type-verres">
               <h3 class="text-xl font-semibold text-noir">TYPE DE VERRES</h3>
               <img src={Chevron.src} alt="Déplier" class="w-4.5 h-2.5 accordion-chevron transition-transform duration-300" />
             </button>
@@ -183,18 +183,18 @@ import IconPanier from '../assets/icones/panier.svg';
 
           <!-- Couleur des verres -->
           <div class="mb-8 accordion-section">
-            <button class="flex items-center justify-between w-full mb-6 accordion-trigger" data-accordion="couleur-verres">
+            <button class="flex items-center justify-between w-full mb-6 accordion-trigger cursor-pointer" data-accordion="couleur-verres">
               <h3 class="text-xl font-semibold text-noir">COULEUR DES VERRES</h3>
               <img src={Chevron.src} alt="Déplier" class="w-4.5 h-2.5 accordion-chevron transition-transform duration-300" />
             </button>
 
             <div class="accordion-content overflow-hidden transition-all duration-300" data-accordion-content="couleur-verres">
               <div class="flex gap-4 items-center">
-                <button class="w-12 h-12 rounded-full bg-gris border-2 border-noir"></button>
-                <button class="w-12 h-12 rounded-full bg-[#8b5a3c] border-2 border-border hover:border-noir transition-colors"></button>
-                <button class="w-12 h-12 rounded-full bg-[#7fa5c1] border-2 border-border hover:border-noir transition-colors"></button>
-                <button class="w-12 h-12 rounded-full bg-[#c8a882] border-2 border-border hover:border-noir transition-colors"></button>
-                <button class="w-12 h-12 rounded-full bg-[#d4a5a5] border-2 border-border hover:border-noir transition-colors"></button>
+                <button class="w-12 h-12 rounded-full bg-gris border-2 border-noir cursor-pointer"></button>
+                <button class="w-12 h-12 rounded-full bg-[#8b5a3c] border-2 border-border hover:border-noir transition-colors cursor-pointer"></button>
+                <button class="w-12 h-12 rounded-full bg-[#7fa5c1] border-2 border-border hover:border-noir transition-colors cursor-pointer"></button>
+                <button class="w-12 h-12 rounded-full bg-[#c8a882] border-2 border-border hover:border-noir transition-colors cursor-pointer"></button>
+                <button class="w-12 h-12 rounded-full bg-[#d4a5a5] border-2 border-border hover:border-noir transition-colors cursor-pointer"></button>
                 <label class="w-12 h-12 rounded-full border-2 border-vert hover:border-noir transition-colors cursor-pointer relative overflow-hidden flex items-center justify-center group">
                   <input type="color" class="color-picker-verres absolute inset-0 opacity-0 cursor-pointer" value="#4A5A54" />
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-vert group-hover:text-noir transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -210,7 +210,7 @@ import IconPanier from '../assets/icones/panier.svg';
         <div id="content-monture" class="category-content hidden">
           <!-- Forme de monture -->
           <div class="mb-8 accordion-section">
-            <button class="flex items-center justify-between w-full mb-6 accordion-trigger" data-accordion="forme-monture">
+            <button class="flex items-center justify-between w-full mb-6 accordion-trigger cursor-pointer" data-accordion="forme-monture">
               <h3 class="text-xl font-semibold text-noir">FORME DE MONTURE</h3>
               <img src={Chevron.src} alt="Déplier" class="w-4.5 h-2.5 accordion-chevron transition-transform duration-300" />
             </button>
@@ -239,17 +239,17 @@ import IconPanier from '../assets/icones/panier.svg';
 
           <!-- Couleur de monture -->
           <div class="mb-8 accordion-section">
-            <button class="flex items-center justify-between w-full mb-6 accordion-trigger" data-accordion="couleur-monture">
+            <button class="flex items-center justify-between w-full mb-6 accordion-trigger cursor-pointer" data-accordion="couleur-monture">
               <h3 class="text-xl font-semibold text-noir">COULEUR DE MONTURE</h3>
               <img src={Chevron.src} alt="Déplier" class="w-4.5 h-2.5 accordion-chevron transition-transform duration-300" />
             </button>
 
             <div class="accordion-content overflow-hidden transition-all duration-300" data-accordion-content="couleur-monture">
               <div class="flex gap-4 items-center">
-                <button class="w-12 h-12 rounded-full bg-noir border-2 border-noir"></button>
-                <button class="w-12 h-12 rounded-full bg-[#8b5a3c] border-2 border-border hover:border-noir transition-colors"></button>
-                <button class="w-12 h-12 rounded-full bg-[#c8a882] border-2 border-border hover:border-noir transition-colors"></button>
-                <button class="w-12 h-12 rounded-full bg-vert border-2 border-border hover:border-noir transition-colors"></button>
+                <button class="w-12 h-12 rounded-full bg-noir border-2 border-noir cursor-pointer"></button>
+                <button class="w-12 h-12 rounded-full bg-[#8b5a3c] border-2 border-border hover:border-noir transition-colors cursor-pointer"></button>
+                <button class="w-12 h-12 rounded-full bg-[#c8a882] border-2 border-border hover:border-noir transition-colors cursor-pointer"></button>
+                <button class="w-12 h-12 rounded-full bg-vert border-2 border-border hover:border-noir transition-colors cursor-pointer"></button>
                 <label class="w-12 h-12 rounded-full border-2 border-vert hover:border-noir transition-colors cursor-pointer relative overflow-hidden flex items-center justify-center group">
                   <input type="color" class="color-picker-monture absolute inset-0 opacity-0 cursor-pointer" value="#1A1A1A" />
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-vert group-hover:text-noir transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -262,7 +262,7 @@ import IconPanier from '../assets/icones/panier.svg';
 
           <!-- Épaisseur -->
           <div class="mb-8 accordion-section">
-            <button class="flex items-center justify-between w-full mb-6 accordion-trigger" data-accordion="epaisseur">
+            <button class="flex items-center justify-between w-full mb-6 accordion-trigger cursor-pointer" data-accordion="epaisseur">
               <h3 class="text-xl font-semibold text-noir">ÉPAISSEUR</h3>
               <img src={Chevron.src} alt="Déplier" class="w-4.5 h-2.5 accordion-chevron transition-transform duration-300" />
             </button>
@@ -287,7 +287,7 @@ import IconPanier from '../assets/icones/panier.svg';
 
           <!-- Matériau -->
           <div class="mb-8 accordion-section">
-            <button class="flex items-center justify-between w-full mb-6 accordion-trigger" data-accordion="materiau">
+            <button class="flex items-center justify-between w-full mb-6 accordion-trigger cursor-pointer" data-accordion="materiau">
               <h3 class="text-xl font-semibold text-noir">MATÉRIAU</h3>
               <img src={Chevron.src} alt="Déplier" class="w-4.5 h-2.5 accordion-chevron transition-transform duration-300" />
             </button>
@@ -307,19 +307,19 @@ import IconPanier from '../assets/icones/panier.svg';
         <div id="content-branches" class="category-content hidden">
           <!-- Couleur des branches -->
           <div class="mb-8 accordion-section">
-            <button class="flex items-center justify-between w-full mb-6 accordion-trigger" data-accordion="couleur-branches">
+            <button class="flex items-center justify-between w-full mb-6 accordion-trigger cursor-pointer" data-accordion="couleur-branches">
               <h3 class="text-xl font-semibold text-noir">COULEUR DES BRANCHES</h3>
               <img src={Chevron.src} alt="Déplier" class="w-4.5 h-2.5 accordion-chevron transition-transform duration-300" />
             </button>
 
             <div class="accordion-content overflow-hidden transition-all duration-300" data-accordion-content="couleur-branches">
               <div class="flex gap-4 items-center">
-                <button class="w-12 h-12 rounded-full bg-noir border-2 border-noir"></button>
-                <button class="w-12 h-12 rounded-full bg-vert border-2 border-border hover:border-noir transition-colors"></button>
-                <button class="w-12 h-12 rounded-full bg-[#c8a882] border-2 border-border hover:border-noir transition-colors"></button>
-                <button class="w-12 h-12 rounded-full bg-gray-400 border-2 border-border hover:border-noir transition-colors"></button>
-                <button class="w-12 h-12 rounded-full bg-[#8b5a3c] border-2 border-border hover:border-noir transition-colors"></button>
-                <button class="w-12 h-12 rounded-full bg-[#d4a5a5] border-2 border-border hover:border-noir transition-colors"></button>
+                <button class="w-12 h-12 rounded-full bg-noir border-2 border-noir cursor-pointer"></button>
+                <button class="w-12 h-12 rounded-full bg-vert border-2 border-border hover:border-noir transition-colors cursor-pointer"></button>
+                <button class="w-12 h-12 rounded-full bg-[#c8a882] border-2 border-border hover:border-noir transition-colors cursor-pointer"></button>
+                <button class="w-12 h-12 rounded-full bg-gray-400 border-2 border-border hover:border-noir transition-colors cursor-pointer"></button>
+                <button class="w-12 h-12 rounded-full bg-[#8b5a3c] border-2 border-border hover:border-noir transition-colors cursor-pointer"></button>
+                <button class="w-12 h-12 rounded-full bg-[#d4a5a5] border-2 border-border hover:border-noir transition-colors cursor-pointer"></button>
                 <label class="w-12 h-12 rounded-full border-2 border-vert hover:border-noir transition-colors cursor-pointer relative overflow-hidden flex items-center justify-center group">
                   <input type="color" class="color-picker-branches absolute inset-0 opacity-0 cursor-pointer" value="#1A1A1A" />
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-vert group-hover:text-noir transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -369,7 +369,7 @@ import IconPanier from '../assets/icones/panier.svg';
   <!-- Bouton circulaire Chat IA (en bas à gauche) -->
   <button 
     id="open-chat-btn"
-    class="fixed bottom-8 left-8 w-16 h-16 bg-vert rounded-full shadow-2xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-40 hover:shadow-vert/50 group"
+    class="fixed bottom-8 left-8 w-16 h-16 bg-vert rounded-full shadow-2xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-40 hover:shadow-vert/50 group cursor-pointer"
     title="Ouvrir le chat IA"
   >
     <img src={IconIa.src} alt="IA" class="w-8 h-8 group-hover:scale-110 transition-transform brightness-0 invert" />
